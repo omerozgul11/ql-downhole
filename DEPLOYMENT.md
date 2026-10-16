@@ -11,10 +11,16 @@
 3. Test the installer on a clean Windows 10 22H2 and Windows 11 machine: install, start, trial,
    open the sample, generate a report, upgrade from the previous version, uninstall (projects and
    settings must remain).
-4. Publish the GitHub release: `scripts/publish-release.sh` (reads `GITHUB_REPOSITORY` and
-   `GITHUB_TOKEN` from `.env`). It creates release `vx.y.z` and uploads the installer **as
-   `DownholeStudio-Setup.exe`** — the README's single download link points to
-   `releases/latest/download/DownholeStudio-Setup.exe` — plus its `.sha256`.
+4. Publish the installer. The README's single download link points to
+   `raw/main/download/DownholeStudio-Setup.exe`, so customers download it directly from the
+   repository. Replace that file (always under the same name) and its checksum, then commit and push:
+   ```bash
+   cp artifacts/installer/DownholeStudio-Setup-x.y.z.exe download/DownholeStudio-Setup.exe
+   (cd download && sha256sum DownholeStudio-Setup.exe > DownholeStudio-Setup.exe.sha256)
+   git add download && git commit -m "Downhole Studio x.y.z installer" && git push
+   ```
+   The installer must stay under GitHub's 100 MB file limit. Optionally, also create a versioned
+   GitHub release with `scripts/publish-release.sh` (reads `GITHUB_TOKEN` from `.env`).
 5. In the admin portal → Software Releases, create the release (version, channel, notes, installer
    URL, SHA-256, size, major flag) and publish it. The licence server then offers it through the
    signed update feed.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Publishes the built installer as a GitHub release, so the README's single download link
-# (releases/latest/download/DownholeStudio-Setup.exe) serves it.
+# Optionally publishes the built installer as a versioned GitHub release as well. Customers download from
+# download/DownholeStudio-Setup.exe in the repository (the README's single link); see DEPLOYMENT.md.
 #   scripts/publish-release.sh [--version 1.0.0] [--notes-file notes.md] [--prerelease]
 # Reads GITHUB_REPOSITORY and GITHUB_TOKEN from .env (see .env.example). The token needs
 # "Contents: read and write" on the repository. Build first with scripts/build.sh or scripts/build.ps1.
@@ -56,4 +56,3 @@ upload "$SETUP" "DownholeStudio-Setup.exe" "application/vnd.microsoft.portable-e
 sed "s/DownholeStudio-Setup-$VERSION.exe/DownholeStudio-Setup.exe/" "$SETUP.sha256" > "artifacts/installer/DownholeStudio-Setup.exe.sha256"
 upload "artifacts/installer/DownholeStudio-Setup.exe.sha256" "DownholeStudio-Setup.exe.sha256" "text/plain"
 echo "Published $URL"
-echo "Download link: https://github.com/$GITHUB_REPOSITORY/releases/latest/download/DownholeStudio-Setup.exe"

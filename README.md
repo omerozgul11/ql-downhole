@@ -8,7 +8,7 @@
 From raw SEG-2 records to reviewed P and S picks, a validated velocity model, Vs30 and a professional report — in one Windows application.</p>
 
 <p align="center">
-  <a href="https://github.com/omerozgul11/ql-downhole/releases/latest/download/DownholeStudio-Setup.exe"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download%20for%20Windows-Downhole%20Studio%20Setup-F26B21?style=for-the-badge" alt="Download Downhole Studio for Windows"></a>
+  <a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Setup.exe"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download%20for%20Windows-Downhole%20Studio%20Setup-F26B21?style=for-the-badge" alt="Download Downhole Studio for Windows"></a>
 </p>
 
 <p align="center">Windows 10 (21H2 or later) or Windows 11, 64-bit · 14-day free trial · no administrator rights needed</p>
@@ -86,8 +86,8 @@ Fill in the client, site and branding details, choose the sections, preview the 
 
 ## Download and install
 
-1. Download the installer with the **Download for Windows** button at the top of this page. It always fetches the latest release.
-2. Run `DownholeStudio-Setup.exe`. By default it installs for the current user, so no administrator rights are needed. Each release on GitHub lists the installer's SHA-256 checksum.
+1. Download the installer with the **Download for Windows** button at the top of this page, or open the [`download`](download/) folder and click `DownholeStudio-Setup.exe`. It is always the latest version.
+2. Run `DownholeStudio-Setup.exe`. By default it installs for the current user, so no administrator rights are needed. Its SHA-256 checksum is in [`download/DownholeStudio-Setup.exe.sha256`](download/DownholeStudio-Setup.exe.sha256).
 3. If Windows SmartScreen shows *Windows protected your PC*, choose **More info → Run anyway**. This appears for builds that are not code-signed; see [Code signing](DEPLOYMENT.md#code-signing).
 4. Start **Downhole Studio** from the Start menu. Click **Start 14-Day Free Trial** or **Activate License**, then **Explore Sample Project**.
 
