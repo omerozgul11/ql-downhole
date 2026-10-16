@@ -16,6 +16,10 @@
 #ifndef OutputDir
   #define OutputDir "..\..\artifacts\installer"
 #endif
+; Windows 10 build 19044 (21H2, incl. Enterprise LTSC 2021) or later; 22H2 (19045) and Windows 11 are the target.
+#ifndef MinWindows
+  #define MinWindows "10.0.19044"
+#endif
 
 #define AppName "Downhole Studio"
 #define AppExe "DownholeStudio.exe"
@@ -43,8 +47,7 @@ DefaultGroupName=QuakeLogic
 DisableProgramGroupPage=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-; Windows 10 22H2 (build 19045) or later.
-MinVersion=10.0.19045
+MinVersion={#MinWindows}
 WizardStyle=modern
 WizardImageFile=wizard.bmp,wizard-150.bmp,wizard-200.bmp
 WizardSmallImageFile=wizard-small.bmp,wizard-small-150.bmp,wizard-small-200.bmp
@@ -59,6 +62,8 @@ SolidCompression=yes
 LZMAUseSeparateProcess=yes
 ChangesAssociations=yes
 CloseApplications=yes
+; The application holds this mutex while running, so setup and uninstall can detect it.
+AppMutex=QuakeLogic.DownholeStudio.Running
 RestartApplications=no
 ShowLanguageDialog=no
 #ifdef Sign
@@ -94,8 +99,8 @@ Root: HKA; Subkey: "Software\Classes\Applications\{#AppExe}\SupportedTypes"; Val
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
-; After a silent update started from the application, relaunch it.
-Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent
+; After a silent update started from the application (which passes /RELAUNCH), start it again.
+Filename: "{app}\{#AppExe}"; Flags: nowait; Check: ShouldRelaunch
 
 [UninstallDelete]
 ; Only files the application created inside its own installation folder. Projects (Documents\Downhole Studio)
@@ -103,6 +108,11 @@ Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent
 Type: filesandordirs; Name: "{app}\Samples"
 
 [Code]
+function ShouldRelaunch(): Boolean;
+begin
+  Result := WizardSilent and (Pos('/RELAUNCH', Uppercase(GetCmdTail)) > 0);
+end;
+
 function InitializeUninstall(): Boolean;
 begin
   Result := True;

@@ -8,6 +8,8 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Lets the installer and uninstaller detect a running instance (Inno Setup AppMutex).
+        using var running = new Mutex(false, "QuakeLogic.DownholeStudio.Running");
         return BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
