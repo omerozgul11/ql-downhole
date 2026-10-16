@@ -7,7 +7,7 @@
         x:Class="DownholeStudio.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="{Binding Title}"
-        Icon="/Assets/DownholeStudio.ico"
+        Icon="/Assets/QuakeLogic.ico"
         Width="1440" Height="900" MinWidth="1080" MinHeight="680"
         WindowStartupLocation="CenterScreen"
         DragDrop.AllowDrop="True">
@@ -32,7 +32,7 @@
       <Border DockPanel.Dock="Top" Background="{DynamicResource Chrome}" Height="54">
         <Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="12,0">
           <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-            <Image Source="/Assets/DownholeStudio-256.png" Width="28" Height="28" />
+            <Image Source="/Assets/quakelogic-mark.png" Width="28" Height="28" />
             <StackPanel VerticalAlignment="Center" Spacing="0">
               <TextBlock Text="Downhole Studio" Foreground="{DynamicResource ChromeText}" FontWeight="SemiBold" FontSize="14" />
               <TextBlock Text="{Binding VersionLabel}" Foreground="{DynamicResource ChromeMuted}" FontSize="10.5" />
@@ -148,7 +148,7 @@
           <Grid ColumnDefinitions="*,Auto,*" Margin="24,40">
             <StackPanel Grid.Column="1" Width="880" Spacing="24">
               <StackPanel Orientation="Horizontal" Spacing="16">
-                <Image Source="/Assets/DownholeStudio-256.png" Width="64" Height="64" />
+                <Image Source="/Assets/quakelogic-mark.png" Width="64" Height="64" />
                 <StackPanel VerticalAlignment="Center" Spacing="2">
                   <TextBlock Text="Downhole Studio" FontSize="30" FontWeight="SemiBold" />
                   <TextBlock Classes="muted" Text="Downhole seismic processing, interpretation and reporting by QuakeLogic" />

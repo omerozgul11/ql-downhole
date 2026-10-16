@@ -4,7 +4,7 @@
     <RootNamespace>DownholeStudio.App</RootNamespace>
     <AssemblyName>DownholeStudio</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets\DownholeStudio.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\QuakeLogic.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <Product>Downhole Studio</Product>
     <AssemblyTitle>Downhole Studio</AssemblyTitle>

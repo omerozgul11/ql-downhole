@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/DownholeStudio.App/Assets/DownholeStudio-256.png" width="104" alt="Downhole Studio">
+  <img src="docs/images/quakelogic-mark.png" width="104" alt="QuakeLogic">
 </p>
 
 <h1 align="center">QuakeLogic Downhole Studio</h1>
