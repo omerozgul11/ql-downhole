@@ -6,6 +6,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# Local, git-ignored settings (see .env.example).
+if [ -f .env ]; then set -a; source .env; set +a; fi
 [ -f .tools/env.sh ] || scripts/setup-dev.sh
 source .tools/env.sh
 

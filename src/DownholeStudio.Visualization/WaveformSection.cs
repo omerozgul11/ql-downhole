@@ -205,6 +205,17 @@ public static class WaveformRenderer
             }
         }
 
+        // The selected trace is always labelled; regular labels that would overlap it are skipped.
+        var selectedIndex = -1;
+        for (var i = 0; i < n; i++)
+        {
+            if (model.Traces[i].Selected)
+            {
+                selectedIndex = i;
+                break;
+            }
+        }
+
         for (var i = 0; i < n; i++)
         {
             var tr = model.Traces[i];
@@ -273,7 +284,8 @@ public static class WaveformRenderer
             if (!model.OverlayMode && y0 >= area.Top && y0 <= area.Bottom)
             {
                 var every = Math.Max(1, (int)Math.Ceiling(13f * scale / Math.Max(1f, spacing)));
-                if (i % every == 0 || tr.Selected)
+                var crowdsSelected = selectedIndex >= 0 && i != selectedIndex && Math.Abs(i - selectedIndex) < every;
+                if ((i % every == 0 && !crowdsSelected) || tr.Selected)
                 {
                     Draw.Text(canvas, tr.Label, area.Left - 22 * scale, y0 + 4 * scale, labelFont, tr.Excluded ? theme.Excluded : theme.Text, SKTextAlign.Right);
                 }

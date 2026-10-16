@@ -440,7 +440,22 @@ public sealed partial class ProcessingPageViewModel(WorkspaceViewModel ws) : Pag
         Suggestion = null;
         var builder = Workspace.Analysis.Builder();
         var role = Group.Value switch { ComponentGroup.Horizontal => ComponentRole.HorizontalX, ComponentGroup.Reference => ComponentRole.Reference, _ => ComponentRole.Vertical };
-        var traces = State.Survey.Records.Where(r => !r.Excluded).Select(r => builder.FindComponent(r, role)).Where(t => t is not null).Take(60).ToList();
+        // Average only the shots each chain is used for: P shots for the vertical (P) chain and S± shots for the
+        // horizontal (S) chain. Mixing them would centre a P filter on the lower S-wave band, or the reverse.
+        // Records without an assigned shot type are used only when no shot types have been assigned yet.
+        var records = State.Survey.Records.Where(r => !r.Excluded).ToList();
+        Func<SeismicRecord, bool>? matches = Group.Value switch
+        {
+            ComponentGroup.Vertical => r => r.Shot == ShotKind.P,
+            ComponentGroup.Horizontal => r => r.Shot is ShotKind.SPositive or ShotKind.SNegative,
+            _ => null,
+        };
+        if (matches is not null && records.Any(matches))
+        {
+            records = records.Where(matches).ToList();
+        }
+
+        var traces = records.Select(r => builder.FindComponent(r, role)).Where(t => t is not null).Take(60).ToList();
         if (traces.Count == 0)
         {
             OnPropertyChanged(nameof(HasSuggestion));
@@ -489,7 +504,8 @@ public sealed partial class ProcessingPageViewModel(WorkspaceViewModel ws) : Pag
         }
 
         SuggestedStep = new BandPassStep { LowHz = low, HighHz = high, Order = 4, ZeroPhase = true };
-        Suggestion = $"The average spectrum of the {Group.Label.ToLowerInvariant()} records peaks at {avg.DominantFrequency(2):0} Hz with most energy between {lo:0} and {hi:0} Hz (−6 dB). " +
+        var shots = Group.Value switch { ComponentGroup.Vertical when matches is not null && State.Survey.Records.Any(matches) => "P-shot ", ComponentGroup.Horizontal when matches is not null && State.Survey.Records.Any(matches) => "S-shot ", _ => "" };
+        Suggestion = $"The average spectrum of the {Group.Label.ToLowerInvariant()} channel in {shots}records peaks at {avg.DominantFrequency(2):0} Hz with most energy between {lo:0} and {hi:0} Hz (−6 dB). " +
                      $"A band-pass of {low:0}–{high:0} Hz keeps that band with margin. This is a suggestion only; check that onsets are not distorted.";
         OnPropertyChanged(nameof(HasSuggestion));
     }

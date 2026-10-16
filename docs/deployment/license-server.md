@@ -17,6 +17,7 @@ cp .env.example .env                    # fill in POSTGRES_PASSWORD, LICENSING_K
 install -d -m 700 secrets
 cp /secure/location/license-signing-key.pem /secure/location/update-signing-key.pem secrets/
 chmod 644 secrets/*.pem                 # readable by the container user (1654); the directory stays 700
+                                        # (or leave the keys where they are and set SIGNING_KEYS_DIR in .env)
 docker compose up -d --build
 curl -s http://127.0.0.1:8080/health    # {"status":"ok"}
 echo 'a long unique password' | docker compose exec -T admin-portal dotnet DownholeStudio.AdminPortal.dll create-admin --email ops@quakelogic.net --password-stdin

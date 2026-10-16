@@ -22,6 +22,8 @@ coverage*/
 *.p12
 *.key
 .env
+.env.*
+!.env.example
 secrets/
 appsettings.*.local.json
 

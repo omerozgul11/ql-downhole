@@ -114,6 +114,21 @@ public static class UiHarness
         Dispatcher.UIThread.RunJobs();
     }
 
+    /// <summary>
+    /// Waits for the background analysis to deliver a result that reflects the latest edits. The analysis runs
+    /// asynchronously after every change, so a fixed delay is not enough on a busy machine.
+    /// </summary>
+    public static async Task WaitForResultAsync(WorkspaceViewModel ws, Func<Analysis.AnalysisResult, bool> ready, int timeoutSeconds = 60)
+    {
+        var until = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        while (DateTime.UtcNow < until && (ws.Result is not { } r || !ready(r)))
+        {
+            await SettleAsync(100);
+        }
+
+        await SettleAsync(100);
+    }
+
     public static void Capture(Avalonia.Controls.Window window, string name)
     {
         Directory.CreateDirectory(Screenshots);

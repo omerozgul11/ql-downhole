@@ -85,9 +85,9 @@ services:
 
 secrets:
   license_signing_key:
-    file: ./secrets/license-signing-key.pem
+    file: ${SIGNING_KEYS_DIR:-./secrets}/license-signing-key.pem
   update_signing_key:
-    file: ./secrets/update-signing-key.pem
+    file: ${SIGNING_KEYS_DIR:-./secrets}/update-signing-key.pem
 
 volumes:
   pgdata:

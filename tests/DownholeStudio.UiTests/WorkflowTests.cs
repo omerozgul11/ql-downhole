@@ -78,6 +78,10 @@ public sealed class WorkflowTests
 
         // Processing: band-pass on horizontals, then trigger correction.
         ws.Navigate(ws.ProcessingPage);
+        await UiHarness.SettleAsync();
+        // The vertical (P) suggestion is based on the P shots only, so it keeps the P band (wavelets at 180 Hz)
+        // rather than centring on the S shots' lower frequencies.
+        Assert.True(ws.ProcessingPage.SuggestedStep is BandPassStep { HighHz: > 250 }, ws.ProcessingPage.Suggestion);
         ws.ProcessingPage.Group = App.ViewModels.Pages.ProcessingPageViewModel.GroupOptions[1];
         ws.ProcessingPage.AddStepCommand.Execute("bandPass");
         await UiHarness.SettleAsync();
@@ -125,7 +129,7 @@ public sealed class WorkflowTests
         Assert.True(ws.VelocityPage.Suggestions.Count >= 2);
         ws.VelocityPage.ApplyAllSuggestionsCommand.Execute(null);
         ws.VelocityPage.Method = App.ViewModels.Pages.VelocityPageViewModel.MethodOptions[1];
-        await UiHarness.SettleAsync(600);
+        await UiHarness.WaitForResultAsync(ws, r => r.Method == VelocityMethod.RefractedRay && r.LayerResults.Count == ws.State.ActiveScenario.Layers.Layers.Count);
         Assert.True(ws.State.ActiveScenario.Layers.Layers.Count >= 3);
         Assert.All(ws.Result!.S.Layers, l => Assert.NotNull(l.Velocity));
         UiHarness.Capture(window, "10-velocity");
@@ -134,7 +138,7 @@ public sealed class WorkflowTests
         ws.Navigate(ws.EngineeringPage);
         ws.EngineeringPage.DensitySource = App.ViewModels.Pages.EngineeringPageViewModel.SourceOptions[1];
         ws.EngineeringPage.ConstantDensity = 1900;
-        await UiHarness.SettleAsync(600);
+        await UiHarness.WaitForResultAsync(ws, r => r.LayerResults.All(l => l.Density.Source == DensitySource.Constant));
         Assert.NotNull(ws.Result!.Vs30.Value);
         Assert.InRange(ws.Result.Vs30.Value!.Value / survey.Truth.Vs30!.Value, 0.95, 1.05);
         Assert.All(ws.Result.LayerResults, l => Assert.NotNull(l.Properties.ShearModulus));

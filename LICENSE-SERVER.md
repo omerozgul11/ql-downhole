@@ -80,9 +80,9 @@ store); none are in the repository or the images.
 
 ## Keys
 
-Two ECDSA P-256 key pairs exist; production private keys are kept outside the repository (on the
-build host in `~/.config/quakelogic/downhole-licensing/`, mode 600) and must also be stored in
-QuakeLogic's secret store:
+Two ECDSA P-256 key pairs exist. The production private keys are kept outside the repository (on the
+build host, mode 600, and in QuakeLogic's secret store); the server reads them from the folder named by
+`SIGNING_KEYS_DIR` in `server/.env`:
 
 * `license-signing-key.pem` (key id `dhs-lic-2026a`) — signs licence and trial tokens.
 * `update-signing-key.pem` (key id `dhs-upd-2026a`) — signs update manifests.

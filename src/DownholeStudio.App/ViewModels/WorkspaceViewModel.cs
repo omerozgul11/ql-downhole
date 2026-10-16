@@ -268,6 +268,18 @@ public sealed partial class WorkspaceViewModel : ObservableObject, IDisposable
                 : relevant.All(s => s.Status == StepStatus.Complete) ? StepStatus.Complete
                 : relevant.Any(s => s.Status != StepStatus.NotStarted) ? StepStatus.InProgress : StepStatus.NotStarted;
         }
+
+        // The picking step points at one page at a time; the other picking page shows its own progress.
+        var pickPage = PageFor(WorkflowStep.Pick);
+        foreach (var (page, picks) in new[] { (PPicksPage as PageViewModel, State.ActiveScenario.PPicks), (SPicksPage, State.ActiveScenario.SPicks) })
+        {
+            if (page != pickPage)
+            {
+                var stations = State.Survey.Stations.Where(st => !st.Excluded).ToList();
+                var picked = stations.Count(st => picks.TryGetValue(st.Id, out var pick) && pick.HasTime);
+                page.Status = stations.Count > 0 && picked == stations.Count ? StepStatus.Complete : picked > 0 ? StepStatus.InProgress : StepStatus.NotStarted;
+            }
+        }
     }
 
     private void UpdateSaveState()

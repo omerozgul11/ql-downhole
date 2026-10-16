@@ -11,9 +11,10 @@
 3. Test the installer on a clean Windows 10 22H2 and Windows 11 machine: install, start, trial,
    open the sample, generate a report, upgrade from the previous version, uninstall (projects and
    settings must remain).
-4. Publish a GitHub release `vx.y.z` with the installer uploaded **as `DownholeStudio-Setup.exe`**
-   (the README links to `releases/latest/download/DownholeStudio-Setup.exe`, the single download
-   link), plus its `.sha256`.
+4. Publish the GitHub release: `scripts/publish-release.sh` (reads `GITHUB_REPOSITORY` and
+   `GITHUB_TOKEN` from `.env`). It creates release `vx.y.z` and uploads the installer **as
+   `DownholeStudio-Setup.exe`** — the README's single download link points to
+   `releases/latest/download/DownholeStudio-Setup.exe` — plus its `.sha256`.
 5. In the admin portal → Software Releases, create the release (version, channel, notes, installer
    URL, SHA-256, size, major flag) and publish it. The licence server then offers it through the
    signed update feed.
@@ -46,7 +47,7 @@ server. Users can override it under Settings → Advanced.
 
 ## Signing keys
 The production licence and update signing keys were generated with `openssl` (ECDSA P-256) and are
-stored outside the repository in `~/.config/quakelogic/downhole-licensing/` on the build host. Their
+stored outside the repository, on the build host and in QuakeLogic's secret store (never in git). Their
 public keys are embedded in `src/DownholeStudio.Licensing/EmbeddedKeys.cs`. Keep encrypted backups
 in QuakeLogic's secret store. To rotate: generate a new key (`dhs keygen`), add its public key under
 a new id, release the application, then switch the server to the new key.

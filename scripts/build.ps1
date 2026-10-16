@@ -2,7 +2,8 @@
 .SYNOPSIS
   Builds, tests, publishes and packages Downhole Studio on Windows, optionally Authenticode-signing it.
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\build.ps1 -Version 1.0.0 -Sign -CertificateThumbprint ABC123...
+  powershell -ExecutionPolicy Bypass -File scripts\build.ps1 -Version 1.0.0 -Sign
+  (the certificate thumbprint or sign command is read from .env; see .env.example)
 .NOTES
   Requires the .NET SDK from global.json, Inno Setup 6 (ISCC.exe on PATH or in its default folder) and,
   for -Sign, the Windows SDK signtool.exe with the code-signing certificate in the user's certificate store
@@ -12,12 +13,22 @@ param(
   [string]$Version = "",
   [switch]$SkipTests,
   [switch]$Sign,
-  [string]$CertificateThumbprint = $env:DHS_CERT_THUMBPRINT,
-  [string]$TimestampUrl = "http://timestamp.digicert.com"
+  [string]$CertificateThumbprint = "",
+  [string]$TimestampUrl = ""
 )
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
+# Local, git-ignored settings (see .env.example); variables already set in the environment win.
+if (Test-Path .env) {
+  foreach ($line in Get-Content .env) {
+    if ($line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$' -and -not [Environment]::GetEnvironmentVariable($Matches[1])) {
+      [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2].Trim().Trim('"'))
+    }
+  }
+}
+if (-not $CertificateThumbprint) { $CertificateThumbprint = $env:DHS_CERT_THUMBPRINT }
+if (-not $TimestampUrl) { $TimestampUrl = if ($env:DHS_TIMESTAMP_URL) { $env:DHS_TIMESTAMP_URL } else { "http://timestamp.digicert.com" } }
 if (-not $Version) { $Version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.VersionPrefix }
 Write-Host "== Downhole Studio $Version"
 
