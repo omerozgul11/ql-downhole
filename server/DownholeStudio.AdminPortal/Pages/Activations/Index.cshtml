@@ -1,0 +1,28 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Activations.IndexModel
+@{
+    ViewData["Title"] = "Activations";
+}
+<h1>Activations</h1>
+<div class="toolbar">
+    @if (Model.All) { <a class="btn" asp-route-all="false">Show active only</a> } else { <a class="btn" asp-route-all="true">Show history</a> }
+</div>
+<table>
+    <thead><tr><th>Computer</th><th>License</th><th>Customer</th><th>Activated</th><th>Last validated</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var a in Model.Rows)
+    {
+        <tr>
+            <td><a asp-page="/Devices/Details" asp-route-id="@a.DeviceId">@a.Device!.Label</a></td>
+            <td><a asp-page="/Licenses/Details" asp-route-id="@a.LicenseId">@a.LicenseId.ToString()[..8]</a></td>
+            <td>@a.License!.Customer!.Email</td><td>@AdminPageModel.Date(a.ActivatedAt)</td><td>@AdminPageModel.Date(a.LastValidatedAt)</td>
+            <td>@if (a.DeactivatedAt is null) { <span class="badge ok">Active</span> } else { <span class="badge">Deactivated @AdminPageModel.Day(a.DeactivatedAt) (@a.DeactivatedBy)</span> }</td>
+            <td>@if (a.DeactivatedAt is null) { <form method="post" asp-page-handler="Deactivate" class="inline"><input type="hidden" name="activationId" value="@a.Id" /><button class="btn" type="submit">Deactivate</button></form> }</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-all="@Model.All" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-all="@Model.All" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

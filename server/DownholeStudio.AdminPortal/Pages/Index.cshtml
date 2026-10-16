@@ -1,0 +1,32 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<h1>Dashboard</h1>
+<div class="cards">
+    <div class="metric"><div class="value">@Model.ActiveLicenses</div><div class="label">Active licenses</div></div>
+    <div class="metric"><div class="value">@Model.Customers</div><div class="label">Customers</div></div>
+    <div class="metric"><div class="value">@Model.ActiveDevices</div><div class="label">Activated computers</div></div>
+    <div class="metric"><div class="value">@Model.TrialsActive</div><div class="label">Trials running</div></div>
+    <div class="metric"><div class="value">@Model.TrialsStarted30</div><div class="label">Trials started (30 days)</div></div>
+    <div class="metric"><div class="value">@Model.TrialsExpired30</div><div class="label">Trials ended (30 days)</div></div>
+    <div class="metric"><div class="value">@Model.PendingEmails</div><div class="label">E-mails queued</div></div>
+    <div class="metric"><div class="value">@Model.FailedEmails</div><div class="label">E-mails failed</div></div>
+</div>
+<h2>Recent licensing events</h2>
+<table>
+    <thead><tr><th>Time (UTC)</th><th>Event</th><th>License</th><th>Device</th><th>IP</th></tr></thead>
+    <tbody>
+    @foreach (var e in Model.Events)
+    {
+        <tr>
+            <td>@AdminPageModel.Date(e.CreatedAt)</td>
+            <td><code>@e.EventType</code></td>
+            <td>@if (e.LicenseId is { } lid) { <a asp-page="/Licenses/Details" asp-route-id="@lid">@lid.ToString()[..8]</a> }</td>
+            <td>@if (e.DeviceId is { } did) { <a asp-page="/Devices/Details" asp-route-id="@did">@did.ToString()[..8]</a> }</td>
+            <td class="muted">@e.IpAddress</td>
+        </tr>
+    }
+    </tbody>
+</table>

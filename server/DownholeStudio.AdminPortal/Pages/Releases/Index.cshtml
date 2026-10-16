@@ -1,0 +1,41 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Releases.IndexModel
+@{
+    ViewData["Title"] = "Software releases";
+}
+<h1>Software releases</h1>
+<p class="muted">Published releases are offered to the desktop updater in a manifest signed with the update key. The updater verifies the signature and the installer's SHA-256 before running it.</p>
+<table>
+    <thead><tr><th>Product</th><th>Version</th><th>Channel</th><th>Major</th><th>Installer</th><th>SHA-256</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var r in Model.Rows)
+    {
+        <tr>
+            <td>@r.Product</td><td><strong>@r.Version</strong></td><td>@r.Channel</td><td>@(r.IsMajor ? "Yes" : "")</td>
+            <td><a href="@r.InstallerUrl" rel="noreferrer">download</a> <span class="muted">@(r.Size > 0 ? $"{r.Size / 1048576.0:0.0} MB" : "")</span></td>
+            <td class="mono">@AdminPageModel.Short(r.Sha256)</td>
+            <td>@if (r.Published) { <span class="badge ok">Published @AdminPageModel.Day(r.PublishedAt)</span> } else { <span class="badge">Draft</span> }</td>
+            <td>
+                @if (r.Published) { <form method="post" asp-page-handler="Unpublish" class="inline"><input type="hidden" name="releaseId" value="@r.Id" /><button class="btn" type="submit">Withdraw</button></form> }
+                else { <form method="post" asp-page-handler="Publish" class="inline"><input type="hidden" name="releaseId" value="@r.Id" /><button class="btn primary" type="submit">Publish</button></form> }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<h2>Add a release</h2>
+<form method="post" asp-page-handler="Create" class="card">
+    <div class="form-grid">
+        <label asp-for="Product">Product</label><input asp-for="Product" type="text" />
+        <label asp-for="Version">Version</label><input asp-for="Version" type="text" placeholder="1.0.1" />
+        <label asp-for="Channel">Channel</label><select asp-for="Channel"><option value="stable">Stable</option><option value="beta">Beta</option></select>
+        <label asp-for="InstallerUrl">Installer URL (https)</label><input asp-for="InstallerUrl" type="url" />
+        <label asp-for="Sha256">Installer SHA-256</label><input asp-for="Sha256" type="text" class="mono" />
+        <label asp-for="Size">Size (bytes)</label><input asp-for="Size" type="number" min="0" />
+        <label asp-for="MinimumVersion">Minimum version (optional)</label><input asp-for="MinimumVersion" type="text" />
+        <label asp-for="IsMajor">Major upgrade (show notes first)</label><div><input asp-for="IsMajor" type="checkbox" /></div>
+        <label asp-for="Notes">Release notes</label><textarea asp-for="Notes"></textarea>
+        <label asp-for="Publish">Publish now</label><div><input asp-for="Publish" type="checkbox" /></div>
+    </div>
+    <p><button class="btn primary" type="submit">Save release</button></p>
+</form>

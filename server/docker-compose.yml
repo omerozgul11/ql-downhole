@@ -1,0 +1,93 @@
+# Downhole Studio licensing stack. See LICENSE-SERVER.md.
+#   cp .env.example .env    (fill in the values)
+#   put the PEM private keys in ./secrets/ (never commit them). The containers run as the non-root
+#   user 1654, which must be able to read the files:  chmod 700 secrets && chmod 644 secrets/*.pem
+#   (the 700 directory keeps other host users out; the files are bind-mounted individually).
+#   docker compose up -d --build
+# Development mail capture:  docker compose --profile dev up -d
+name: dhs-licensing
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dhs_licensing
+      POSTGRES_USER: dhs
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dhs -d dhs_licensing"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  license-server:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+      args:
+        APP: DownholeStudio.LicenseServer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Licensing: Host=postgres;Database=dhs_licensing;Username=dhs;Password=${POSTGRES_PASSWORD}
+      Database__MigrateOnStartup: "true"
+      Licensing__SigningKeyPath: /run/secrets/license_signing_key
+      Licensing__SigningKeyId: ${LICENSING_SIGNING_KEY_ID:-dhs-lic-2026a}
+      Updates__SigningKeyPath: /run/secrets/update_signing_key
+      Updates__SigningKeyId: ${UPDATES_SIGNING_KEY_ID:-dhs-upd-2026a}
+      LICENSING_KEY_PEPPER: ${LICENSING_KEY_PEPPER:?set LICENSING_KEY_PEPPER in .env}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+      Smtp__Host: ${SMTP_HOST:-}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__User: ${SMTP_USER:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__From: ${SMTP_FROM:-licensing@quakelogic.net}
+      Https__Redirect: "false"            # TLS terminates at the reverse proxy
+      ForwardedHeaders__TrustAllProxies: "true"
+    secrets:
+      - license_signing_key
+      - update_signing_key
+    ports:
+      - "127.0.0.1:${LICENSE_SERVER_PORT:-8080}:8080"
+
+  admin-portal:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+      args:
+        APP: DownholeStudio.AdminPortal
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Licensing: Host=postgres;Database=dhs_licensing;Username=dhs;Password=${POSTGRES_PASSWORD}
+      # Both applications may migrate; EF Core serialises concurrent migrations with a database lock.
+      Database__MigrateOnStartup: "true"
+      LICENSING_KEY_PEPPER: ${LICENSING_KEY_PEPPER:?set LICENSING_KEY_PEPPER in .env}
+      ForwardedHeaders__TrustAllProxies: "true"
+    # Internal tool: bind to localhost only; publish through a VPN or an authenticated reverse proxy.
+    ports:
+      - "127.0.0.1:${ADMIN_PORTAL_PORT:-8081}:8080"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    profiles: ["dev"]
+    ports:
+      - "127.0.0.1:8025:8025"
+
+secrets:
+  license_signing_key:
+    file: ./secrets/license-signing-key.pem
+  update_signing_key:
+    file: ./secrets/update-signing-key.pem
+
+volumes:
+  pgdata:

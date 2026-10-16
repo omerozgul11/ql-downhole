@@ -1,0 +1,35 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Licenses.IndexModel
+@{
+    ViewData["Title"] = "Licenses";
+}
+<h1>Licenses</h1>
+<div class="toolbar">
+    <form method="get" class="inline grow">
+        <input asp-for="Q" type="search" placeholder="Customer, company, key hint or license ID" />
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<LicenseStatusCode>()"><option value="">Any status</option></select>
+        <button class="btn">Filter</button>
+    </form>
+    <a class="btn primary" asp-page="Create">New license</a>
+</div>
+<table>
+    <thead><tr><th>License</th><th>Customer</th><th>Key</th><th>Product</th><th>Status</th><th>Seats in use</th><th>Expires</th><th>Maintenance</th></tr></thead>
+    <tbody>
+    @foreach (var l in Model.Rows)
+    {
+        <tr>
+            <td><a asp-page="Details" asp-route-id="@l.Id">@l.Id.ToString()[..8]</a></td>
+            <td><a asp-page="/Customers/Details" asp-route-id="@l.CustomerId">@l.Customer!.Email</a></td>
+            <td class="mono">…@l.KeyHint</td><td>@l.Product · @l.Edition</td>
+            <td><span class="badge @AdminPageModel.StatusCss(l.Status)">@l.Status</span></td>
+            <td>@l.Activations.Count(a => a.DeactivatedAt == null) / @l.SeatCount</td>
+            <td>@(l.ExpiresAt is null ? "Perpetual" : AdminPageModel.Day(l.ExpiresAt))</td>
+            <td>@AdminPageModel.Day(l.MaintenanceUntil)</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-q="@Model.Q" asp-route-status="@Model.Status" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-q="@Model.Q" asp-route-status="@Model.Status" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

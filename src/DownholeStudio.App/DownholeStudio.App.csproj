@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>DownholeStudio.App</RootNamespace>
+    <AssemblyName>DownholeStudio</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\DownholeStudio.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <Product>Downhole Studio</Product>
+    <AssemblyTitle>Downhole Studio</AssemblyTitle>
+    <Description>Downhole seismic processing, interpretation and reporting</Description>
+    <!-- Release publishing: no symbols or XML docs in the customer installation. -->
+    <PublishDocumentationFile>false</PublishDocumentationFile>
+    <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="..\DownholeStudio.Visualization\Fonts\*.ttf" Link="Assets\Fonts\%(Filename)%(Extension)" />
+    <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Help\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Core\DownholeStudio.Core.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Reporting\DownholeStudio.Reporting.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Licensing\DownholeStudio.Licensing.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Infrastructure\DownholeStudio.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

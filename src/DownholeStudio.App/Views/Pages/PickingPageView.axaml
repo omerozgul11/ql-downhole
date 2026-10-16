@@ -1,0 +1,134 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:c="using:DownholeStudio.App.Controls"
+             x:Class="DownholeStudio.App.Views.Pages.PickingPageView"
+             x:DataType="p:PickingPageViewModel"
+             Focusable="True">
+  <Grid RowDefinitions="Auto,Auto,*">
+    <!-- Toolbar -->
+    <Border Classes="card" Padding="12,8">
+      <StackPanel Spacing="8">
+        <WrapPanel ItemSpacing="10" LineSpacing="6">
+          <ComboBox ItemsSource="{x:Static p:PickingPageViewModel.AlgorithmOptions}" SelectedItem="{Binding Algorithm}" Width="230" ToolTip.Tip="Automatic picking algorithm" />
+          <ComboBox ItemsSource="{x:Static p:PickingPageViewModel.ScopeOptions}" SelectedItem="{Binding Scope}" Width="190" />
+          <CheckBox IsChecked="{Binding OverwriteManual}" Content="Replace manual picks" ToolTip.Tip="Off: manual picks are kept and only receive a new suggestion" />
+          <Button Classes="primary" Command="{Binding RunAutoPickCommand}" IsEnabled="{Binding !IsBusy}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Auto}" Classes="sm" Foreground="White" /><TextBlock Text="Run automatic picking" Foreground="White" /></StackPanel>
+          </Button>
+          <Button Command="{Binding AcceptAllCommand}" ToolTip.Tip="Record that you reviewed the automatic picks (times are not changed)">
+            <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Check}" Classes="sm" /><TextBlock Text="Mark automatic picks reviewed" /></StackPanel>
+          </Button>
+          <ProgressBar IsIndeterminate="True" Width="100" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+          <Border Width="1" Height="24" Background="{DynamicResource Border}" />
+          <ToggleButton IsChecked="{Binding PickingEnabled}" ToolTip.Tip="When on, clicking a trace places a pick">
+            <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Target}" Classes="sm" /><TextBlock Text="Pick" /></StackPanel>
+          </ToggleButton>
+          <CheckBox IsChecked="{Binding Magnifier}" Content="Magnifier" />
+          <CheckBox IsChecked="{Binding DepthScale}" Content="Depth scale" />
+          <CheckBox IsChecked="{Binding ShowRaw}" Content="Show raw" />
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Gain" Classes="muted" VerticalAlignment="Center" /><Slider Minimum="0.1" Maximum="10" Value="{Binding Gain}" Width="100" /></StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="2">
+            <Button Classes="subtle" ToolTip.Tip="Zoom in" Click="OnZoomIn"><PathIcon Data="{StaticResource Icon.ZoomIn}" Classes="sm" /></Button>
+            <Button Classes="subtle" ToolTip.Tip="Zoom out" Click="OnZoomOut"><PathIcon Data="{StaticResource Icon.ZoomOut}" Classes="sm" /></Button>
+            <Button Classes="subtle" ToolTip.Tip="Fit all" Click="OnFit"><PathIcon Data="{StaticResource Icon.Fit}" Classes="sm" /></Button>
+          </StackPanel>
+          <Button Classes="link" Content="Picker settings" Command="{Binding ToggleAdvancedCommand}" VerticalAlignment="Center" />
+        </WrapPanel>
+        <WrapPanel ItemSpacing="12" LineSpacing="6" IsVisible="{Binding ShowAdvanced}">
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Search from (ms)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding SearchStartMs}" Increment="1" FormatString="0.##" Width="110" /></StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Search to (ms, blank = end)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding SearchEndMs}" Increment="5" FormatString="0.##" Width="110" /></StackPanel>
+          <CheckBox IsChecked="{Binding UseNeighbours}" Content="Search near the time predicted from neighbouring depths" />
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="± window (ms)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding PredictionHalfWidthMs}" Increment="1" FormatString="0.##" Width="100" /></StackPanel>
+        </WrapPanel>
+        <Panel IsVisible="{Binding IsS}"><WrapPanel ItemSpacing="12" LineSpacing="6" DataContext="{Binding SPage}" x:DataType="p:SPickingPageViewModel">
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Horizontal component" Classes="muted" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{x:Static p:SPickingPageViewModel.ComponentOptions}" SelectedItem="{Binding ComponentMode}" Width="230" /></StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Pick on" Classes="muted" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{x:Static p:SPickingPageViewModel.PickTraceOptions}" SelectedItem="{Binding PickTrace}" Width="290" /></StackPanel>
+        </WrapPanel></Panel>
+      </StackPanel>
+    </Border>
+
+    <TextBlock Grid.Row="1" Classes="muted" Margin="4,8" Text="{Binding Summary}" />
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,10,400">
+      <Grid RowDefinitions="*,Auto">
+        <Border Classes="panel" Padding="4">
+          <c:WaveformView x:Name="Waves" Model="{Binding Section}" PickingEnabled="{Binding PickingEnabled}" Magnifier="{Binding Magnifier}" />
+        </Border>
+        <!-- S depth detail -->
+        <Panel Grid.Row="1" IsVisible="{Binding IsS}"><Border Classes="panel" Margin="0,10,0,0" Height="250" DataContext="{Binding SPage}" x:DataType="p:SPickingPageViewModel">
+          <TabControl SelectedIndex="{Binding DetailTab}" Margin="8,0">
+            <TabItem Header="Opposite shots">
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="4,6" Spacing="2">
+                  <TextBlock Classes="h3" Text="{Binding DetailTitle}" />
+                  <TextBlock Classes="faint wrap" Text="S+ (blue) and inverted S− (orange) should line up at the shear arrival; the black trace is (S+ − S−)/2." />
+                  <TextBlock Classes="wrap" Foreground="{DynamicResource Warn}" Text="{Binding DetailNotes}" IsVisible="{Binding DetailNotes, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+                <Button DockPanel.Dock="Right" VerticalAlignment="Top" Content="Correlate S+ with S−" Command="{Binding CorrelateOppositeCommand}" Margin="8" />
+                <c:WaveformView Model="{Binding Detail}" />
+              </DockPanel>
+            </TabItem>
+            <TabItem Header="Rotation">
+              <Grid ColumnDefinitions="300,*,*" ColumnSpacing="8">
+                <StackPanel Spacing="8" Margin="4,8">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Window (ms)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding WindowMs}" Minimum="2" Maximum="200" Increment="5" Width="110" FormatString="0" /></StackPanel>
+                  <Button Content="Analyse polarization" Command="{Binding AnalyzeRotationCommand}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Angle (°)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding RotationAngle}" Minimum="0" Maximum="180" Increment="1" Width="110" FormatString="0.0" /></StackPanel>
+                  <WrapPanel ItemSpacing="6" LineSpacing="6">
+                    <Button Classes="primary" Content="Apply to this depth" Command="{Binding ApplyRotationCommand}" />
+                    <Button Content="Apply to all depths" Command="{Binding ApplyRotationToAllCommand}" />
+                    <Button Content="Remove" Command="{Binding ClearRotationCommand}" />
+                  </WrapPanel>
+                  <TextBlock Classes="faint wrap" Text="{Binding AppliedAngle, StringFormat='Applied angle: {0:0.0}°', TargetNullValue='No rotation applied at this depth.'}" />
+                  <TextBlock Classes="wrap" FontSize="12" Text="{Binding RotationSummary}" />
+                </StackPanel>
+                <c:PlotView Grid.Column="1" Model="{Binding Hodogram}" />
+                <c:PlotView Grid.Column="2" Model="{Binding Energy}" />
+              </Grid>
+            </TabItem>
+            <TabItem Header="Cross-correlation">
+              <Grid ColumnDefinitions="300,*" ColumnSpacing="8">
+                <StackPanel Spacing="8" Margin="4,8">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Window (ms)" Classes="muted" VerticalAlignment="Center" /><NumericUpDown Value="{Binding WindowMs}" Minimum="2" Maximum="200" Increment="5" Width="110" FormatString="0" /></StackPanel>
+                  <Button Content="Correlate S+ with S−" Command="{Binding CorrelateOppositeCommand}" />
+                  <Button Content="Correlate with adjacent depth" Command="{Binding CorrelateAdjacentCommand}" />
+                  <Button Content="Use correlation pick" Command="{Binding UseCorrelationPickCommand}" ToolTip.Tip="Sets the pick from the adjacent-depth shift (recorded as a cross-correlation pick)" />
+                  <TextBlock Classes="wrap" FontSize="12" Text="{Binding CorrelationSummary}" />
+                </StackPanel>
+                <c:PlotView Grid.Column="1" Model="{Binding CorrelationPlot}" ZoomY="False" />
+              </Grid>
+            </TabItem>
+          </TabControl>
+        </Border></Panel>
+      </Grid>
+
+      <Grid Grid.Column="2" RowDefinitions="260,10,*">
+        <Border Classes="panel" Padding="4">
+          <c:PlotView x:Name="TravelTimePlot" Model="{Binding TravelTime}" />
+        </Border>
+        <Border Grid.Row="2" Classes="panel">
+          <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow}" AutoGenerateColumns="False" CanUserSortColumns="False" FrozenColumnCount="1">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Depth" Binding="{Binding Depth}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Pick (ms)" Binding="{Binding PickText}" Width="80" />
+              <DataGridTextColumn Header="QC" Binding="{Binding QcText}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" IsReadOnly="True" />
+              <DataGridCheckBoxColumn Header="Used" Binding="{Binding Included}" />
+              <DataGridTextColumn Header="P raw" Binding="{Binding PRaw}" IsReadOnly="True" />
+              <DataGridTextColumn Header="P corr." Binding="{Binding PCorrected}" IsReadOnly="True" />
+              <DataGridTextColumn Header="P conf." Binding="{Binding PConfidence}" IsReadOnly="True" />
+              <DataGridTextColumn Header="S raw" Binding="{Binding SRaw}" IsReadOnly="True" />
+              <DataGridTextColumn Header="S corr." Binding="{Binding SCorrected}" IsReadOnly="True" />
+              <DataGridTextColumn Header="S conf." Binding="{Binding SConfidence}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Ref. (ms)" Binding="{Binding Reference}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="160" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

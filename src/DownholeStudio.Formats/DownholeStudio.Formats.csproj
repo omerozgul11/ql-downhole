@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Formats</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Domain\DownholeStudio.Domain.csproj" />
+  </ItemGroup>
+</Project>

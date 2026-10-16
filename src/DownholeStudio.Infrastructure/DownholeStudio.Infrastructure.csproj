@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Infrastructure</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Core\DownholeStudio.Core.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Licensing\DownholeStudio.Licensing.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Persistence\DownholeStudio.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="Serilog.Formatting.Compact" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+</Project>

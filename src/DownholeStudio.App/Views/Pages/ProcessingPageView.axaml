@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:c="using:DownholeStudio.App.Controls"
+             x:Class="DownholeStudio.App.Views.Pages.ProcessingPageView"
+             x:DataType="p:ProcessingPageViewModel">
+  <TabControl SelectedIndex="{Binding SelectedTab}">
+    <TabItem Header="Processing chain">
+      <Grid ColumnDefinitions="360,16,*" Margin="0,12,0,0">
+        <!-- Pipeline -->
+        <Border Classes="card">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Spacing="10">
+              <ComboBox ItemsSource="{x:Static p:ProcessingPageViewModel.GroupOptions}" SelectedItem="{Binding Group}" HorizontalAlignment="Stretch" />
+              <TextBlock Classes="caps" Text="PROCESSING APPLIED (TOP TO BOTTOM)" />
+              <Border Classes="sunken" Padding="10,6"><TextBlock Text="Raw recorded data" Classes="muted" /></Border>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom" Spacing="10" Margin="0,10,0,0">
+              <DropDownButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Plus}" Classes="sm" /><TextBlock Text="Add processing step" /></StackPanel>
+                <DropDownButton.Flyout>
+                  <MenuFlyout>
+                    <MenuItem Header="Remove mean (DC offset)" Command="{Binding AddStepCommand}" CommandParameter="removeMean" />
+                    <MenuItem Header="Linear detrend" Command="{Binding AddStepCommand}" CommandParameter="detrend" />
+                    <MenuItem Header="Taper ends" Command="{Binding AddStepCommand}" CommandParameter="taper" />
+                    <MenuItem Header="Band-pass filter" Command="{Binding AddStepCommand}" CommandParameter="bandPass" />
+                    <MenuItem Header="High-pass filter" Command="{Binding AddStepCommand}" CommandParameter="highPass" />
+                    <MenuItem Header="Low-pass filter" Command="{Binding AddStepCommand}" CommandParameter="lowPass" />
+                    <MenuItem Header="Notch filter (mains hum)" Command="{Binding AddStepCommand}" CommandParameter="notch" />
+                    <MenuItem Header="Normalize" Command="{Binding AddStepCommand}" CommandParameter="normalize" />
+                    <MenuItem Header="Trace balance" Command="{Binding AddStepCommand}" CommandParameter="balance" />
+                    <MenuItem Header="AGC (display aid)" Command="{Binding AddStepCommand}" CommandParameter="agc" />
+                    <MenuItem Header="Reverse polarity" Command="{Binding AddStepCommand}" CommandParameter="polarity" />
+                    <MenuItem Header="Time shift" Command="{Binding AddStepCommand}" CommandParameter="timeShift" />
+                    <MenuItem Header="Resample" Command="{Binding AddStepCommand}" CommandParameter="resample" />
+                  </MenuFlyout>
+                </DropDownButton.Flyout>
+              </DropDownButton>
+              <Border Classes="guide" IsVisible="{Binding HasSuggestion}">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Suggested filter" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Suggestion}" TextWrapping="Wrap" FontSize="12" />
+                  <Button Content="Add suggested band-pass" Command="{Binding AddSuggestionCommand}" />
+                </StackPanel>
+              </Border>
+              <CheckBox IsChecked="{Binding StackRepeated}" Content="Stack repeated shots at the same depth" ToolTip.Tip="Repeated shots are aligned by their trigger correction before stacking." />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Steps}" SelectedItem="{Binding SelectedStep}" Background="Transparent">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="p:StepRow">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <CheckBox IsChecked="{Binding Enabled}" ToolTip.Tip="Enable or disable this step" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                      <TextBlock Text="{Binding Parameters}" Classes="faint" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="Changes timing" Classes="faint" Foreground="{DynamicResource Warn}" IsVisible="{Binding ChangesTiming}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                      <Button Classes="subtle" Padding="4" ToolTip.Tip="Move up" Command="{Binding $parent[UserControl].((p:ProcessingPageViewModel)DataContext).MoveUpCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Up}" Classes="sm" /></Button>
+                      <Button Classes="subtle" Padding="4" ToolTip.Tip="Move down" Command="{Binding $parent[UserControl].((p:ProcessingPageViewModel)DataContext).MoveDownCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Down}" Classes="sm" /></Button>
+                      <Button Classes="subtle" Padding="4" ToolTip.Tip="Remove" Command="{Binding $parent[UserControl].((p:ProcessingPageViewModel)DataContext).RemoveStepCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Delete}" Classes="sm" /></Button>
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </DockPanel>
+        </Border>
+
+        <!-- Preview -->
+        <Grid Grid.Column="2" RowDefinitions="Auto,*,8,200">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h3" Text="{Binding PreviewTitle}" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{x:Static p:WaveformsPageViewModel.ComparisonOptions}" SelectedItem="{Binding ComparisonMode}" Width="200" />
+          </Grid>
+          <Border Grid.Row="1" Classes="panel" Margin="0,8,0,0" Padding="4">
+            <DockPanel>
+              <Border DockPanel.Dock="Top" Classes="warnbox" Margin="6" IsVisible="{Binding Warnings, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding Warnings}" TextWrapping="Wrap" />
+              </Border>
+              <c:WaveformView Model="{Binding Preview}" />
+            </DockPanel>
+          </Border>
+          <Grid Grid.Row="3" ColumnDefinitions="*,8,*">
+            <Border Classes="panel" Padding="4"><c:PlotView Model="{Binding Spectrum}" ZoomY="False" /></Border>
+            <Border Grid.Column="2" Classes="panel" Padding="4">
+              <Panel>
+                <c:PlotView Model="{Binding Response}" ZoomY="False" />
+                <TextBlock Classes="muted" Text="Select a filter step to see its frequency response." HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding Response, Converter={x:Static ObjectConverters.IsNull}}" />
+              </Panel>
+            </Border>
+          </Grid>
+        </Grid>
+      </Grid>
+    </TabItem>
+
+    <TabItem Header="Reference &amp; trigger correction">
+      <Grid ColumnDefinitions="420,16,*" Margin="0,12,0,0">
+        <Border Classes="card">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Spacing="10">
+              <TextBlock Classes="label" Text="Trigger correction" />
+              <ComboBox ItemsSource="{x:Static p:ProcessingPageViewModel.TriggerModes}" SelectedItem="{Binding TriggerMode}" HorizontalAlignment="Stretch" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Source-to-reference travel time (ms)" VerticalAlignment="Center" Classes="muted" />
+                <NumericUpDown Value="{Binding ExpectedReferenceMs}" Increment="0.05" FormatString="0.###" Width="120" />
+              </StackPanel>
+              <Button Command="{Binding AutoPickReferencesCommand}" IsEnabled="{Binding !IsBusy}">
+                <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Auto}" Classes="sm" /><TextBlock Text="Pick reference onsets automatically" /></StackPanel>
+              </Button>
+              <TextBlock Classes="muted wrap" Text="{Binding ReferenceSummary}" />
+            </StackPanel>
+            <DataGrid ItemsSource="{Binding References}" SelectedItem="{Binding SelectedReference}" IsReadOnly="True" AutoGenerateColumns="False" Margin="0,10,0,0">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Record" Binding="{Binding FileName}" Width="*" />
+                <DataGridTextColumn Header="Depth" Binding="{Binding Depth}" />
+                <DataGridTextColumn Header="Shot" Binding="{Binding Shot}" />
+                <DataGridTextColumn Header="Onset (ms)" Binding="{Binding Time}" />
+                <DataGridTextColumn Header="Δ median (ms)" Binding="{Binding Deviation}" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </DockPanel>
+        </Border>
+        <Border Grid.Column="2" Classes="panel" Padding="6">
+          <DockPanel>
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="8">
+              <TextBlock Classes="muted wrap" Text="Click on the trace to set the reference onset by hand. Raw arrival times are always kept; the correction is added on top." />
+              <Button Grid.Column="1" Content="Clear onset" Command="{Binding ClearReferencePickCommand}" />
+            </Grid>
+            <c:WaveformView x:Name="ReferenceWaves" Model="{Binding ReferenceSection}" PickingEnabled="True" />
+          </DockPanel>
+        </Border>
+      </Grid>
+    </TabItem>
+  </TabControl>
+</UserControl>

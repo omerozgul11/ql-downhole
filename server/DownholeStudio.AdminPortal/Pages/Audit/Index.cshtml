@@ -1,0 +1,27 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Audit.IndexModel
+@{
+    ViewData["Title"] = "Audit log";
+}
+<h1>Audit log</h1>
+<div class="toolbar">
+    <form method="get" class="inline grow">
+        <input asp-for="ByActor" type="search" placeholder="Administrator" />
+        <input asp-for="Action" type="search" placeholder="Action, e.g. license.revoked" />
+        <button class="btn">Filter</button>
+    </form>
+</div>
+<table>
+    <thead><tr><th>Time (UTC)</th><th>Administrator</th><th>Action</th><th>Entity</th><th>Before</th><th>After</th><th>IP</th></tr></thead>
+    <tbody>
+    @foreach (var a in Model.Rows)
+    {
+        <tr><td>@AdminPageModel.Date(a.CreatedAt)</td><td>@a.Actor</td><td><code>@a.Action</code></td><td>@a.EntityType @(a.EntityId is null ? "" : a.EntityId[..Math.Min(8, a.EntityId.Length)])</td>
+            <td class="mono">@a.Before</td><td class="mono">@a.After</td><td class="muted">@a.IpAddress</td></tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-byactor="@Model.ByActor" asp-route-action="@Model.Action" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-byactor="@Model.ByActor" asp-route-action="@Model.Action" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

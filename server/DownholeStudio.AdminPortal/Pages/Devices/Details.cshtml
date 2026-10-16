@@ -1,0 +1,47 @@
+@page "{id:guid}"
+@model DownholeStudio.AdminPortal.Pages.Devices.DetailsModel
+@{
+    var d = Model.Device;
+    ViewData["Title"] = d.Label;
+}
+<h1>@d.Label @if (d.Blocked) { <span class="badge bad">Blocked</span> }</h1>
+<div class="card">
+    <dl class="props">
+        <dt>Device hash</dt><dd class="mono">@d.DeviceHash</dd>
+        <dt>Hardware hash</dt><dd class="mono">@(d.HardwareHash ?? "—")</dd>
+        <dt>Operating system</dt><dd>@(d.OsVersion ?? "—")</dd>
+        <dt>Application version</dt><dd>@(d.AppVersion ?? "—")</dd>
+        <dt>First seen</dt><dd>@AdminPageModel.Date(d.FirstSeenAt)</dd>
+        <dt>Last seen</dt><dd>@AdminPageModel.Date(d.LastSeenAt)</dd>
+        @if (d.Blocked) { <dt>Block reason</dt><dd>@d.BlockedReason</dd> }
+    </dl>
+    <p>
+    @if (d.Blocked) { <form method="post" asp-page-handler="Unblock" class="inline"><button class="btn" type="submit">Unblock</button></form> }
+    else { <form method="post" asp-page-handler="Block" class="inline"><input type="text" name="reason" placeholder="Reason" /><button class="btn danger" type="submit">Block device</button></form> }
+    </p>
+</div>
+<h2>Activation history</h2>
+<table>
+    <thead><tr><th>License</th><th>Customer</th><th>Activated</th><th>Last validated</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var a in Model.Activations)
+    {
+        <tr>
+            <td><a asp-page="/Licenses/Details" asp-route-id="@a.LicenseId">@a.LicenseId.ToString()[..8]</a></td><td>@a.License!.Customer!.Email</td>
+            <td>@AdminPageModel.Date(a.ActivatedAt)</td><td>@AdminPageModel.Date(a.LastValidatedAt)</td>
+            <td>@if (a.DeactivatedAt is null) { <span class="badge ok">Active</span> } else { <span class="badge">Deactivated @AdminPageModel.Day(a.DeactivatedAt) (@a.DeactivatedBy)</span> }</td>
+            <td>@if (a.DeactivatedAt is null) { <form method="post" asp-page-handler="Deactivate" class="inline"><input type="hidden" name="activationId" value="@a.Id" /><button class="btn" type="submit">Deactivate</button></form> }</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<h2>Trials</h2>
+<table>
+    <thead><tr><th>Product</th><th>Started</th><th>Ends</th><th>E-mail</th></tr></thead>
+    <tbody>@foreach (var t in Model.Trials) { <tr><td>@t.Product</td><td>@AdminPageModel.Date(t.TrialStart)</td><td>@AdminPageModel.Date(t.TrialEnd)</td><td>@t.Email</td></tr> }</tbody>
+</table>
+<h2>Events</h2>
+<table>
+    <thead><tr><th>Time (UTC)</th><th>Event</th><th>Details</th><th>IP</th></tr></thead>
+    <tbody>@foreach (var e in Model.Events) { <tr><td>@AdminPageModel.Date(e.CreatedAt)</td><td><code>@e.EventType</code></td><td class="mono">@e.Details</td><td class="muted">@e.IpAddress</td></tr> }</tbody>
+</table>

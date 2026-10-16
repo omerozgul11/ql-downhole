@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.AdminPortal</RootNamespace>
+    <UserSecretsId>dhs-admin-portal</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Server.Data\DownholeStudio.Server.Data.csproj" />
+  </ItemGroup>
+</Project>

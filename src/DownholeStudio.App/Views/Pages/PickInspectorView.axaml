@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.Pages.PickInspectorView"
+             x:DataType="p:PickInspectorViewModel">
+  <StackPanel Spacing="12">
+    <TextBlock Classes="h2" Text="{Binding Header}" />
+    <Grid ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+      <TextBlock Classes="muted" Text="Raw time" /><TextBlock Grid.Column="1" Text="{Binding Raw}" FontWeight="SemiBold" />
+      <TextBlock Grid.Row="1" Classes="muted" Text="Trigger correction" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Trigger}" />
+      <TextBlock Grid.Row="2" Classes="muted" Text="Corrected time" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Corrected}" />
+      <TextBlock Grid.Row="3" Classes="muted" Text="Vertical time" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Vertical}" />
+      <TextBlock Grid.Row="4" Classes="muted" Text="Slant distance" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Slant}" />
+      <TextBlock Grid.Row="5" Classes="muted" Text="SNR" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Snr, TargetNullValue='—'}" />
+      <TextBlock Grid.Row="6" Classes="muted" Text="Origin" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Origin}" TextWrapping="Wrap" />
+    </Grid>
+    <Border Classes="warnbox" IsVisible="{Binding !Included}">
+      <TextBlock Text="{Binding ExclusionReason, StringFormat='Not used: {0}'}" TextWrapping="Wrap" />
+    </Border>
+    <Border Classes="sunken" IsVisible="{Binding Confidence, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <StackPanel Spacing="4">
+        <TextBlock Classes="caps" Text="CONFIDENCE" />
+        <TextBlock Text="{Binding Confidence}" FontWeight="SemiBold" />
+        <TextBlock Classes="faint" Text="Why:" IsVisible="{Binding HasFactors}" />
+        <ItemsControl ItemsSource="{Binding Factors}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="p:FactorRow">
+              <StackPanel Margin="0,3">
+                <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Name}" FontSize="12" FontWeight="Medium" /><TextBlock Grid.Column="1" Text="{Binding Score, StringFormat='{}{0:0.00}'}" FontSize="12" /></Grid>
+                <ProgressBar Value="{Binding Score}" Maximum="1" Height="4" MinHeight="4" />
+                <TextBlock Text="{Binding Explanation}" Classes="faint wrap" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+    <StackPanel Spacing="4" IsVisible="{Binding HasSuggestion}">
+      <TextBlock Classes="caps" Text="AUTOMATIC SUGGESTION" />
+      <TextBlock Text="{Binding Suggestion}" TextWrapping="Wrap" />
+    </StackPanel>
+    <WrapPanel ItemSpacing="8" LineSpacing="8">
+      <Button Classes="primary" Content="Accept suggestion (Enter)" Command="{Binding AcceptCommand}" IsVisible="{Binding CanAccept}" />
+      <Button Content="Restore automatic pick" Command="{Binding RestoreCommand}" IsVisible="{Binding HasSuggestion}" />
+      <Button Content="Include / exclude (Space)" Command="{Binding ToggleIncludeCommand}" />
+      <Button Classes="danger" Content="Delete (Del)" Command="{Binding DeleteCommand}" />
+    </WrapPanel>
+    <ItemsControl ItemsSource="{Binding Flags}" IsVisible="{Binding HasFlags}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="p:FlagRow">
+          <Border Margin="0,3" Classes.badbox="{Binding IsError}" Classes.warnbox="{Binding IsWarning}" Classes.guide="{Binding IsInfo}">
+            <StackPanel>
+              <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" />
+              <TextBlock Text="{Binding Explanation}" Classes="faint wrap" />
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

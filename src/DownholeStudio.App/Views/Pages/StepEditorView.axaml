@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.Pages.StepEditorView"
+             x:DataType="p:StepEditorViewModel">
+  <StackPanel Spacing="12">
+    <TextBlock Classes="h2" Text="{Binding Name}" />
+    <StackPanel Spacing="8" IsVisible="{Binding HasParameters}">
+      <StackPanel IsVisible="{Binding ShowLow}"><TextBlock Classes="label" Text="{Binding LowLabel}" /><NumericUpDown Value="{Binding Low}" Increment="1" Minimum="0.01" FormatString="0.##" /></StackPanel>
+      <StackPanel IsVisible="{Binding ShowHigh}"><TextBlock Classes="label" Text="High corner (Hz)" /><NumericUpDown Value="{Binding High}" Increment="5" Minimum="0.1" FormatString="0.##" /></StackPanel>
+      <StackPanel IsVisible="{Binding ShowOrder}"><TextBlock Classes="label" Text="Order (steepness)" /><NumericUpDown Value="{Binding Order}" Minimum="1" Maximum="12" FormatString="0" /></StackPanel>
+      <StackPanel IsVisible="{Binding ShowQ}"><TextBlock Classes="label" Text="Quality factor Q (frequency / −3 dB width)" /><NumericUpDown Value="{Binding Q}" Increment="5" Minimum="0.5" FormatString="0.#" /></StackPanel>
+      <StackPanel IsVisible="{Binding ShowQ}"><TextBlock Classes="label" Text="Harmonics to notch" /><NumericUpDown Value="{Binding Harmonics}" Minimum="1" Maximum="10" FormatString="0" /></StackPanel>
+      <CheckBox IsChecked="{Binding ZeroPhase}" Content="Zero-phase (forward and backward)" IsVisible="{Binding ShowZeroPhase}" />
+      <StackPanel IsVisible="{Binding ShowValue}"><TextBlock Classes="label" Text="{Binding ValueLabel}" /><NumericUpDown Value="{Binding Value}" FormatString="0.###" /></StackPanel>
+      <StackPanel IsVisible="{Binding ShowValue2}"><TextBlock Classes="label" Text="Window end (ms, blank = end of trace)" /><NumericUpDown Value="{Binding Value2}" FormatString="0.###" /></StackPanel>
+      <CheckBox IsChecked="{Binding Rms}" Content="Normalize by RMS (otherwise by peak)" IsVisible="{Binding ShowRms}" />
+    </StackPanel>
+    <Border Classes="sunken">
+      <StackPanel Spacing="8">
+        <StackPanel><TextBlock Classes="caps" Text="WHAT IT DOES" /><TextBlock Text="{Binding HelpWhat}" TextWrapping="Wrap" /></StackPanel>
+        <StackPanel><TextBlock Classes="caps" Text="WHEN TO USE IT" /><TextBlock Text="{Binding HelpWhen}" TextWrapping="Wrap" /></StackPanel>
+        <StackPanel><TextBlock Classes="caps" Text="WHEN NOT TO" /><TextBlock Text="{Binding HelpWhenNot}" TextWrapping="Wrap" /></StackPanel>
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:c="using:DownholeStudio.App.Controls"
+             x:Class="DownholeStudio.App.Views.Pages.WaveformsPageView"
+             x:DataType="p:WaveformsPageViewModel">
+  <Grid RowDefinitions="Auto,*,8,220">
+    <!-- Display controls -->
+    <Border Classes="card" Padding="12,8">
+      <WrapPanel ItemSpacing="10" LineSpacing="6">
+        <ComboBox ItemsSource="{x:Static p:WaveformsPageViewModel.ShotOptions}" SelectedItem="{Binding Shot}" Width="130" ToolTip.Tip="Which shots to show" />
+        <ComboBox ItemsSource="{x:Static p:WaveformsPageViewModel.ComponentOptions}" SelectedItem="{Binding Component}" Width="150" ToolTip.Tip="Which component" />
+        <ComboBox ItemsSource="{x:Static p:WaveformsPageViewModel.ComparisonOptions}" SelectedItem="{Binding ComparisonMode}" Width="190" ToolTip.Tip="Raw data, processed data, or both" />
+        <ComboBox ItemsSource="{x:Static p:WaveformsPageViewModel.ModeOptions}" SelectedItem="{Binding Mode}" Width="200" ToolTip.Tip="Trace display style" />
+        <CheckBox IsChecked="{Binding NormalizeEach}" Content="Normalize each trace" />
+        <CheckBox IsChecked="{Binding Overlay}" Content="Overlay" />
+        <CheckBox IsChecked="{Binding DepthScale}" Content="True depth scale" />
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <TextBlock Text="Gain" VerticalAlignment="Center" Classes="muted" />
+          <Slider Minimum="0.1" Maximum="10" Value="{Binding Gain}" Width="120" />
+          <Button Classes="subtle" Content="Reset" Command="{Binding ResetGainCommand}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="2">
+          <Button Classes="subtle" ToolTip.Tip="Zoom in (time)" Click="OnZoomIn"><PathIcon Data="{StaticResource Icon.ZoomIn}" Classes="sm" /></Button>
+          <Button Classes="subtle" ToolTip.Tip="Zoom out (time)" Click="OnZoomOut"><PathIcon Data="{StaticResource Icon.ZoomOut}" Classes="sm" /></Button>
+          <Button Classes="subtle" ToolTip.Tip="Fit all (double-click)" Click="OnFit"><PathIcon Data="{StaticResource Icon.Fit}" Classes="sm" /></Button>
+        </StackPanel>
+      </WrapPanel>
+    </Border>
+
+    <Border Grid.Row="1" Classes="panel" Margin="0,10,0,0" Padding="4">
+      <Panel>
+        <c:WaveformView x:Name="Waves" Model="{Binding Section}" />
+        <StackPanel IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <TextBlock Classes="h3" HorizontalAlignment="Center" Text="No survey loaded" />
+          <TextBlock Classes="muted" HorizontalAlignment="Center" Text="Import SEG-2 data and assign depths to begin." />
+        </StackPanel>
+      </Panel>
+    </Border>
+
+    <Border Grid.Row="3" Classes="panel" Padding="4">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Bottom" Classes="faint" Margin="10,2,10,6" Text="{Binding SpectrumSummary}" />
+        <c:PlotView Model="{Binding Spectrum}" ZoomY="False" />
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

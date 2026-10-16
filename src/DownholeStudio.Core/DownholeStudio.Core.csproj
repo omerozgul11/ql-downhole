@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Domain\DownholeStudio.Domain.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Analysis\DownholeStudio.Analysis.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Formats\DownholeStudio.Formats.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Persistence\DownholeStudio.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+</Project>

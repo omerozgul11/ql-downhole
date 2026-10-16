@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Reporting</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Core\DownholeStudio.Core.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Visualization\DownholeStudio.Visualization.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" />
+  </ItemGroup>
+</Project>

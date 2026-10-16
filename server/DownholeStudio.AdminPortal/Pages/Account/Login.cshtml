@@ -1,0 +1,16 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+<div class="card narrow">
+    <h1>Downhole Studio licensing</h1>
+    <p class="muted">Administrator sign-in. All actions are recorded in the audit log.</p>
+    @if (Model.Error is not null) { <div class="flash bad" role="alert">@Model.Error</div> }
+    <form method="post">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <p><label asp-for="Email">E-mail</label><input asp-for="Email" type="email" autocomplete="username" autofocus /></p>
+        <p><label asp-for="Password">Password</label><input asp-for="Password" type="password" autocomplete="current-password" /></p>
+        <button type="submit" class="btn primary">Sign in</button>
+    </form>
+</div>

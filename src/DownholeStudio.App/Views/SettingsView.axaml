@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DownholeStudio.App.ViewModels"
+             x:Class="DownholeStudio.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <Border Background="{DynamicResource Overlay}">
+    <Border Classes="panel" Width="860" Height="580" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid ColumnDefinitions="210,*">
+        <Border Background="{DynamicResource SurfaceAlt}" CornerRadius="10,0,0,10" BorderBrush="{DynamicResource Border}" BorderThickness="0,0,1,0">
+          <StackPanel Margin="10,16" Spacing="2">
+            <TextBlock Classes="h2" Text="Settings" Margin="8,0,0,10" />
+            <ItemsControl ItemsSource="{Binding Sections}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <Button Classes="subtle" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="{Binding}"
+                          Command="{Binding $parent[UserControl].((vm:SettingsViewModel)DataContext).SelectSectionCommand}" CommandParameter="{Binding}" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <DockPanel Grid.Column="1">
+          <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="24,18,16,6">
+            <TextBlock Classes="h2" Text="{Binding Section}" />
+            <Button Grid.Column="1" Content="Done" Classes="primary" Command="{Binding Main.CloseSettingsCommand}" />
+          </Grid>
+          <ScrollViewer>
+            <StackPanel Margin="24,8,24,24" Spacing="16">
+              <!-- General -->
+              <StackPanel Spacing="14" IsVisible="{Binding IsGeneral}">
+                <CheckBox IsChecked="{Binding ExpertMode}" Content="Expert mode (show every parameter; Guided mode explains each step)" />
+                <StackPanel><TextBlock Classes="label" Text="Your name (recorded in the project history and reports)" /><TextBox Text="{Binding EditorName}" Width="320" HorizontalAlignment="Left" /></StackPanel>
+                <StackPanel><TextBlock Classes="label" Text="Recovery copy interval (minutes)" /><NumericUpDown Value="{Binding AutoSaveMinutes}" Minimum="1" Maximum="60" Width="140" HorizontalAlignment="Left" FormatString="0" /></StackPanel>
+                <TextBlock Classes="faint wrap" Text="Recovery copies are kept in your local application data and are offered after an unexpected shutdown. They never overwrite your project file." />
+              </StackPanel>
+              <!-- Appearance -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsAppearance}">
+                <TextBlock Classes="label" Text="Theme" />
+                <RadioButton GroupName="theme" Content="Follow Windows (system)" IsChecked="{Binding ThemeIndex, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=0, Mode=OneWay}" Command="{Binding SelectThemeCommand}" CommandParameter="0" />
+                <RadioButton GroupName="theme" Content="Light" IsChecked="{Binding ThemeIndex, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=1, Mode=OneWay}" Command="{Binding SelectThemeCommand}" CommandParameter="1" />
+                <RadioButton GroupName="theme" Content="Dark" IsChecked="{Binding ThemeIndex, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=2, Mode=OneWay}" Command="{Binding SelectThemeCommand}" CommandParameter="2" />
+              </StackPanel>
+              <!-- Units -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsUnits}">
+                <CheckBox IsChecked="{Binding UsUnits}" Content="Use US customary units for new projects (ft, ft/s, pcf, ksf)" />
+                <TextBlock Classes="faint wrap" Text="Calculations always use SI units internally at full precision; units only change how values are shown and exported. Each project remembers its own display units (Project page)." />
+              </StackPanel>
+              <!-- Processing defaults -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsProcessing}">
+                <CheckBox IsChecked="{Binding DefaultBandPassForS}" Content="Suggest a band-pass filter for horizontal (S) data in new projects" />
+                <TextBlock Classes="faint wrap" Text="New projects start with a mean removal only. Filters are never applied automatically; suggestions must be added explicitly." />
+              </StackPanel>
+              <!-- Picking defaults -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsPicking}">
+                <StackPanel><TextBlock Classes="label" Text="Default P picker" />
+                  <ComboBox SelectedIndex="{Binding PPickerIndex}" Width="260"><ComboBoxItem Content="AIC (Maeda)" /><ComboBoxItem Content="STA/LTA" /><ComboBoxItem Content="Modified energy ratio" /></ComboBox></StackPanel>
+                <StackPanel><TextBlock Classes="label" Text="Default S picker" />
+                  <ComboBox SelectedIndex="{Binding SPickerIndex}" Width="260"><ComboBoxItem Content="AIC (Maeda)" /><ComboBoxItem Content="STA/LTA" /><ComboBoxItem Content="Modified energy ratio" /></ComboBox></StackPanel>
+              </StackPanel>
+              <!-- Reporting -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsReporting}">
+                <CheckBox IsChecked="{Binding A4Paper}" Content="Use A4 paper (US Letter otherwise)" />
+                <TextBlock Classes="faint wrap" Text="Company branding templates are saved from the Report page and can be reused in any project." />
+              </StackPanel>
+              <!-- License -->
+              <Panel IsVisible="{Binding IsLicense}"><StackPanel Spacing="10" DataContext="{Binding License}" x:DataType="vm:LicenseViewModel">
+                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                  <TextBlock Grid.Row="0" Classes="muted" Text="Product" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Product}" FontWeight="SemiBold" />
+                  <TextBlock Grid.Row="1" Classes="muted" Text="Status" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Title}" />
+                  <TextBlock Grid.Row="2" Classes="muted" Text="Licensed to" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LicensedTo}" />
+                  <TextBlock Grid.Row="3" Classes="muted" Text="Device" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Device}" />
+                  <TextBlock Grid.Row="4" Classes="muted" Text="License key" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding KeyMasked}" />
+                  <TextBlock Grid.Row="5" Classes="muted" Text="Last validation" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding LastValidation}" />
+                  <TextBlock Grid.Row="6" Classes="muted" Text="Expires" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Expires}" />
+                  <TextBlock Grid.Row="7" Classes="muted" Text="Maintenance until" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Maintenance}" />
+                  <TextBlock Grid.Row="8" Classes="muted" Text="Works offline until" /><TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding OfflineUntil}" />
+                </Grid>
+                <TextBlock Classes="muted wrap" Text="{Binding Message}" />
+                <WrapPanel ItemSpacing="8" LineSpacing="8">
+                  <Button Content="Deactivate Computer" Command="{Binding DeactivateCommand}" Classes="danger" IsVisible="{Binding IsLicensed}" />
+                  <Button Content="Refresh License" Command="{Binding RefreshOnlineCommand}" />
+                  <Button Content="Copy License Information" Command="{Binding CopyInfoCommand}" />
+                  <Button Content="Activate a license" Command="{Binding OpenCommand}" Classes="primary" IsVisible="{Binding !IsLicensed}" />
+                </WrapPanel>
+              </StackPanel></Panel>
+              <!-- Updates -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsUpdates}">
+                <TextBlock Classes="label" Text="When updates are available" />
+                <ComboBox SelectedIndex="{Binding UpdateModeIndex}" Width="320">
+                  <ComboBoxItem Content="Automatically check and install minor updates" />
+                  <ComboBoxItem Content="Notify me only" />
+                  <ComboBoxItem Content="Manual (I'll check myself)" />
+                </ComboBox>
+                <CheckBox IsChecked="{Binding BetaChannel}" Content="Receive beta releases" />
+                <Button Content="Check for updates now" Command="{Binding Main.CheckUpdatesCommand}" CommandParameter="{x:False}" HorizontalAlignment="Left" />
+                <TextBlock Classes="muted" Text="{Binding Main.UpdateMessage}" />
+                <TextBlock Classes="faint wrap" Text="Updates are cryptographically signed by QuakeLogic and verified before installation. Release notes are shown before major upgrades. Updates never change your projects." />
+              </StackPanel>
+              <!-- Advanced -->
+              <StackPanel Spacing="10" IsVisible="{Binding IsAdvanced}">
+                <TextBlock Classes="label" Text="Application data folder" />
+                <StackPanel Orientation="Horizontal" Spacing="8"><SelectableTextBlock Text="{Binding DataFolder}" VerticalAlignment="Center" /><Button Content="Open" Command="{Binding OpenDataFolderCommand}" /></StackPanel>
+                <Button Content="Export diagnostic package…" Command="{Binding Main.ExportDiagnosticsCommand}" HorizontalAlignment="Left" />
+                <StackPanel><TextBlock Classes="label" Text="Licensing server (leave empty for the default)" /><TextBox Text="{Binding ServerOverride}" PlaceholderText="{Binding ServerUrl}" Width="420" HorizontalAlignment="Left" /></StackPanel>
+                <TextBlock Classes="faint wrap" Text="Downhole Studio does not send usage telemetry. Survey data never leaves this computer. Changes to the licensing server apply after a restart." />
+                <TextBlock Classes="faint" Text="{Binding Version, StringFormat='Downhole Studio {0}'}" />
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </DockPanel>
+      </Grid>
+    </Border>
+  </Border>
+</UserControl>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../server/DownholeStudio.LicenseServer/DownholeStudio.LicenseServer.csproj" />
+    <ProjectReference Include="../../server/DownholeStudio.AdminPortal/DownholeStudio.AdminPortal.csproj" />
+    <ProjectReference Include="../../server/DownholeStudio.Server.Data/DownholeStudio.Server.Data.csproj" />
+    <ProjectReference Include="../../src/DownholeStudio.Licensing/DownholeStudio.Licensing.csproj" />
+  </ItemGroup>
+</Project>

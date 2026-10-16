@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.LicenseServer</RootNamespace>
+    <UserSecretsId>dhs-license-server</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Server.Data\DownholeStudio.Server.Data.csproj" />
+  </ItemGroup>
+</Project>

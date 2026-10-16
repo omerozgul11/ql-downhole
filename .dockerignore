@@ -1,0 +1,15 @@
+# Docker build context is the repository root (server/Dockerfile). Keep it small and secret-free.
+.git
+.tools
+.config
+**/bin
+**/obj
+**/.vs
+dist
+artifacts
+tests
+tools
+src/DownholeStudio.App
+server/secrets
+server/.env
+*.pem

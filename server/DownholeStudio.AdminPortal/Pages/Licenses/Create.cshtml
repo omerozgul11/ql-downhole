@@ -1,0 +1,43 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Licenses.CreateModel
+@{
+    ViewData["Title"] = "New license";
+}
+<h1>New license</h1>
+@if (Model.Issued is { } issued)
+{
+    <div class="card">
+        <h2>License created</h2>
+        <p>This is the only time the key is shown. It is stored only as a one-way hash.</p>
+        <p class="key" id="license-key">@issued.LicenseKey</p>
+        <p class="muted">@(Model.SendEmail ? $"The License Key e-mail has been queued for {issued.License.Customer?.Email}." : "No e-mail was sent; give the key to the customer securely.")</p>
+        <p><a class="btn primary" asp-page="Details" asp-route-id="@issued.License.Id">Open license</a></p>
+    </div>
+}
+else
+{
+    @if (Model.Error is not null) { <div class="flash bad">@Model.Error</div> }
+    <form method="post" class="card">
+        <div class="form-grid">
+            @if (Model.Customer is { } c)
+            {
+                <label>Customer</label><div><input type="hidden" asp-for="CustomerId" /><strong>@c.Email</strong> @c.Company</div>
+            }
+            else
+            {
+                <label asp-for="CustomerEmail">Customer e-mail</label><input asp-for="CustomerEmail" type="email" placeholder="existing or new customer" />
+                <label asp-for="CustomerName">Name (new customer)</label><input asp-for="CustomerName" type="text" />
+                <label asp-for="CustomerCompany">Company (new customer)</label><input asp-for="CustomerCompany" type="text" />
+            }
+            <label asp-for="Product">Product</label>
+            <select asp-for="Product">@foreach (var p in Model.Products) { <option value="@p.Id">@p.Name</option> }</select>
+            <label asp-for="Edition">Edition</label><input asp-for="Edition" type="text" />
+            <label asp-for="Seats">Computers (seats)</label><input asp-for="Seats" type="number" min="1" />
+            <label asp-for="ExpiresOn">Expires on (blank = perpetual)</label><input asp-for="ExpiresOn" type="date" />
+            <label asp-for="MaintenanceUntil">Maintenance until</label><input asp-for="MaintenanceUntil" type="date" />
+            <label asp-for="Notes">Notes</label><textarea asp-for="Notes"></textarea>
+            <label asp-for="SendEmail">Send License Key e-mail</label><div><input asp-for="SendEmail" type="checkbox" /></div>
+        </div>
+        <p><button class="btn primary" type="submit">Create license</button></p>
+    </form>
+}

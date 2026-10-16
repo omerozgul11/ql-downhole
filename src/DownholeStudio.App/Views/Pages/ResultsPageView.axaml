@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:vm="using:DownholeStudio.App.ViewModels"
+             x:Class="DownholeStudio.App.Views.Pages.ResultsPageView"
+             x:DataType="p:ResultsPageViewModel">
+  <TabControl>
+    <TabItem Header="Quality control">
+      <ScrollViewer Margin="0,12,0,0">
+        <StackPanel Spacing="14">
+          <Border Classes="card" Classes.goodbox="{Binding QualityTone, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=good}"
+                  Classes.warnbox="{Binding QualityTone, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=warn}"
+                  Classes.badbox="{Binding QualityTone, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=bad}"
+>
+            <Grid ColumnDefinitions="Auto,*">
+              <PathIcon Data="{StaticResource Icon.Quality}" Width="40" Height="40" Margin="0,0,16,0" VerticalAlignment="Top" />
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Classes="caps" Text="ANALYSIS QUALITY" />
+                <TextBlock Classes="h1" Text="{Binding Quality}" />
+                <ItemsControl ItemsSource="{Binding Reasons}">
+                  <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" /></DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="faint wrap" Text="Advisory only. This verdict does not certify compliance with ASTM D7400/D7400M or any other standard; results depend on survey quality and professional judgment." />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <ItemsControl ItemsSource="{Binding Cards}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="5" ColumnSpacing="12" RowSpacing="12" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="p:QcCard">
+                <Border Classes="card" Padding="14,12">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="caps" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding Value}" TextWrapping="Wrap" />
+                    <TextBlock Classes="faint wrap" Text="{Binding Detail}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                  <TextBlock Classes="h2" Text="Findings" />
+                  <TextBlock Classes="muted" Text="{Binding FlagSummary}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding ShowErrors}" Content="× Likely problems" />
+                  <CheckBox IsChecked="{Binding ShowWarnings}" Content="! Review" />
+                  <CheckBox IsChecked="{Binding ShowNotes}" Content="Notes" />
+                </StackPanel>
+              </Grid>
+              <TextBlock Classes="muted" Text="Nothing to show." IsVisible="{Binding !Flags.Count}" />
+              <ItemsControl ItemsSource="{Binding Flags}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="p:QcFlagRow">
+                    <Button Classes="subtle" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="8,6"
+                            Command="{Binding $parent[UserControl].((p:ResultsPageViewModel)DataContext).GoToFlagCommand}" CommandParameter="{Binding}">
+                      <Grid ColumnDefinitions="Auto,110,90,*">
+                        <Panel Width="22" VerticalAlignment="Top">
+                          <PathIcon Data="{StaticResource Icon.Problem}" Classes="sm" Foreground="{DynamicResource Bad}" IsVisible="{Binding IsError}" />
+                          <PathIcon Data="{StaticResource Icon.Warning}" Classes="sm" Foreground="{DynamicResource Warn}" IsVisible="{Binding IsWarning}" />
+                          <PathIcon Data="{StaticResource Icon.Info}" Classes="sm" Foreground="{DynamicResource Info}" IsVisible="{Binding IsInfo}" />
+                        </Panel>
+                        <TextBlock Grid.Column="1" Text="{Binding SeverityText}" FontWeight="Medium" />
+                        <TextBlock Grid.Column="2" Text="{Binding Depth}" Classes="muted" />
+                        <StackPanel Grid.Column="3">
+                          <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Explanation}" Classes="faint wrap" IsVisible="{Binding HasExplanation}" />
+                        </StackPanel>
+                      </Grid>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </TabItem>
+
+    <TabItem Header="Scenario comparison">
+      <StackPanel Spacing="12" Margin="0,12,0,0">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="muted wrap" Text="Compare Vp, Vs, Vs30, layers and residuals between interpretations of the same raw data." />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button Content="Refresh" Command="{Binding LoadComparisonCommand}" />
+            <Button Content="Manage scenarios" Command="{Binding ManageScenariosCommand}" />
+          </StackPanel>
+        </Grid>
+        <TextBlock Classes="muted" Text="Create a second scenario on the Project page to compare interpretations." IsVisible="{Binding !Comparison.Count}" />
+        <DataGrid ItemsSource="{Binding Comparison}" IsReadOnly="True" AutoGenerateColumns="False" IsVisible="{Binding Comparison.Count}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Scenario" Binding="{Binding Name}" />
+            <DataGridCheckBoxColumn Header="Active" Binding="{Binding Active}" />
+            <DataGridTextColumn Header="Method" Binding="{Binding Method}" />
+            <DataGridTextColumn Header="Vs30" Binding="{Binding Vs30}" />
+            <DataGridTextColumn Header="P RMS" Binding="{Binding PRms}" />
+            <DataGridTextColumn Header="S RMS" Binding="{Binding SRms}" />
+            <DataGridTextColumn Header="Quality" Binding="{Binding Quality}" />
+            <DataGridTextColumn Header="Layers (Vs)" Binding="{Binding Layers}" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </StackPanel>
+    </TabItem>
+
+    <TabItem Header="Processing history">
+      <DockPanel Margin="0,12,0,0">
+        <TextBox DockPanel.Dock="Top" Text="{Binding HistoryFilter}" PlaceholderText="Filter the history (operation, description, parameters)" Margin="0,0,0,8" />
+        <DataGrid ItemsSource="{Binding History}" IsReadOnly="True" AutoGenerateColumns="False">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+            <DataGridTextColumn Header="User" Binding="{Binding User}" />
+            <DataGridTextColumn Header="Operation" Binding="{Binding Operation}" />
+            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
+            <DataGridTextColumn Header="Parameters" Binding="{Binding Parameters}" Width="2*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+    </TabItem>
+  </TabControl>
+</UserControl>

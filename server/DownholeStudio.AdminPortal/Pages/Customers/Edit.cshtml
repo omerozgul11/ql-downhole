@@ -1,0 +1,16 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Customers.EditModel
+@{
+    ViewData["Title"] = Model.Id is null ? "New customer" : "Edit customer";
+}
+<h1>@ViewData["Title"]</h1>
+@if (Model.Error is not null) { <div class="flash bad">@Model.Error</div> }
+<form method="post" class="card">
+    <div class="form-grid">
+        <label asp-for="Email">E-mail</label><input asp-for="Email" type="email" />
+        <label asp-for="Name">Name</label><input asp-for="Name" type="text" />
+        <label asp-for="Company">Company</label><input asp-for="Company" type="text" />
+        <label asp-for="Notes">Notes</label><textarea asp-for="Notes"></textarea>
+    </div>
+    <p><button class="btn primary" type="submit">Save</button> <a class="btn" asp-page="Index">Cancel</a></p>
+</form>

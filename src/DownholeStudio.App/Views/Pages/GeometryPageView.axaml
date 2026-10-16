@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:c="using:DownholeStudio.App.Controls"
+             x:Class="DownholeStudio.App.Views.Pages.GeometryPageView"
+             x:DataType="p:GeometryPageViewModel">
+  <Grid ColumnDefinitions="*,16,380">
+    <ScrollViewer>
+      <StackPanel Spacing="16">
+        <Grid ColumnDefinitions="*,16,*,16,*">
+          <!-- Borehole -->
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Classes="h3" Text="Borehole" />
+              <StackPanel><TextBlock Classes="label" Text="Name" /><TextBox Text="{Binding BoreholeName, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <Grid ColumnDefinitions="*,8,*">
+                <StackPanel><TextBlock Classes="label" Text="Easting" /><TextBox Text="{Binding Easting, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+                <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="Northing" /><TextBox Text="{Binding Northing, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              </Grid>
+              <StackPanel><TextBlock Classes="label" Text="Coordinate system" /><TextBox Text="{Binding CoordinateSystem, UpdateSourceTrigger=LostFocus}" PlaceholderText="e.g. UTM 11N (EPSG:32611)" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Ground elevation ({0})'}" /><TextBox Text="{Binding GroundElevation, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Borehole depth ({0})'}" /><TextBox Text="{Binding TotalDepth, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Depths are measured from" /><ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.ReferenceChoices}" SelectedItem="{Binding DepthReference}" HorizontalAlignment="Stretch" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Collar height above ground ({0})'}" /><TextBox Text="{Binding CollarHeight, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Acquisition direction" /><ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.DirectionChoices}" SelectedItem="{Binding Direction}" HorizontalAlignment="Stretch" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Sensor X azimuth (° from north, if known)" /><TextBox Text="{Binding SensorAzimuth, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+            </StackPanel>
+          </Border>
+          <!-- P source -->
+          <Border Grid.Column="2" Classes="card">
+            <StackPanel Spacing="10">
+              <StackPanel Orientation="Horizontal" Spacing="8"><Ellipse Width="10" Height="10" Fill="{DynamicResource PColor}" /><TextBlock Classes="h3" Text="P-wave source" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Horizontal offset from borehole ({0})'}" /><TextBox Text="{Binding POffset, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Source depth below ground ({0}, negative = above)'}" /><TextBox Text="{Binding PSourceDepth, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Description" /><TextBox Text="{Binding PDescription, UpdateSourceTrigger=LostFocus}" PlaceholderText="e.g. 30 cm steel plate, 4 kg hammer" /></StackPanel>
+              <TextBlock Classes="faint wrap" Text="Offsets enter the straight-ray correction t·(z − zs)/R and the refracted-ray model. A wrong offset biases shallow velocities." />
+            </StackPanel>
+          </Border>
+          <!-- S source -->
+          <Border Grid.Column="4" Classes="card">
+            <StackPanel Spacing="10">
+              <StackPanel Orientation="Horizontal" Spacing="8"><Ellipse Width="10" Height="10" Fill="{DynamicResource SColor}" /><TextBlock Classes="h3" Text="S-wave source" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Horizontal offset from borehole ({0})'}" /><TextBox Text="{Binding SOffset, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Source depth below ground ({0}, negative = above)'}" /><TextBox Text="{Binding SSourceDepth, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Description" /><TextBox Text="{Binding SDescription, UpdateSourceTrigger=LostFocus}" PlaceholderText="e.g. loaded beam struck at both ends" /></StackPanel>
+              <TextBlock Classes="faint wrap" Text="P and S sources often sit at different offsets; each wave type uses its own geometry." />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <!-- Depth assignment -->
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel>
+                <TextBlock Classes="h3" Text="Depths and shot types" />
+                <TextBlock Classes="muted" Text="{Binding AssignmentSummary}" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button Content="Use suggested depths" Command="{Binding ApplySuggestionsCommand}" IsVisible="{Binding HasSuggestions}" ToolTip.Tip="Depths and shot types read from the file keywords or names" />
+                <Button Content="Mirror depths" Command="{Binding MirrorDepthsCommand}" ToolTip.Tip="Reverse the depth order (fixes a survey assigned in the wrong direction)" />
+              </StackPanel>
+            </Grid>
+            <WrapPanel ItemSpacing="12" LineSpacing="8">
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='First depth ({0})'}" /><TextBox Text="{Binding FirstDepth}" Width="110" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="{Binding LengthUnit, StringFormat='Increment ({0})'}" /><TextBox Text="{Binding Increment}" Width="110" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Order" /><ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.DirectionChoices}" SelectedItem="{Binding AssignDirection}" Width="210" /></StackPanel>
+              <StackPanel><TextBlock Classes="label" Text="Shots at each depth (acquisition order)" /><ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.PatternChoices}" SelectedItem="{Binding Pattern}" Width="230" /></StackPanel>
+              <Button Classes="primary" Content="Assign by acquisition order" Command="{Binding AssignByPatternCommand}" VerticalAlignment="Bottom" />
+            </WrapPanel>
+            <DataGrid ItemsSource="{Binding Records}" AutoGenerateColumns="False" MaxHeight="420" CanUserSortColumns="False">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding Sequence}" IsReadOnly="True" />
+                <DataGridTextColumn Header="File" Binding="{Binding FileName}" IsReadOnly="True" Width="2*" />
+                <DataGridTextColumn Header="Recorded" Binding="{Binding Recorded}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Suggested" Binding="{Binding Suggested}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Depth" Binding="{Binding Depth}" Width="90" />
+                <DataGridTemplateColumn Header="Shot" Width="200">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="p:RecordRow">
+                      <ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.ShotChoices}" SelectedItem="{Binding Shot}" HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="Excluded" Binding="{Binding Excluded}" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </StackPanel>
+        </Border>
+
+        <!-- Channels -->
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <TextBlock Classes="h3" Text="Channel mapping" />
+            <TextBlock Classes="muted wrap" Text="Tell Downhole Studio what each recorder channel is. Suggestions come from trace labels or a matching profile; you can always override them." />
+            <DataGrid ItemsSource="{Binding Channels}" AutoGenerateColumns="False" CanUserSortColumns="False">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Channel" Binding="{Binding Channel}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Label in file" Binding="{Binding FileLabel}" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Role" Width="220">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="p:ChannelRow">
+                      <ComboBox ItemsSource="{x:Static p:GeometryPageViewModel.RoleChoices}" SelectedItem="{Binding Role}" HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="Reverse polarity" Binding="{Binding Reverse}" />
+                <DataGridTextColumn Header="Label" Binding="{Binding Label}" Width="*" />
+              </DataGrid.Columns>
+            </DataGrid>
+            <WrapPanel ItemSpacing="8" LineSpacing="8">
+              <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" PlaceholderText="Choose an instrument profile" Width="300" />
+              <Button Content="Apply profile" Command="{Binding ApplyProfileCommand}" />
+              <TextBox Text="{Binding NewProfileName}" PlaceholderText="Save current mapping as…" Width="220" />
+              <Button Content="Save profile" Command="{Binding SaveProfileCommand}" />
+            </WrapPanel>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Column="2" Classes="panel" Padding="6">
+      <c:BoreholeView Model="{Binding Diagram}" />
+    </Border>
+  </Grid>
+</UserControl>

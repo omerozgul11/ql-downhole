@@ -1,0 +1,71 @@
+@page "{id:guid}"
+@model DownholeStudio.AdminPortal.Pages.Licenses.DetailsModel
+@{
+    var l = Model.License;
+    ViewData["Title"] = $"License {l.Id.ToString()[..8]}";
+}
+<h1>License @l.Id.ToString()[..8] <span class="badge @AdminPageModel.StatusCss(l.Status)">@l.Status</span></h1>
+@if (Model.NewKey is not null)
+{
+    <div class="card">
+        <h2>New license key</h2>
+        <p>The previous key no longer activates. This is the only time the new key is shown.</p>
+        <p class="key" id="license-key">@Model.NewKey</p>
+    </div>
+}
+<div class="card">
+    <dl class="props">
+        <dt>License ID</dt><dd class="mono">@l.Id</dd>
+        <dt>Customer</dt><dd><a asp-page="/Customers/Details" asp-route-id="@l.CustomerId">@l.Customer!.Email</a> @l.Customer!.Company</dd>
+        <dt>Key</dt><dd class="mono">DHST-XXXX-XXXX-XXXX-@l.KeyHint</dd>
+        <dt>Product</dt><dd>@l.Product · @l.Edition</dd>
+        <dt>Seats</dt><dd>@Model.Activations.Count(a => a.DeactivatedAt == null) of @l.SeatCount in use</dd>
+        <dt>Expires</dt><dd>@(l.ExpiresAt is null ? "Perpetual" : AdminPageModel.Day(l.ExpiresAt))</dd>
+        <dt>Maintenance until</dt><dd>@AdminPageModel.Day(l.MaintenanceUntil)</dd>
+        <dt>Self-service transfers</dt><dd>@l.MaxTransfersPer30Days per 30 days</dd>
+        <dt>Created</dt><dd>@AdminPageModel.Date(l.CreatedAt)</dd>
+    </dl>
+</div>
+<h2>Actions</h2>
+<div class="card">
+    @if (l.Status != LicenseStatusCode.Revoked) { <form method="post" asp-page-handler="Revoke" class="inline"><button class="btn danger" type="submit">Revoke</button></form> }
+    @if (l.Status == LicenseStatusCode.Active) { <form method="post" asp-page-handler="Suspend" class="inline"><button class="btn" type="submit">Suspend</button></form> }
+    @if (l.Status != LicenseStatusCode.Active) { <form method="post" asp-page-handler="Reactivate" class="inline"><button class="btn" type="submit">Reactivate</button></form> }
+    <form method="post" asp-page-handler="Reset" class="inline"><button class="btn" type="submit">Reset all activations</button></form>
+    <form method="post" asp-page-handler="Reissue" class="inline"><label><input type="checkbox" name="sendEmail" value="true" checked /> e-mail</label><button class="btn" type="submit">Reissue key</button></form>
+    <br />
+    <form method="post" asp-page-handler="Expiry" class="inline"><label>Expires on</label><input type="date" name="expiresOn" value="@(l.ExpiresAt?.ToString("yyyy-MM-dd"))" /><button class="btn" type="submit">Set</button></form>
+    <form method="post" asp-page-handler="Maintenance" class="inline"><label>Maintenance until</label><input type="date" name="maintenanceUntil" value="@(l.MaintenanceUntil?.ToString("yyyy-MM-dd"))" /><button class="btn" type="submit">Set</button></form>
+    <form method="post" asp-page-handler="Seats" class="inline"><label>Seats</label><input type="number" name="seats" min="1" value="@l.SeatCount" /><button class="btn" type="submit">Set</button></form>
+    <form method="post" asp-page-handler="Transfers" class="inline"><label>Transfers / 30 days</label><input type="number" name="transfers" min="0" value="@l.MaxTransfersPer30Days" /><button class="btn" type="submit">Set</button></form>
+    <form method="post" asp-page-handler="Notes"><label>Notes</label><textarea name="notes">@l.Notes</textarea><button class="btn" type="submit">Save notes</button></form>
+</div>
+<h2>Activations</h2>
+<table>
+    <thead><tr><th>Computer</th><th>Activated</th><th>Last validated</th><th>Version</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var a in Model.Activations)
+    {
+        <tr>
+            <td><a asp-page="/Devices/Details" asp-route-id="@a.DeviceId">@a.Device!.Label</a></td>
+            <td>@AdminPageModel.Date(a.ActivatedAt)</td><td>@AdminPageModel.Date(a.LastValidatedAt)</td><td>@a.AppVersion</td>
+            <td>@if (a.DeactivatedAt is null) { <span class="badge ok">Active</span> } else { <span class="badge">Deactivated @AdminPageModel.Day(a.DeactivatedAt) by @a.DeactivatedBy</span> }</td>
+            <td>@if (a.DeactivatedAt is null) { <form method="post" asp-page-handler="Deactivate" class="inline"><input type="hidden" name="activationId" value="@a.Id" /><button class="btn" type="submit">Deactivate</button></form> }</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<h2>Events</h2>
+<table>
+    <thead><tr><th>Time (UTC)</th><th>Event</th><th>Details</th><th>IP</th></tr></thead>
+    <tbody>
+    @foreach (var e in Model.Events) { <tr><td>@AdminPageModel.Date(e.CreatedAt)</td><td><code>@e.EventType</code></td><td class="mono">@e.Details</td><td class="muted">@e.IpAddress</td></tr> }
+    </tbody>
+</table>
+<h2>Audit</h2>
+<table>
+    <thead><tr><th>Time (UTC)</th><th>Administrator</th><th>Action</th><th>After</th></tr></thead>
+    <tbody>
+    @foreach (var a in Model.Audit) { <tr><td>@AdminPageModel.Date(a.CreatedAt)</td><td>@a.Actor</td><td><code>@a.Action</code></td><td class="mono">@a.After</td></tr> }
+    </tbody>
+</table>

@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.Pages.ImportPageView"
+             x:DataType="p:ImportPageViewModel"
+             DragDrop.AllowDrop="True">
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,380" ColumnSpacing="16" RowSpacing="12">
+    <!-- Drop zone / actions -->
+    <Border Grid.ColumnSpan="2" Classes="card" BorderBrush="{DynamicResource BorderStrong}" BorderThickness="1.5" Padding="18">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+        <PathIcon Data="{StaticResource Icon.Import}" Width="36" Height="36" Foreground="{DynamicResource Accent}" />
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+          <TextBlock Classes="h3" Text="Drop SEG-2 files or folders here" />
+          <TextBlock Classes="muted" Text="{Binding SupportedFormats, StringFormat='Supported: {0}. Files are inspected first; nothing is imported until you click Import.'}" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Classes="primary" Command="{Binding AddFilesCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Plus}" Classes="sm" Foreground="White" /><TextBlock Text="Add files…" Foreground="White" /></StackPanel></Button>
+          <Button Command="{Binding AddFolderCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Folder}" Classes="sm" /><TextBlock Text="Add folder…" /></StackPanel></Button>
+          <Button Content="Clear" Command="{Binding ClearCommand}" IsVisible="{Binding HasPreview}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Preview -->
+    <Border Grid.Row="1" Classes="panel">
+      <Panel>
+        <StackPanel IsVisible="{Binding !HasPreview}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="24">
+          <TextBlock Classes="h3" HorizontalAlignment="Center" Text="{Binding Imported.Count, StringFormat='{}{0} record(s) in this project'}" />
+          <TextBlock Classes="muted" HorizontalAlignment="Center" Text="Add files to preview them before importing." />
+          <DataGrid ItemsSource="{Binding Imported}" IsVisible="{Binding HasImported}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="420" Width="760">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="*" />
+              <DataGridTextColumn Header="Traces" Binding="{Binding Traces}" />
+              <DataGridTextColumn Header="Depth" Binding="{Binding Depth}" />
+              <DataGridTextColumn Header="Shot" Binding="{Binding Shot}" />
+              <DataGridTextColumn Header="SHA-256" Binding="{Binding Sha}" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </StackPanel>
+        <DockPanel IsVisible="{Binding HasPreview}">
+          <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="14,12">
+            <TextBlock Classes="h3" Text="{Binding Summary}" VerticalAlignment="Center" />
+            <ProgressBar Grid.Column="1" Width="160" Value="{Binding Progress}" IsVisible="{Binding IsBusy}" />
+          </Grid>
+          <DataGrid ItemsSource="{Binding Files}" AutoGenerateColumns="False" CanUserResizeColumns="True" Margin="6,0,6,6">
+            <DataGrid.Columns>
+              <DataGridCheckBoxColumn Header="Import" Binding="{Binding Include}" Width="64" />
+              <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="230" IsReadOnly="True" />
+              <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Traces" Binding="{Binding Traces}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Channels" Binding="{Binding Channels}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Sampling" Binding="{Binding SampleRate}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Samples" Binding="{Binding Samples}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Recorded" Binding="{Binding Recorded}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Labels" Binding="{Binding Labels}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Suggested depth" Binding="{Binding Depth}" IsReadOnly="True" />
+              <DataGridTextColumn Header="Shot" Binding="{Binding Shot}" IsReadOnly="True" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </Panel>
+    </Border>
+
+    <!-- Validation and options -->
+    <Border Grid.Row="1" Grid.Column="1" Classes="panel">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Margin="14" Spacing="10" IsVisible="{Binding HasPreview}">
+          <TextBlock Classes="caps" Text="CORRECTIONS (APPLIED ONLY IF TICKED)" />
+          <CheckBox IsChecked="{Binding SkipDuplicates}" Content="Import only one copy of identical files" IsVisible="{Binding HasDuplicates}" />
+          <CheckBox IsChecked="{Binding OrderByTime}" Content="Order records by recording time instead of file name" IsVisible="{Binding HasOrderIssue}" />
+          <CheckBox IsChecked="{Binding ApplySuggestedDepths}" Content="Create depths from the suggested depths and shot types" IsVisible="{Binding HasDepthHints}" />
+          <TextBlock Classes="faint wrap" Text="{Binding ChannelSuggestion}" IsVisible="{Binding ChannelSuggestion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <Button Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding ImportCommand}">
+            <TextBlock Text="Import selected files" Foreground="White" FontWeight="SemiBold" />
+          </Button>
+        </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="caps" Text="CHECKS" Margin="14,14,14,6" />
+        <ScrollViewer>
+          <ItemsControl ItemsSource="{Binding Diagnostics}" Margin="10,0,10,10">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="p:DiagnosticRow">
+                <Border Margin="0,3" Padding="10,8" CornerRadius="6" Classes.badbox="{Binding IsError}" Classes.warnbox="{Binding IsWarning}" Classes.guide="{Binding IsInfo}">
+                  <StackPanel Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <PathIcon Data="{StaticResource Icon.Problem}" Classes="sm" Foreground="{DynamicResource Bad}" IsVisible="{Binding IsError}" />
+                      <PathIcon Data="{StaticResource Icon.Warning}" Classes="sm" Foreground="{DynamicResource Warn}" IsVisible="{Binding IsWarning}" />
+                      <PathIcon Data="{StaticResource Icon.Info}" Classes="sm" Foreground="{DynamicResource Info}" IsVisible="{Binding IsInfo}" />
+                      <TextBlock Text="{Binding SeverityText}" FontWeight="SemiBold" FontSize="12" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                    <Expander Header="Show details" IsVisible="{Binding HasDetails}" Padding="4">
+                      <SelectableTextBlock Text="{Binding Details}" TextWrapping="Wrap" FontSize="12" />
+                    </Expander>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

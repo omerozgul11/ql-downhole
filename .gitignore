@@ -1,0 +1,33 @@
+# Build output
+bin/
+obj/
+artifacts/
+dist/
+publish/
+*.user
+*.suo
+.vs/
+.idea/
+TestResults/
+*.trx
+coverage*/
+
+# Local toolchain and caches (installed by scripts/setup-dev.sh)
+.tools/
+.nuget/
+
+# Never commit secrets
+*.pem
+*.pfx
+*.p12
+*.key
+.env
+secrets/
+appsettings.*.local.json
+
+# Local data
+*.dhsx.bak
+*.tmp
+
+# Generated test output
+docs/validation/*.json.tmp

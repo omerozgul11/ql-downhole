@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             xmlns:c="using:DownholeStudio.App.Controls"
+             x:Class="DownholeStudio.App.Views.Pages.EngineeringPageView"
+             x:DataType="p:EngineeringPageViewModel">
+  <Grid ColumnDefinitions="380,14,*">
+    <ScrollViewer>
+      <StackPanel Spacing="14">
+        <!-- Vs30 -->
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="caps" Text="VS30 (TIME-AVERAGED, TOP 30 M)" />
+            <TextBlock Classes="value" Text="{Binding Vs30Value}" />
+            <Border Classes="warnbox" IsVisible="{Binding Vs30Extrapolated}">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Warning}" Classes="sm" Foreground="{DynamicResource Warn}" /><TextBlock Text="EXTRAPOLATED" FontWeight="Bold" Foreground="{DynamicResource Warn}" /></StackPanel>
+            </Border>
+            <TextBlock Classes="muted wrap" Text="{Binding Vs30Status}" />
+            <CheckBox IsChecked="{Binding AllowExtrapolation}" Content="Allow extrapolation below the deepest measurement" />
+            <Border Classes="divider" Margin="0,4" />
+            <TextBlock Classes="label" Text="Other time-averaged intervals" />
+            <ItemsControl ItemsSource="{Binding Intervals}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="p:IntervalRow">
+                  <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,2">
+                    <StackPanel><TextBlock Text="{Binding Label}" /><TextBlock Text="{Binding Status}" Classes="faint" /></StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
+                    <Button Grid.Column="2" Classes="subtle" Command="{Binding $parent[UserControl].((p:EngineeringPageViewModel)DataContext).RemoveIntervalCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Delete}" Classes="sm" /></Button>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBox Text="{Binding IntervalTop}" PlaceholderText="Top" Width="80" />
+              <TextBox Text="{Binding IntervalBottom}" PlaceholderText="Bottom" Width="80" />
+              <TextBlock Text="{Binding LengthUnit}" VerticalAlignment="Center" Classes="muted" />
+              <Button Content="Add" Command="{Binding AddIntervalCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Density -->
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h3" Text="Density" />
+            <ComboBox ItemsSource="{x:Static p:EngineeringPageViewModel.SourceOptions}" SelectedItem="{Binding DensitySource}" HorizontalAlignment="Stretch" />
+            <StackPanel IsVisible="{Binding IsConstant}" Orientation="Horizontal" Spacing="8">
+              <TextBox Text="{Binding ConstantDensity}" Width="120" />
+              <TextBlock Text="{Binding DensityUnit}" VerticalAlignment="Center" Classes="muted" />
+            </StackPanel>
+            <StackPanel IsVisible="{Binding IsEstimated}" Spacing="8">
+              <ComboBox ItemsSource="{x:Static p:EngineeringPageViewModel.EstimationOptions}" SelectedItem="{Binding Estimation}" HorizontalAlignment="Stretch" />
+              <Border Classes="warnbox"><TextBlock Text="{Binding EstimationAssumptions}" TextWrapping="Wrap" FontSize="12" /></Border>
+              <TextBlock Classes="faint wrap" Text="Estimated densities and the moduli derived from them are labelled ESTIMATED in tables, plots and the report." />
+            </StackPanel>
+            <DataGrid ItemsSource="{Binding Densities}" AutoGenerateColumns="False" CanUserSortColumns="False" MaxHeight="320">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Layer" Binding="{Binding Range}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Measured" Binding="{Binding Density}" Width="90" />
+                <DataGridTextColumn Header="Used" Binding="{Binding Used}" IsReadOnly="True" />
+              </DataGrid.Columns>
+            </DataGrid>
+            <Button Content="Fill empty layers with the first value" Command="{Binding ApplyDensityToAllCommand}" IsVisible="{Binding IsMeasured}" HorizontalAlignment="Left" />
+          </StackPanel>
+        </Border>
+
+        <!-- Readout -->
+        <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="h3" Text="{Binding ReadoutDepth}" TextWrapping="Wrap" />
+            <ItemsControl ItemsSource="{Binding Readout}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="p:ReadoutRow">
+                  <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                    <TextBlock Text="{Binding Key}" Classes="muted" />
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="Medium" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <DockPanel Grid.Column="2">
+      <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Toggles}" Margin="0,0,0,8">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel ItemSpacing="12" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="p:ProfileToggle"><CheckBox IsChecked="{Binding IsOn}" Content="{Binding Label}" /></DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Border Classes="panel" Padding="4">
+        <ItemsControl ItemsSource="{Binding Plots}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="p:PropertyPlot">
+              <c:PlotView Model="{Binding Model}" ZoomX="False" CursorMoved="OnCursorMoved" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </DockPanel>
+  </Grid>
+</UserControl>

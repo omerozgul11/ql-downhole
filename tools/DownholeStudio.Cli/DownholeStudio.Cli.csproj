@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>dhs</AssemblyName>
+    <RootNamespace>DownholeStudio.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DownholeStudio.Core/DownholeStudio.Core.csproj" />
+    <ProjectReference Include="../../src/DownholeStudio.Reporting/DownholeStudio.Reporting.csproj" />
+    <ProjectReference Include="../../src/DownholeStudio.Synthetics/DownholeStudio.Synthetics.csproj" />
+    <ProjectReference Include="../../src/DownholeStudio.Licensing/DownholeStudio.Licensing.csproj" />
+  </ItemGroup>
+</Project>

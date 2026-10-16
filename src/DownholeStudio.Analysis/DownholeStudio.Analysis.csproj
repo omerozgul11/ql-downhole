@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Analysis</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Domain\DownholeStudio.Domain.csproj" />
+    <ProjectReference Include="..\DownholeStudio.SignalProcessing\DownholeStudio.SignalProcessing.csproj" />
+  </ItemGroup>
+</Project>

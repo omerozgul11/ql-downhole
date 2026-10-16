@@ -1,0 +1,287 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://DownholeStudio/Styles/Icons.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+
+      <FontFamily x:Key="AppFont">avares://DownholeStudio/Assets/Fonts#Inter</FontFamily>
+      <CornerRadius x:Key="Radius">6</CornerRadius>
+      <CornerRadius x:Key="RadiusLarge">10</CornerRadius>
+
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="Bg" Color="#F4F5F8" />
+          <SolidColorBrush x:Key="Surface" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="SurfaceAlt" Color="#F8F9FB" />
+          <SolidColorBrush x:Key="SurfaceSunken" Color="#EEF0F4" />
+          <SolidColorBrush x:Key="Border" Color="#E1E4EA" />
+          <SolidColorBrush x:Key="BorderStrong" Color="#C9CED8" />
+          <SolidColorBrush x:Key="Text" Color="#161A22" />
+          <SolidColorBrush x:Key="TextMuted" Color="#5B6372" />
+          <SolidColorBrush x:Key="TextFaint" Color="#8A92A1" />
+          <SolidColorBrush x:Key="Accent" Color="#E5531A" />
+          <SolidColorBrush x:Key="AccentHover" Color="#CC4612" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#FDEDE5" />
+          <SolidColorBrush x:Key="AccentText" Color="#B8410F" />
+          <SolidColorBrush x:Key="Chrome" Color="#0B0F18" />
+          <SolidColorBrush x:Key="ChromeText" Color="#E8EAEF" />
+          <SolidColorBrush x:Key="ChromeMuted" Color="#9AA3B2" />
+          <SolidColorBrush x:Key="ChromeHover" Color="#1A2030" />
+          <SolidColorBrush x:Key="NavSelected" Color="#FDEDE5" />
+          <SolidColorBrush x:Key="Good" Color="#1F8A5B" />
+          <SolidColorBrush x:Key="GoodSoft" Color="#E6F4EC" />
+          <SolidColorBrush x:Key="Warn" Color="#9A6512" />
+          <SolidColorBrush x:Key="WarnSoft" Color="#FDF3DC" />
+          <SolidColorBrush x:Key="Bad" Color="#C62828" />
+          <SolidColorBrush x:Key="BadSoft" Color="#FCE8E8" />
+          <SolidColorBrush x:Key="Info" Color="#1F6FD1" />
+          <SolidColorBrush x:Key="InfoSoft" Color="#E7F0FC" />
+          <SolidColorBrush x:Key="PColor" Color="#1F6FD1" />
+          <SolidColorBrush x:Key="SColor" Color="#C2410C" />
+          <SolidColorBrush x:Key="Overlay" Color="#66101420" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="Bg" Color="#0E1015" />
+          <SolidColorBrush x:Key="Surface" Color="#161920" />
+          <SolidColorBrush x:Key="SurfaceAlt" Color="#1A1E26" />
+          <SolidColorBrush x:Key="SurfaceSunken" Color="#11141A" />
+          <SolidColorBrush x:Key="Border" Color="#262B35" />
+          <SolidColorBrush x:Key="BorderStrong" Color="#353C49" />
+          <SolidColorBrush x:Key="Text" Color="#E6E9EF" />
+          <SolidColorBrush x:Key="TextMuted" Color="#A3ABB9" />
+          <SolidColorBrush x:Key="TextFaint" Color="#6F7787" />
+          <SolidColorBrush x:Key="Accent" Color="#F26522" />
+          <SolidColorBrush x:Key="AccentHover" Color="#FF7A3D" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#2A1A12" />
+          <SolidColorBrush x:Key="AccentText" Color="#FF9A66" />
+          <SolidColorBrush x:Key="Chrome" Color="#07090E" />
+          <SolidColorBrush x:Key="ChromeText" Color="#E8EAEF" />
+          <SolidColorBrush x:Key="ChromeMuted" Color="#8A93A3" />
+          <SolidColorBrush x:Key="ChromeHover" Color="#161B27" />
+          <SolidColorBrush x:Key="NavSelected" Color="#2A1A12" />
+          <SolidColorBrush x:Key="Good" Color="#3CC48A" />
+          <SolidColorBrush x:Key="GoodSoft" Color="#12261C" />
+          <SolidColorBrush x:Key="Warn" Color="#E3B341" />
+          <SolidColorBrush x:Key="WarnSoft" Color="#2A2312" />
+          <SolidColorBrush x:Key="Bad" Color="#FF6B6B" />
+          <SolidColorBrush x:Key="BadSoft" Color="#2C1517" />
+          <SolidColorBrush x:Key="Info" Color="#5AA2FF" />
+          <SolidColorBrush x:Key="InfoSoft" Color="#122033" />
+          <SolidColorBrush x:Key="PColor" Color="#5AA2FF" />
+          <SolidColorBrush x:Key="SColor" Color="#FF8A4C" />
+          <SolidColorBrush x:Key="Overlay" Color="#99000000" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <Style Selector="Window">
+    <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Background" Value="{DynamicResource Bg}" />
+    <Setter Property="Foreground" Value="{DynamicResource Text}" />
+  </Style>
+
+  <!-- Typography -->
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="22" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+  </Style>
+  <Style Selector="TextBlock.faint">
+    <Setter Property="Foreground" Value="{DynamicResource TextFaint}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="TextBlock.label">
+    <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="Margin" Value="0,0,0,4" />
+  </Style>
+  <Style Selector="TextBlock.caps">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="0.6" />
+    <Setter Property="Foreground" Value="{DynamicResource TextFaint}" />
+  </Style>
+  <Style Selector="TextBlock.value">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.mono">
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Menlo, monospace" />
+  </Style>
+  <Style Selector="TextBlock.wrap">
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Surfaces -->
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusLarge}" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+  <Style Selector="Border.panel">
+    <Setter Property="Background" Value="{DynamicResource Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusLarge}" />
+  </Style>
+  <Style Selector="Border.sunken">
+    <Setter Property="Background" Value="{DynamicResource SurfaceSunken}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="10" />
+  </Style>
+  <Style Selector="Border.divider">
+    <Setter Property="Background" Value="{DynamicResource Border}" />
+    <Setter Property="Height" Value="1" />
+  </Style>
+  <Style Selector="Border.guide">
+    <Setter Property="Background" Value="{DynamicResource InfoSoft}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.warnbox">
+    <Setter Property="Background" Value="{DynamicResource WarnSoft}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.badbox">
+    <Setter Property="Background" Value="{DynamicResource BadSoft}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.goodbox">
+    <Setter Property="Background" Value="{DynamicResource GoodSoft}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.chip">
+    <Setter Property="CornerRadius" Value="11" />
+    <Setter Property="Padding" Value="9,3" />
+    <Setter Property="Background" Value="{DynamicResource SurfaceSunken}" />
+  </Style>
+
+  <!-- Buttons -->
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentHover}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.subtle">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="Button.subtle:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SurfaceSunken}" />
+  </Style>
+  <Style Selector="Button.tool">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource ChromeText}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="9,5" />
+    <Setter Property="FontSize" Value="12.5" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource ChromeHover}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.tool:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="#555C69" />
+  </Style>
+  <Style Selector="Button.link">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+  </Style>
+  <Style Selector="Button.danger">
+    <Setter Property="Foreground" Value="{DynamicResource Bad}" />
+  </Style>
+
+  <!-- Icons -->
+  <Style Selector="PathIcon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+  </Style>
+  <Style Selector="PathIcon.lg">
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Height" Value="22" />
+  </Style>
+  <Style Selector="PathIcon.sm">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+  </Style>
+
+  <!-- Navigation -->
+  <Style Selector="ListBox.nav">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="8" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem">
+    <Setter Property="Padding" Value="10,7" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource NavSelected}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected TextBlock.navtitle">
+    <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected PathIcon.navicon">
+    <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+  </Style>
+
+  <!-- Inputs -->
+  <Style Selector="TextBox">
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+  </Style>
+
+  <!-- Data grid -->
+  <Style Selector="DataGrid">
+    <Setter Property="GridLinesVisibility" Value="Horizontal" />
+    <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Border}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Background" Value="{DynamicResource Surface}" />
+  </Style>
+
+  <Style Selector="TabControl">
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="TabItem">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="MinHeight" Value="34" />
+    <Setter Property="Padding" Value="12,0" />
+  </Style>
+</Styles>

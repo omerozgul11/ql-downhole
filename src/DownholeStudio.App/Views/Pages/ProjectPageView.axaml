@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.Pages.ProjectPageView"
+             x:DataType="p:ProjectPageViewModel">
+  <ScrollViewer>
+    <Grid ColumnDefinitions="*,16,*" RowDefinitions="Auto,16,Auto">
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="h2" Text="Survey details" />
+          <StackPanel><TextBlock Classes="label" Text="Project name" /><TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+          <Grid ColumnDefinitions="*,12,*">
+            <StackPanel><TextBlock Classes="label" Text="Job number" /><TextBox Text="{Binding JobNumber, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+            <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="Survey date" /><CalendarDatePicker SelectedDate="{Binding SurveyDate}" HorizontalAlignment="Stretch" /></StackPanel>
+          </Grid>
+          <StackPanel><TextBlock Classes="label" Text="Field crew" /><TextBox Text="{Binding FieldCrew, UpdateSourceTrigger=LostFocus}" /></StackPanel>
+          <StackPanel><TextBlock Classes="label" Text="Description" /><TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=LostFocus}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" /></StackPanel>
+          <StackPanel><TextBlock Classes="label" Text="Notes" /><TextBox Text="{Binding Notes, UpdateSourceTrigger=LostFocus}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" /></StackPanel>
+          <CheckBox IsChecked="{Binding UseUsUnits}" Content="Display this project in US customary units (ft, ft/s, pcf, ksf)" />
+          <TextBlock Classes="faint wrap" Text="Units change only how values are displayed and exported; calculations always use SI at full precision." />
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="2" Classes="card">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="h2" Text="Project file" />
+          <StackPanel><TextBlock Classes="label" Text="Location" /><SelectableTextBlock Text="{Binding FileLocation}" TextWrapping="Wrap" /></StackPanel>
+          <StackPanel><TextBlock Classes="label" Text="Project ID" /><SelectableTextBlock Text="{Binding ProjectId}" Classes="mono" FontSize="12" /></StackPanel>
+          <TextBlock Classes="faint" Text="{Binding CreatedWith}" />
+          <WrapPanel ItemSpacing="8" LineSpacing="8">
+            <Button Classes="primary" Command="{Binding SaveCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Save}" Foreground="White" Classes="sm" /><TextBlock Text="Save" Foreground="White" /></StackPanel></Button>
+            <Button Content="Save As…" Command="{Binding SaveAsCommand}" />
+            <Button Command="{Binding DuplicateCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Duplicate}" Classes="sm" /><TextBlock Text="Duplicate…" /></StackPanel></Button>
+            <Button Command="{Binding ArchiveCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Archive}" Classes="sm" /><TextBlock Text="Create archive…" /></StackPanel></Button>
+            <Button Content="Export audit record…" Command="{Binding ExportAuditCommand}" />
+          </WrapPanel>
+          <TextBlock Classes="faint wrap" Text="Saving is atomic: the previous version is kept as .dhsx.bak. Original records are embedded byte-for-byte with SHA-256 checksums so another engineer can verify exactly which data was analysed." />
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Row="2" Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="Scenarios" />
+          <TextBlock Classes="muted wrap" Text="Alternative interpretations of the same data (e.g. manual vs automatic picks, other filters). Raw data is shared, not copied." />
+          <ItemsControl ItemsSource="{Binding Scenarios}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="p:ScenarioRow">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                    <TextBlock Text="{Binding Description}" Classes="faint" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Border Classes="chip" IsVisible="{Binding Active}"><TextBlock Text="Active" FontSize="11" Foreground="{DynamicResource AccentText}" /></Border>
+                    <Button Content="Activate" IsVisible="{Binding !Active}" Command="{Binding $parent[UserControl].((p:ProjectPageViewModel)DataContext).ActivateScenarioCommand}" CommandParameter="{Binding}" />
+                    <Button Classes="subtle" ToolTip.Tip="Delete scenario" Command="{Binding $parent[UserControl].((p:ProjectPageViewModel)DataContext).DeleteScenarioCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Delete}" Classes="sm" /></Button>
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Text="{Binding NewScenarioName}" PlaceholderText="New scenario name (copy of the active one)" />
+            <Button Grid.Column="1" Content="Create scenario" Command="{Binding CreateScenarioCommand}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Row="2" Grid.Column="2" Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="Snapshots" />
+          <TextBlock Classes="muted wrap" Text="A snapshot stores the whole interpretation at this moment inside the project. Restoring one can be undone." />
+          <TextBlock Classes="faint" Text="No snapshots yet." IsVisible="{Binding !Snapshots.Count}" />
+          <ItemsControl ItemsSource="{Binding Snapshots}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="p:SnapshotRow">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                    <TextBlock Text="{Binding Created}" Classes="faint" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button Content="Restore" Command="{Binding $parent[UserControl].((p:ProjectPageViewModel)DataContext).RestoreSnapshotCommand}" CommandParameter="{Binding}" />
+                    <Button Classes="subtle" ToolTip.Tip="Delete snapshot" Command="{Binding $parent[UserControl].((p:ProjectPageViewModel)DataContext).DeleteSnapshotCommand}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource Icon.Delete}" Classes="sm" /></Button>
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Text="{Binding NewSnapshotName}" PlaceholderText="Snapshot name (optional)" />
+            <Button Grid.Column="1" Command="{Binding CreateSnapshotCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Snapshot}" Classes="sm" /><TextBlock Text="Create snapshot" /></StackPanel></Button>
+          </Grid>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

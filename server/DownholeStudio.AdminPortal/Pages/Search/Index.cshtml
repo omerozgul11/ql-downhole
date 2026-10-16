@@ -1,0 +1,18 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Search.IndexModel
+@{
+    ViewData["Title"] = "Search";
+}
+<h1>Search</h1>
+<form method="get" class="toolbar"><input asp-for="Q" type="search" placeholder="Customer e-mail or name, license ID, last 4 of key, device hash prefix" /><button class="btn">Search</button></form>
+@if (!string.IsNullOrWhiteSpace(Model.Q))
+{
+    <h2>Customers (@Model.Customers.Count)</h2>
+    <table><tbody>@foreach (var c in Model.Customers) { <tr><td><a asp-page="/Customers/Details" asp-route-id="@c.Id">@c.Email</a></td><td>@c.Name</td><td>@c.Company</td></tr> }</tbody></table>
+    <h2>Licenses (@Model.Licenses.Count)</h2>
+    <table><tbody>@foreach (var l in Model.Licenses) { <tr><td><a asp-page="/Licenses/Details" asp-route-id="@l.Id">@l.Id.ToString()[..8]</a></td><td class="mono">…@l.KeyHint</td><td>@l.Customer!.Email</td><td><span class="badge @AdminPageModel.StatusCss(l.Status)">@l.Status</span></td></tr> }</tbody></table>
+    <h2>Devices (@Model.Devices.Count)</h2>
+    <table><tbody>@foreach (var d in Model.Devices) { <tr><td><a asp-page="/Devices/Details" asp-route-id="@d.Id">@d.Label</a></td><td class="mono">@AdminPageModel.Short(d.DeviceHash)</td><td>@AdminPageModel.Date(d.LastSeenAt)</td></tr> }</tbody></table>
+    <h2>Trials (@Model.Trials.Count)</h2>
+    <table><tbody>@foreach (var t in Model.Trials) { <tr><td class="mono">@AdminPageModel.Short(t.DeviceHash)</td><td>@t.Email</td><td>ends @AdminPageModel.Date(t.TrialEnd)</td></tr> }</tbody></table>
+}

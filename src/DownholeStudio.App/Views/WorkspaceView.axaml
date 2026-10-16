@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DownholeStudio.App.ViewModels"
+             xmlns:pages="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.WorkspaceView"
+             x:DataType="vm:WorkspaceViewModel">
+  <DockPanel>
+    <!-- Workflow strip: 12 steps with status; click to jump. -->
+    <Border DockPanel.Dock="Top" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="0,0,0,1">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Steps}" Margin="10,6">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:WorkflowStepViewModel">
+              <Button Classes="subtle" Command="{Binding GoCommand}" Padding="8,4" ToolTip.Tip="{Binding Hint}" Classes.current="{Binding IsCurrent}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Panel Width="18" Height="18">
+                    <Ellipse Fill="{DynamicResource Good}" IsVisible="{Binding IsDone}" />
+                    <Ellipse Fill="{DynamicResource Warn}" IsVisible="{Binding NeedsAttention}" />
+                    <Ellipse Stroke="{DynamicResource BorderStrong}" StrokeThickness="1.5" IsVisible="{Binding IsPending}" />
+                    <PathIcon Data="{StaticResource Icon.Check}" Width="11" Height="11" Foreground="White" IsVisible="{Binding IsDone}" />
+                    <TextBlock Text="!" Foreground="White" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding NeedsAttention}" />
+                    <TextBlock Text="{Binding Number}" FontSize="10" Foreground="{DynamicResource TextMuted}" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsPending}" />
+                  </Panel>
+                  <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" FontWeight="{Binding IsCurrent, Converter={x:Static vm:Converters.BoldIf}}" />
+                  <TextBlock Text="›" Classes="faint" VerticalAlignment="Center" Margin="4,0,0,0" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+
+    <Grid ColumnDefinitions="214,*,Auto">
+      <!-- Navigation -->
+      <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="0,0,1,0">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Bottom" Margin="12" Spacing="6">
+            <Border Classes="sunken" Padding="10,8">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="caps" Text="SCENARIO" />
+                <TextBlock Text="{Binding State.ActiveScenario.Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          <ListBox Classes="nav" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="pages:PageViewModel">
+                <Grid ColumnDefinitions="Auto,*,Auto" ToolTip.Tip="{Binding StatusTip}">
+                  <PathIcon Classes="navicon" Data="{Binding IconData}" Margin="0,0,10,0" Foreground="{DynamicResource TextMuted}" />
+                  <TextBlock Classes="navtitle" Grid.Column="1" Text="{Binding NavTitle}" VerticalAlignment="Center" FontWeight="Medium" />
+                  <Panel Grid.Column="2">
+                    <PathIcon Data="{StaticResource Icon.Good}" Classes="sm" Foreground="{DynamicResource Good}" IsVisible="{Binding StatusGlyph, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=Good}" />
+                    <PathIcon Data="{StaticResource Icon.Warning}" Classes="sm" Foreground="{DynamicResource Warn}" IsVisible="{Binding StatusGlyph, Converter={x:Static vm:Converters.IsEqual}, ConverterParameter=Warning}" />
+                  </Panel>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- Centre -->
+      <DockPanel Grid.Column="1">
+        <Border DockPanel.Dock="Top" Padding="20,14,20,10">
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+            <TextBlock Classes="h1" Text="{Binding CurrentPage.Title, FallbackValue=''}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <TextBlock Text="Read-only" Classes="faint" VerticalAlignment="Center" IsVisible="{Binding !CanEdit}" />
+              <Button Classes="subtle" Command="{Binding CurrentPage.OpenHelpCommand, FallbackValue={x:Null}}" ToolTip.Tip="Help for this page">
+                <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Help}" Classes="sm" /><TextBlock Text="Help" /></StackPanel>
+              </Button>
+              <Button Classes="primary" Command="{Binding CurrentPage.GoNextCommand, FallbackValue={x:Null}}" IsVisible="{Binding CurrentPage.NextTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}, FallbackValue=False}">
+                <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{Binding CurrentPage.NextTitle, FallbackValue=''}" Foreground="White" /><PathIcon Data="{StaticResource Icon.ChevronRight}" Classes="sm" Foreground="White" /></StackPanel>
+              </Button>
+              <ToggleButton IsChecked="{Binding IsInspectorOpen}" ToolTip.Tip="Show or hide the inspector" Padding="8,6" IsVisible="{Binding CurrentPage.HasInspector, FallbackValue=False}">
+                <PathIcon Data="{StaticResource Icon.Info}" Classes="sm" />
+              </ToggleButton>
+            </StackPanel>
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Classes="guide" Margin="0,10,0,0" IsVisible="{Binding CurrentPage.IsGuided, FallbackValue=False}">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <PathIcon Data="{StaticResource Icon.Bulb}" Foreground="{DynamicResource Info}" VerticalAlignment="Top" />
+                <TextBlock Grid.Column="1" Text="{Binding CurrentPage.Description, FallbackValue=''}" TextWrapping="Wrap" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+        <ContentControl Content="{Binding CurrentPage}" Margin="20,0,20,16" />
+      </DockPanel>
+
+      <!-- Inspector -->
+      <Border Grid.Column="2" Width="330" IsVisible="{Binding ShowInspector}" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="1,0,0,0">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Classes="caps" Text="INSPECTOR" Margin="16,14,16,6" />
+          <Panel>
+            <TextBlock Classes="muted wrap" Margin="16,4" Text="Select a trace, pick, processing step or layer to see and edit its properties here."
+                       IsVisible="{Binding Inspector, Converter={x:Static ObjectConverters.IsNull}}" />
+            <ScrollViewer>
+              <ContentControl Content="{Binding Inspector}" Margin="16,0,16,16" />
+            </ScrollViewer>
+          </Panel>
+        </DockPanel>
+      </Border>
+    </Grid>
+  </DockPanel>
+</UserControl>

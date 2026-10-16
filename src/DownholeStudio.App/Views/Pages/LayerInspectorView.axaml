@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:DownholeStudio.App.ViewModels.Pages"
+             x:Class="DownholeStudio.App.Views.Pages.LayerInspectorView"
+             x:DataType="p:LayerInspectorViewModel">
+  <StackPanel Spacing="12">
+    <TextBlock Classes="h2" Text="{Binding Header}" />
+    <StackPanel IsVisible="{Binding CanMoveTop}"><TextBlock Classes="label" Text="Top depth" /><NumericUpDown Value="{Binding Top}" Increment="0.25" FormatString="0.###" /></StackPanel>
+    <Grid ColumnDefinitions="130,*"><TextBlock Classes="muted" Text="Bottom" /><TextBlock Grid.Column="1" Text="{Binding Bottom}" /></Grid>
+    <ItemsControl ItemsSource="{Binding Rows}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="p:ReadoutRow">
+          <Grid ColumnDefinitions="130,*" Margin="0,2">
+            <TextBlock Text="{Binding Key}" Classes="muted" />
+            <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" />
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <WrapPanel ItemSpacing="8" LineSpacing="8">
+      <Button Command="{Binding SplitCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Split}" Classes="sm" /><TextBlock Text="Split" /></StackPanel></Button>
+      <Button Command="{Binding MergeCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Merge}" Classes="sm" /><TextBlock Text="Merge with below" /></StackPanel></Button>
+      <Button Classes="danger" Command="{Binding DeleteCommand}" IsVisible="{Binding CanMoveTop}" Content="Delete boundary" />
+    </WrapPanel>
+    <ItemsControl ItemsSource="{Binding Issues}" IsVisible="{Binding HasIssues}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="p:FlagRow">
+          <Border Margin="0,3" Classes.badbox="{Binding IsError}" Classes.warnbox="{Binding IsWarning}" Classes.guide="{Binding IsInfo}">
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" />
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

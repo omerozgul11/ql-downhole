@@ -1,0 +1,25 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Devices.IndexModel
+@{
+    ViewData["Title"] = "Devices";
+}
+<h1>Devices</h1>
+<p class="muted">Computers are identified by salted hashes; raw hardware identifiers are never received.</p>
+<div class="toolbar"><form method="get" class="inline grow"><input asp-for="Q" type="search" placeholder="Device hash prefix or computer name" /><button class="btn">Filter</button></form></div>
+<table>
+    <thead><tr><th>Computer</th><th>Device hash</th><th>OS</th><th>Version</th><th>Active licenses</th><th>Last seen</th><th>Status</th></tr></thead>
+    <tbody>
+    @foreach (var (d, active) in Model.Rows)
+    {
+        <tr>
+            <td><a asp-page="Details" asp-route-id="@d.Id">@d.Label</a></td><td class="mono">@AdminPageModel.Short(d.DeviceHash)</td>
+            <td>@d.OsVersion</td><td>@d.AppVersion</td><td>@active</td><td>@AdminPageModel.Date(d.LastSeenAt)</td>
+            <td>@if (d.Blocked) { <span class="badge bad">Blocked</span> }</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-q="@Model.Q" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-q="@Model.Q" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

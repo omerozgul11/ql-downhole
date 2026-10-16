@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DownholeStudio.App.ViewModels"
+             x:Class="DownholeStudio.App.Views.PaletteView"
+             x:DataType="vm:CommandPaletteViewModel">
+  <Border Background="{DynamicResource Overlay}" PointerPressed="OnBackgroundPressed">
+    <Border Classes="card" Width="620" VerticalAlignment="Top" Margin="0,90,0,0" Padding="0" PointerPressed="OnCardPressed">
+      <DockPanel>
+        <TextBox x:Name="Search" DockPanel.Dock="Top" Margin="12" PlaceholderText="Type a command or page name…" Text="{Binding Query}" KeyDown="OnKeyDown" FontSize="15" />
+        <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding Selected}" MaxHeight="420" Margin="6,0,6,10" DoubleTapped="OnRun">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:PaletteCommand">
+              <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Text="{Binding Title}" />
+                <TextBlock Grid.Column="1" Text="{Binding Category}" Classes="faint" Margin="12,0" />
+                <Border Grid.Column="2" Classes="chip" IsVisible="{Binding Shortcut, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                  <TextBlock Text="{Binding Shortcut}" FontSize="11" />
+                </Border>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Border>
+</UserControl>

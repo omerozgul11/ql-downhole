@@ -1,0 +1,270 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DownholeStudio.App.ViewModels"
+        xmlns:pages="using:DownholeStudio.App.ViewModels.Pages"
+        xmlns:svc="using:DownholeStudio.App.Services"
+        xmlns:views="using:DownholeStudio.App.Views"
+        x:Class="DownholeStudio.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/DownholeStudio.ico"
+        Width="1440" Height="900" MinWidth="1080" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        DragDrop.AllowDrop="True">
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+N" Command="{Binding NewProjectCommand}" />
+    <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenProjectCommand}" />
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+    <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+    <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+    <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}" />
+    <KeyBinding Gesture="Ctrl+Shift+Z" Command="{Binding RedoCommand}" />
+    <KeyBinding Gesture="Ctrl+I" Command="{Binding ImportCommand}" />
+    <KeyBinding Gesture="Ctrl+R" Command="{Binding GenerateReportCommand}" />
+    <KeyBinding Gesture="Ctrl+K" Command="{Binding OpenPaletteCommand}" />
+    <KeyBinding Gesture="F1" Command="{Binding ToggleHelpCommand}" />
+  </Window.KeyBindings>
+
+  <Panel>
+    <DockPanel>
+      <!-- ============================== Top bar ============================== -->
+      <Border DockPanel.Dock="Top" Background="{DynamicResource Chrome}" Height="54">
+        <Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="12,0">
+          <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <Image Source="/Assets/DownholeStudio-256.png" Width="28" Height="28" />
+            <StackPanel VerticalAlignment="Center" Spacing="0">
+              <TextBlock Text="Downhole Studio" Foreground="{DynamicResource ChromeText}" FontWeight="SemiBold" FontSize="14" />
+              <TextBlock Text="{Binding VersionLabel}" Foreground="{DynamicResource ChromeMuted}" FontSize="10.5" />
+            </StackPanel>
+            <Border Width="1" Height="28" Background="#2A3140" Margin="8,0" />
+            <StackPanel VerticalAlignment="Center" IsVisible="{Binding HasProject}" MaxWidth="260">
+              <TextBlock Text="{Binding Workspace.ProjectName, FallbackValue=''}" Foreground="{DynamicResource ChromeText}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding Workspace.SaveStatus, FallbackValue=''}" Foreground="{DynamicResource ChromeMuted}" FontSize="11" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="1" Margin="18,0,0,0" VerticalAlignment="Center">
+            <Button Classes="tool" Command="{Binding NewProjectCommand}" ToolTip.Tip="New project (Ctrl+N)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.New}" /><TextBlock Text="New" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding OpenProjectCommand}" ToolTip.Tip="Open project (Ctrl+O)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Open}" /><TextBlock Text="Open" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding SaveCommand}" IsEnabled="{Binding HasProject}" ToolTip.Tip="Save (Ctrl+S)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Save}" /><TextBlock Text="Save" /></StackPanel>
+            </Button>
+            <Border Width="1" Height="22" Background="#2A3140" Margin="6,0" />
+            <Button Classes="tool" Command="{Binding Workspace.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasProject}" ToolTip.Tip="{Binding Workspace.UndoTip, FallbackValue='Undo'}">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Undo}" /><TextBlock Text="Undo" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding Workspace.RedoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasProject}" ToolTip.Tip="{Binding Workspace.RedoTip, FallbackValue='Redo'}">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Redo}" /><TextBlock Text="Redo" /></StackPanel>
+            </Button>
+            <Border Width="1" Height="22" Background="#2A3140" Margin="6,0" />
+            <Button Classes="tool" Command="{Binding ImportCommand}" ToolTip.Tip="Import SEG-2 data (Ctrl+I)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Import}" /><TextBlock Text="Import" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding ExportCommand}" IsEnabled="{Binding HasProject}" ToolTip.Tip="Export tables and figures">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Export}" /><TextBlock Text="Export" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding GenerateReportCommand}" IsEnabled="{Binding HasProject}" ToolTip.Tip="Generate PDF report (Ctrl+R)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Report}" /><TextBlock Text="Report" /></StackPanel>
+            </Button>
+            <Border Width="1" Height="22" Background="#2A3140" Margin="6,0" />
+            <Button Classes="tool" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="Settings">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Settings}" /><TextBlock Text="Settings" /></StackPanel>
+            </Button>
+            <Button Classes="tool" Command="{Binding ToggleHelpCommand}" ToolTip.Tip="Help for this page (F1)">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Help}" /><TextBlock Text="Help" /></StackPanel>
+            </Button>
+          </StackPanel>
+
+          <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Button Classes="tool" Command="{Binding OpenPaletteCommand}" ToolTip.Tip="Search commands (Ctrl+K)" Padding="10,5">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource Icon.Search}" />
+                <TextBlock Text="Search" />
+                <Border Background="#1E2533" CornerRadius="4" Padding="5,1"><TextBlock Text="Ctrl K" FontSize="10.5" Foreground="{DynamicResource ChromeMuted}" /></Border>
+              </StackPanel>
+            </Button>
+            <ToggleButton IsChecked="{Binding IsExpert}" Padding="10,5" CornerRadius="6" Background="#1A2030" Foreground="{DynamicResource ChromeText}" BorderThickness="0"
+                          ToolTip.Tip="Guided mode explains each step; Expert mode shows every parameter.">
+              <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Data="{StaticResource Icon.Bulb}" Classes="sm" /><TextBlock Text="{Binding ModeLabel}" FontSize="12" /></StackPanel>
+            </ToggleButton>
+            <Button Command="{Binding License.OpenCommand}" Padding="10,5" CornerRadius="12" BorderThickness="0" Background="#1A2030" ToolTip.Tip="{Binding License.Message}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource Icon.License}" Classes="sm" Foreground="#FFB289" />
+                <TextBlock Text="{Binding License.Chip}" Foreground="{DynamicResource ChromeText}" FontSize="12" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ============================== Licence banners ============================== -->
+      <Border DockPanel.Dock="Top" IsVisible="{Binding License.ShowTrialBanner}" Classes.warnbox="{Binding License.TrialUrgent}" Background="{DynamicResource AccentSoft}" Padding="16,6">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Info}" Classes="sm" Foreground="{DynamicResource AccentText}" />
+            <TextBlock Text="{Binding License.TrialBanner}" FontWeight="Medium" Foreground="{DynamicResource AccentText}" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button Classes="link" Content="Buy a license" Command="{Binding License.BuyCommand}" />
+            <Button Classes="link" Content="Activate" Command="{Binding License.OpenCommand}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+      <Border DockPanel.Dock="Top" IsVisible="{Binding License.ShowStateBanner}" Background="{DynamicResource WarnSoft}" Padding="16,7">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Warning}" Classes="sm" Foreground="{DynamicResource Warn}" />
+            <TextBlock Text="{Binding License.Title}" FontWeight="SemiBold" Foreground="{DynamicResource Warn}" />
+            <TextBlock Text="{Binding License.Message}" Foreground="{DynamicResource Text}" TextTrimming="CharacterEllipsis" MaxWidth="900" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button Content="Verify online" Command="{Binding License.RefreshOnlineCommand}" IsVisible="{Binding !License.NeedsActivation}" />
+            <Button Classes="primary" Content="Activate a license" Command="{Binding License.OpenCommand}" IsVisible="{Binding License.NeedsActivation}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ============================== Status bar ============================== -->
+      <Border DockPanel.Dock="Bottom" Height="26" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="0,1,0,0" Padding="12,0">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock VerticalAlignment="Center" Classes="faint" Text="{Binding Workspace.CurrentPage.Title, FallbackValue='Ready'}" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+            <TextBlock Classes="faint" Text="{Binding Workspace.SaveStatus, FallbackValue=''}" />
+            <TextBlock Classes="faint" Text="{Binding UpdateMessage}" IsVisible="{Binding UpdateMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <Button Classes="link" FontSize="12" Content="Install update" Command="{Binding InstallUpdateCommand}" IsVisible="{Binding AvailableUpdate, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ============================== Body ============================== -->
+      <Panel>
+        <!-- Start screen -->
+        <ScrollViewer IsVisible="{Binding !HasProject}">
+          <Grid ColumnDefinitions="*,Auto,*" Margin="24,40">
+            <StackPanel Grid.Column="1" Width="880" Spacing="24">
+              <StackPanel Orientation="Horizontal" Spacing="16">
+                <Image Source="/Assets/DownholeStudio-256.png" Width="64" Height="64" />
+                <StackPanel VerticalAlignment="Center" Spacing="2">
+                  <TextBlock Text="Downhole Studio" FontSize="30" FontWeight="SemiBold" />
+                  <TextBlock Classes="muted" Text="Downhole seismic processing, interpretation and reporting by QuakeLogic" />
+                </StackPanel>
+              </StackPanel>
+
+              <UniformGrid Columns="4" ColumnSpacing="12">
+                <Button Command="{Binding NewProjectCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14" Classes="primary">
+                  <StackPanel Spacing="6"><PathIcon Data="{StaticResource Icon.New}" Classes="lg" Foreground="White" /><TextBlock Text="New Project" FontWeight="SemiBold" Foreground="White" /><TextBlock Text="Start an empty survey" FontSize="12" Foreground="#FFE2D4" /></StackPanel>
+                </Button>
+                <Button Command="{Binding OpenProjectCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14">
+                  <StackPanel Spacing="6"><PathIcon Data="{StaticResource Icon.Open}" Classes="lg" /><TextBlock Text="Open Project" FontWeight="SemiBold" /><TextBlock Text="A .dhsx project file" FontSize="12" Classes="muted" /></StackPanel>
+                </Button>
+                <Button Command="{Binding ImportSurveyCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14">
+                  <StackPanel Spacing="6"><PathIcon Data="{StaticResource Icon.Import}" Classes="lg" /><TextBlock Text="Import Survey" FontWeight="SemiBold" /><TextBlock Text="SEG-2 files or a folder" FontSize="12" Classes="muted" /></StackPanel>
+                </Button>
+                <Button Command="{Binding OpenSampleCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14">
+                  <StackPanel Spacing="6"><PathIcon Data="{StaticResource Icon.Sample}" Classes="lg" /><TextBlock Text="Explore Sample Project" FontWeight="SemiBold" /><TextBlock Text="A complete worked survey" FontSize="12" Classes="muted" /></StackPanel>
+                </Button>
+              </UniformGrid>
+
+              <Border Classes="card">
+                <StackPanel Spacing="10">
+                  <TextBlock Classes="h3" Text="Recent projects" />
+                  <TextBlock Classes="muted" Text="Projects you open or save appear here." IsVisible="{Binding !Recent.Count}" />
+                  <ItemsControl ItemsSource="{Binding Recent}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RecentItem">
+                        <Button Classes="subtle" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="10,8"
+                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenRecentCommand}" CommandParameter="{Binding Path}">
+                          <Grid ColumnDefinitions="Auto,*,Auto">
+                            <PathIcon Data="{StaticResource Icon.Project}" Margin="0,0,12,0" Foreground="{DynamicResource Accent}" />
+                            <StackPanel Grid.Column="1">
+                              <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                              <TextBlock Text="{Binding Path}" Classes="faint" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding When}" Classes="faint" VerticalAlignment="Center" />
+                          </Grid>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                  <TextBlock Classes="faint" Text="{Binding VersionLabel}" />
+                  <TextBlock Classes="faint" Text="{Binding License.Chip}" />
+                  <TextBlock Classes="faint" Text="{Binding UpdateMessage}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                  <Button Classes="link" Content="Check for updates" Command="{Binding CheckUpdatesCommand}" CommandParameter="{x:False}" />
+                  <Button Classes="link" Content="License" Command="{Binding License.OpenCommand}" />
+                  <Button Classes="link" Content="User guide" Command="{Binding ShowHelpCommand}" CommandParameter="start" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Grid>
+        </ScrollViewer>
+
+        <!-- Workspace -->
+        <Panel IsVisible="{Binding HasProject}"><views:WorkspaceView DataContext="{Binding Workspace}" /></Panel>
+      </Panel>
+    </DockPanel>
+
+    <!-- ============================== Overlays ============================== -->
+    <views:HelpPanel IsVisible="{Binding IsHelpOpen}" HorizontalAlignment="Right" Width="440" Margin="0,54,0,26" />
+
+    <Border Background="{DynamicResource Overlay}" IsVisible="{Binding IsBusy}">
+      <Border Classes="card" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24,18">
+        <StackPanel Spacing="10" Width="280">
+          <TextBlock Text="{Binding BusyMessage, FallbackValue='Working…'}" FontWeight="Medium" />
+          <ProgressBar IsIndeterminate="True" />
+        </StackPanel>
+      </Border>
+    </Border>
+
+    <Panel IsVisible="{Binding IsSettingsOpen}"><views:SettingsView DataContext="{Binding SettingsPage}" /></Panel>
+    <Panel IsVisible="{Binding License.IsOpen}"><views:LicenseView DataContext="{Binding License}" /></Panel>
+    <Panel IsVisible="{Binding Palette.IsOpen}"><views:PaletteView DataContext="{Binding Palette}" /></Panel>
+
+    <!-- Dialog -->
+    <Border Background="{DynamicResource Overlay}" IsVisible="{Binding Ui.Dialog, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <Border Classes="card" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560" Padding="22" DataContext="{Binding Ui.Dialog}" x:DataType="svc:DialogViewModel">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <PathIcon Data="{StaticResource Icon.Warning}" Foreground="{DynamicResource Warn}" IsVisible="{Binding Kind, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <TextBlock Classes="h2 wrap" Text="{Binding Title}" MaxWidth="480" />
+          </StackPanel>
+          <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+          <Button Classes="link" Content="Show details" Command="{Binding ToggleDetailsCommand}" IsVisible="{Binding HasDetails}" />
+          <Border Classes="sunken" IsVisible="{Binding ShowDetails}">
+            <SelectableTextBlock Text="{Binding Details}" TextWrapping="Wrap" FontSize="12" />
+          </Border>
+          <ItemsControl ItemsSource="{Binding Buttons}" HorizontalAlignment="Right">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="svc:DialogButton">
+                <Button Content="{Binding Text}" Command="{Binding Command}" Classes.primary="{Binding Primary}" MinWidth="90" HorizontalContentAlignment="Center" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </Border>
+
+    <!-- Toasts -->
+    <ItemsControl ItemsSource="{Binding Ui.Toasts}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,40">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="svc:Toast">
+          <Border Background="{DynamicResource Chrome}" CornerRadius="8" Padding="14,9" Margin="0,4" MaxWidth="420" BoxShadow="0 4 16 0 #40000000">
+            <TextBlock Text="{Binding Message}" Foreground="{DynamicResource ChromeText}" TextWrapping="Wrap" />
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Panel>
+</Window>

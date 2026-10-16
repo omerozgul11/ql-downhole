@@ -1,0 +1,23 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Customers.IndexModel
+@{
+    ViewData["Title"] = "Customers";
+}
+<h1>Customers</h1>
+<div class="toolbar">
+    <form method="get" class="inline grow"><input asp-for="Q" type="search" placeholder="E-mail, name or company" /><button class="btn">Filter</button></form>
+    <a class="btn primary" asp-page="Edit">New customer</a>
+</div>
+<table>
+    <thead><tr><th>E-mail</th><th>Name</th><th>Company</th><th>Licenses</th><th>Created</th></tr></thead>
+    <tbody>
+    @foreach (var (c, count) in Model.Rows)
+    {
+        <tr><td><a asp-page="Details" asp-route-id="@c.Id">@c.Email</a></td><td>@c.Name</td><td>@c.Company</td><td>@count</td><td>@AdminPageModel.Day(c.CreatedAt)</td></tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-q="@Model.Q" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-q="@Model.Q" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

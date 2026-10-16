@@ -1,0 +1,35 @@
+@page
+@model DownholeStudio.AdminPortal.Pages.Trials.IndexModel
+@{
+    ViewData["Title"] = "Trials";
+}
+<h1>Trials</h1>
+<div class="toolbar">
+    <form method="get" class="inline grow">
+        <select asp-for="Filter"><option value="">All</option><option value="active">Running</option><option value="expired">Ended</option><option value="blocked">Blocked</option></select>
+        <input asp-for="Q" type="search" placeholder="Device hash prefix, e-mail or computer" />
+        <button class="btn">Filter</button>
+    </form>
+</div>
+<table>
+    <thead><tr><th>Computer</th><th>Device hash</th><th>E-mail</th><th>Started</th><th>Ends</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var t in Model.Rows)
+    {
+        <tr>
+            <td>@(t.MachineName ?? "—")</td><td class="mono">@AdminPageModel.Short(t.DeviceHash)</td><td>@t.Email</td>
+            <td>@AdminPageModel.Date(t.TrialStart)</td><td>@AdminPageModel.Date(t.TrialEnd)</td>
+            <td>@if (t.Blocked) { <span class="badge bad">Blocked</span> } else if (t.TrialEnd > Model.Now) { <span class="badge ok">Running</span> } else { <span class="badge">Ended</span> }</td>
+            <td>
+                <form method="post" asp-page-handler="Extend" class="inline"><input type="hidden" name="trialId" value="@t.Id" /><input type="number" name="days" value="7" min="1" max="365" /><button class="btn" type="submit">Extend</button></form>
+                @if (t.Blocked) { <form method="post" asp-page-handler="Unblock" class="inline"><input type="hidden" name="trialId" value="@t.Id" /><button class="btn" type="submit">Unblock</button></form> }
+                else { <form method="post" asp-page-handler="Block" class="inline"><input type="hidden" name="trialId" value="@t.Id" /><button class="btn danger" type="submit">Block</button></form> }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="pager">
+    @if (Model.P > 1) { <a class="btn" asp-route-filter="@Model.Filter" asp-route-q="@Model.Q" asp-route-p="@(Model.P - 1)">Previous</a> }
+    @if (Model.HasMore) { <a class="btn" asp-route-filter="@Model.Filter" asp-route-q="@Model.Q" asp-route-p="@(Model.P + 1)">Next</a> }
+</div>

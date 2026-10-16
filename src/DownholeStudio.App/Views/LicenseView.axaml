@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DownholeStudio.App.ViewModels"
+             xmlns:lic="using:DownholeStudio.Licensing"
+             x:Class="DownholeStudio.App.Views.LicenseView"
+             x:DataType="vm:LicenseViewModel">
+  <Border Background="{DynamicResource Overlay}">
+    <Border Classes="card" Width="580" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="28,24">
+      <StackPanel Spacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="14">
+          <Image Source="/Assets/DownholeStudio-256.png" Width="48" Height="48" />
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Classes="h1" Text="{Binding Title}" />
+            <TextBlock Classes="muted wrap" Text="{Binding Message}" MaxWidth="460" />
+          </StackPanel>
+        </StackPanel>
+
+        <!-- Welcome: trial or activation -->
+        <UniformGrid Columns="2" ColumnSpacing="12" IsVisible="{Binding CanStartTrial}">
+          <Button Classes="primary" Command="{Binding StartTrialCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14" IsEnabled="{Binding !IsBusy}">
+            <StackPanel Spacing="4">
+              <TextBlock Text="Start 14-Day Free Trial" FontWeight="SemiBold" Foreground="White" />
+              <TextBlock Text="No payment details needed" FontSize="12" Foreground="#FFE2D4" />
+            </StackPanel>
+          </Button>
+          <Button Command="{Binding ShowActivateFormCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="16,14">
+            <StackPanel Spacing="4">
+              <TextBlock Text="Activate License" FontWeight="SemiBold" />
+              <TextBlock Text="I have a license key" FontSize="12" Classes="muted" />
+            </StackPanel>
+          </Button>
+        </UniformGrid>
+
+        <!-- Activation form -->
+        <StackPanel Spacing="10" IsVisible="{Binding ShowActivate}">
+          <StackPanel>
+            <TextBlock Classes="label" Text="Email" />
+            <TextBox Text="{Binding Email}" PlaceholderText="name@company.com" />
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Classes="label" Text="License Key" />
+            <TextBox Text="{Binding LicenseKey}" PlaceholderText="DHST-XXXX-XXXX-XXXX-XXXX" FontFamily="Cascadia Mono, Consolas, monospace" />
+          </StackPanel>
+          <CheckBox IsChecked="{Binding ShareMachineName}" Content="Send this computer's name so I can recognise it in my device list" />
+          <Button Classes="primary" Content="Activate" Command="{Binding ActivateCommand}" HorizontalAlignment="Left" IsEnabled="{Binding !IsBusy}" />
+        </StackPanel>
+        <Button Classes="link" Content="I have a license key" Command="{Binding ShowActivateFormCommand}" IsVisible="{Binding ShowActivateLink}" />
+
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+        <Border Classes="badbox" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource Bad}" />
+            <ItemsControl ItemsSource="{Binding Devices}" IsVisible="{Binding HasDevices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="lic:ActivatedDeviceInfo">
+                  <TextBlock FontSize="12"><Run Text="• " /><Run Text="{Binding DeviceLabel}" FontWeight="Medium" /><Run Text=" — activated " /><Run Text="{Binding ActivatedAt, StringFormat='{}{0:d}'}" /></TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock FontSize="12" Classes="muted wrap" IsVisible="{Binding HasDevices}"
+                       Text="Deactivate one of these computers from Settings → License on that computer, or contact QuakeLogic support to move the license." />
+          </StackPanel>
+        </Border>
+
+        <!-- Licence details -->
+        <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" IsVisible="{Binding !CanStartTrial}">
+          <TextBlock Grid.Row="0" Classes="muted" Text="Product" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Product}" FontWeight="Medium" />
+          <TextBlock Grid.Row="1" Classes="muted" Text="Status" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Chip}" />
+          <TextBlock Grid.Row="2" Classes="muted" Text="Licensed to" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LicensedTo}" />
+          <TextBlock Grid.Row="3" Classes="muted" Text="Device" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Device}" />
+          <TextBlock Grid.Row="4" Classes="muted" Text="License key" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding KeyMasked}" />
+          <TextBlock Grid.Row="5" Classes="muted" Text="Last validation" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding LastValidation}" />
+          <TextBlock Grid.Row="6" Classes="muted" Text="Expires" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Expires}" />
+          <TextBlock Grid.Row="7" Classes="muted" Text="Maintenance until" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Maintenance}" />
+        </Grid>
+        <WrapPanel ItemSpacing="8" LineSpacing="8" IsVisible="{Binding !CanStartTrial}">
+          <Button Content="Refresh License" Command="{Binding RefreshOnlineCommand}" />
+          <Button Content="Copy License Information" Command="{Binding CopyInfoCommand}" />
+          <Button Content="Deactivate Computer" Command="{Binding DeactivateCommand}" Classes="danger" IsVisible="{Binding IsLicensed}" />
+          <Button Content="Buy a license" Command="{Binding BuyCommand}" IsVisible="{Binding IsTrial}" />
+        </WrapPanel>
+
+        <Border Classes="divider" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="faint wrap" MaxWidth="380"
+                     Text="Licensing sends only a salted hash of this computer's hardware identifiers and the application version. Your survey data never leaves this computer." />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+            <Button Classes="link" Content="Privacy" Command="{Binding PrivacyCommand}" />
+            <Button Content="Close" Command="{Binding CloseCommand}" />
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Border>
+  </Border>
+</UserControl>

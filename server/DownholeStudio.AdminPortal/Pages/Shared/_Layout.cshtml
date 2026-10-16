@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@ViewData["Title"] · Downhole Studio Licensing</title>
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <header class="top">
+        <a class="brand" asp-page="/Index">Downhole Studio <span class="dot">●</span> <span class="muted">Licensing</span></a>
+        <form class="search" method="get" asp-page="/Search/Index">
+            <input name="q" type="search" placeholder="Search customers, licenses, devices…" aria-label="Search" />
+        </form>
+        <form method="post" asp-page="/Account/Logout" class="logout">
+            <span class="muted">@User.Identity?.Name</span>
+            <button type="submit" class="link">Sign out</button>
+        </form>
+    </header>
+    <div class="shell">
+        <nav class="side" aria-label="Main">
+            <a asp-page="/Index">Dashboard</a>
+            <a asp-page="/Customers/Index">Customers</a>
+            <a asp-page="/Licenses/Index">Licenses</a>
+            <a asp-page="/Devices/Index">Devices</a>
+            <a asp-page="/Activations/Index">Activations</a>
+            <a asp-page="/Trials/Index">Trials</a>
+            <a asp-page="/Releases/Index">Software releases</a>
+            <a asp-page="/Audit/Index">Audit log</a>
+        </nav>
+        <main class="content">
+            @if (TempData["StatusMessage"] is string ok) { <div class="flash ok" role="status">@ok</div> }
+            @if (TempData["ErrorMessage"] is string bad) { <div class="flash bad" role="alert">@bad</div> }
+            @RenderBody()
+        </main>
+    </div>
+}
+else
+{
+    <main class="center">@RenderBody()</main>
+}
+</body>
+</html>

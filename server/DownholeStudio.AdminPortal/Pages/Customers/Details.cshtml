@@ -1,0 +1,45 @@
+@page "{id:guid}"
+@model DownholeStudio.AdminPortal.Pages.Customers.DetailsModel
+@{
+    ViewData["Title"] = Model.Customer.Email;
+}
+<h1>@Model.Customer.Email</h1>
+<div class="toolbar">
+    <a class="btn" asp-page="Edit" asp-route-id="@Model.Customer.Id">Edit</a>
+    <a class="btn primary" asp-page="/Licenses/Create" asp-route-customerId="@Model.Customer.Id">New license</a>
+</div>
+<div class="card">
+    <dl class="props">
+        <dt>Name</dt><dd>@(Model.Customer.Name ?? "—")</dd>
+        <dt>Company</dt><dd>@(Model.Customer.Company ?? "—")</dd>
+        <dt>Payment customer ID</dt><dd>@(Model.Customer.ExternalCustomerId ?? "—")</dd>
+        <dt>Created</dt><dd>@AdminPageModel.Date(Model.Customer.CreatedAt)</dd>
+        <dt>Notes</dt><dd>@(Model.Customer.Notes ?? "—")</dd>
+    </dl>
+</div>
+<h2>Licenses</h2>
+<table>
+    <thead><tr><th>License</th><th>Key</th><th>Product</th><th>Status</th><th>Seats in use</th><th>Expires</th></tr></thead>
+    <tbody>
+    @foreach (var l in Model.Licenses)
+    {
+        <tr>
+            <td><a asp-page="/Licenses/Details" asp-route-id="@l.Id">@l.Id.ToString()[..8]</a></td>
+            <td class="mono">…@l.KeyHint</td><td>@l.Product · @l.Edition</td>
+            <td><span class="badge @AdminPageModel.StatusCss(l.Status)">@l.Status</span></td>
+            <td>@l.Activations.Count(a => a.DeactivatedAt == null) / @l.SeatCount</td>
+            <td>@(l.ExpiresAt is null ? "Perpetual" : AdminPageModel.Day(l.ExpiresAt))</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<h2>Payments</h2>
+<table>
+    <thead><tr><th>Date</th><th>Provider</th><th>Amount</th><th>Reference</th><th>Status</th></tr></thead>
+    <tbody>
+    @foreach (var p in Model.Payments)
+    {
+        <tr><td>@AdminPageModel.Date(p.CreatedAt)</td><td>@p.Provider</td><td>@((p.Amount / 100.0).ToString("0.00")) @p.Currency.ToUpperInvariant()</td><td class="mono">@p.ProviderPaymentId</td><td>@p.Status</td></tr>
+    }
+    </tbody>
+</table>

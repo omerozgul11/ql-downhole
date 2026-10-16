@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DownholeStudio.Synthetics</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DownholeStudio.Analysis\DownholeStudio.Analysis.csproj" />
+    <ProjectReference Include="..\DownholeStudio.Formats\DownholeStudio.Formats.csproj" />
+    <ProjectReference Include="..\DownholeStudio.SignalProcessing\DownholeStudio.SignalProcessing.csproj" />
+  </ItemGroup>
+</Project>
