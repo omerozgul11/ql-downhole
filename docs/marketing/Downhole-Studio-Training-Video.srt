@@ -1,0 +1,240 @@
+1
+00:00:00,300 --> 00:00:04,564
+Welcome to the Downhole Studio training video from QuakeLogic.
+
+2
+00:00:04,564 --> 00:00:16,519
+In the next few minutes you will take a downhole seismic survey from raw SEG-2 records to reviewed P and S picks, a layered velocity model, Vs30, and a finished report.
+
+3
+00:00:20,419 --> 00:00:27,468
+The first time Downhole Studio starts, it offers a 14-day free trial, or activation with a license key.
+
+4
+00:00:27,468 --> 00:00:30,891
+Licensing sends only a hashed computer identifier.
+
+5
+00:00:30,891 --> 00:00:33,902
+Your survey data never leaves your computer.
+
+6
+00:00:33,902 --> 00:00:37,724
+When the trial is running, the start screen opens.
+
+7
+00:00:40,824 --> 00:00:41,987
+Click New Project.
+
+8
+00:00:41,987 --> 00:00:44,571
+Give the survey a name and a job number.
+
+9
+00:00:44,571 --> 00:00:54,273
+Everything you do from here on is kept in one project file, together with the original records, so another engineer can reproduce your analysis.
+
+10
+00:00:54,973 --> 00:00:59,206
+On the Import page, drag in the SEG-2 files, or add a whole folder.
+
+11
+00:00:59,206 --> 00:01:02,491
+Every file is inspected before anything is imported.
+
+12
+00:01:02,491 --> 00:01:09,567
+The checks list sample rates, channels, duplicates, and the depth sequence, as errors, warnings, or information.
+
+13
+00:01:09,567 --> 00:01:11,399
+Nothing is repaired silently.
+
+14
+00:01:11,399 --> 00:01:14,115
+When the preview looks right, click Import.
+
+15
+00:01:14,115 --> 00:01:18,306
+The original files are stored byte-for-byte, with checksums.
+
+16
+00:01:21,406 --> 00:01:27,748
+On the Geometry page, enter the borehole details and the horizontal offsets of the P and S sources.
+
+17
+00:01:27,748 --> 00:01:33,194
+The two sources have their own offsets, and the borehole diagram updates as you type.
+
+18
+00:01:33,194 --> 00:01:43,139
+Then assign each record to a depth and a shot type, here by acquisition order: one P shot and two opposite S shots at every depth, from the top down.
+
+19
+00:01:46,239 --> 00:01:48,832
+Before processing, look at every trace.
+
+20
+00:01:48,832 --> 00:01:52,488
+The waveform viewer shows all depths, raw or processed.
+
+21
+00:01:52,488 --> 00:01:57,673
+Scroll to zoom in time, and click a trace to see its details in the inspector.
+
+22
+00:01:57,673 --> 00:02:02,727
+The spectrum below shows the dominant frequency of the selected trace.
+
+23
+00:02:05,827 --> 00:02:08,613
+Processing never changes the recorded data.
+
+24
+00:02:08,613 --> 00:02:16,195
+Each component has its own chain of steps, applied to a copy, and every step can be switched off, edited, or removed.
+
+25
+00:02:16,195 --> 00:02:18,463
+For picking, keep processing light.
+
+26
+00:02:18,463 --> 00:02:25,602
+Here a gentle band-pass is added to the horizontal components, to make the shear waves easier to review.
+
+27
+00:02:26,302 --> 00:02:31,283
+A reference geophone at the source records the true moment of every hammer blow.
+
+28
+00:02:31,283 --> 00:02:34,769
+Pick its onsets automatically, then choose a correction.
+
+29
+00:02:34,769 --> 00:02:43,921
+Subtract reference onset measures every arrival from the moment the source was struck, which removes the trigger delay and the shot-to-shot jitter.
+
+30
+00:02:43,921 --> 00:02:46,189
+The raw times are always kept.
+
+31
+00:02:49,289 --> 00:02:52,400
+On the P Picks page, run the automatic picker.
+
+32
+00:02:52,400 --> 00:02:54,429
+The AIC picker is recommended.
+
+33
+00:02:54,429 --> 00:03:07,545
+Every automatic pick gets a confidence score, and the inspector explains it: signal-to-noise ratio, onset sharpness, agreement between algorithms, and consistency with neighbouring depths.
+
+34
+00:03:08,245 --> 00:03:09,392
+Review every depth.
+
+35
+00:03:09,392 --> 00:03:14,524
+Click to place a pick, drag it, or nudge it one sample at a time with the arrow keys.
+
+36
+00:03:14,524 --> 00:03:18,146
+When you agree with the automatic picks, mark them reviewed.
+
+37
+00:03:18,146 --> 00:03:22,350
+Manual picks are never overwritten by running the picker again.
+
+38
+00:03:25,450 --> 00:03:28,485
+Shear waves are picked on the horizontal components.
+
+39
+00:03:28,485 --> 00:03:36,247
+Because the S source is struck at both ends, the shear wave reverses polarity between the two shots, while P energy and noise do not.
+
+40
+00:03:36,247 --> 00:03:44,183
+Downhole Studio picks on the half difference of the two shots, and the depth detail overlays them, so you can confirm the shear arrival.
+
+41
+00:03:44,183 --> 00:03:52,462
+If the probe rotated between depths, polarization analysis finds the best horizontal direction, but it is only applied when you choose.
+
+42
+00:03:55,562 --> 00:03:59,424
+The travel-time graph shows the corrected arrivals against depth.
+
+43
+00:03:59,424 --> 00:04:03,228
+Each straight segment is a layer, and its slope is 1 / velocity.
+
+44
+00:04:03,228 --> 00:04:08,219
+Click Suggest boundaries, review the suggestions, and apply the ones you agree with.
+
+45
+00:04:08,219 --> 00:04:11,903
+You can drag any boundary, and everything updates immediately.
+
+46
+00:04:11,903 --> 00:04:21,811
+Choose the method: layer regression, interval velocities, or refracted-ray layer stripping, which follows Snell's law and is the most accurate near the surface.
+
+47
+00:04:24,911 --> 00:04:31,868
+The Engineering page computes Poisson's ratio and the shear, Young's, and bulk moduli for every layer.
+
+48
+00:04:31,868 --> 00:04:33,573
+Density is never assumed.
+
+49
+00:04:33,573 --> 00:04:41,690
+Enter measured values, one constant, or deliberately choose an empirical estimate, which is then labelled as estimated.
+
+50
+00:04:41,690 --> 00:04:47,956
+Vs30 is calculated from measured data only, unless you explicitly allow extrapolation.
+
+51
+00:04:51,056 --> 00:04:54,621
+The Results page shows how trustworthy the analysis is.
+
+52
+00:04:54,621 --> 00:05:02,334
+Every automatic check is explained in plain language, and clicking a finding takes you to the depth or layer concerned.
+
+53
+00:05:02,334 --> 00:05:03,890
+The verdict is advisory.
+
+54
+00:05:03,890 --> 00:05:10,383
+It does not certify compliance with any standard, and results always need professional review.
+
+55
+00:05:13,483 --> 00:05:22,545
+Finally, fill in the client, site, and company details on the Report page, choose the sections, and preview the report page by page.
+
+56
+00:05:22,545 --> 00:05:31,401
+Generate PDF writes the finished report, with the methodology, quality control, figures, tables, and the full processing history.
+
+57
+00:05:31,401 --> 00:05:38,323
+Tables export to Excel and CSV at full precision, and every figure exports as PNG, SVG, or PDF.
+
+58
+00:05:39,023 --> 00:05:40,973
+That is the complete workflow.
+
+59
+00:05:40,973 --> 00:05:48,188
+The sample project on the start screen shows a finished survey, and the field guide explains how to record one.
+
+60
+00:05:48,188 --> 00:05:52,163
+Thank you for choosing Downhole Studio from QuakeLogic.
+

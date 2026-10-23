@@ -19,7 +19,9 @@
    (cd download && sha256sum DownholeStudio-Setup.exe > DownholeStudio-Setup.exe.sha256)
    git add download && git commit -m "Downhole Studio x.y.z installer" && git push
    ```
-   The installer must stay under GitHub's 100 MB file limit. Optionally, also create a versioned
+   Do the same for the client package: build it with `scripts/package-client.py` (see BUILD.md) and copy it to
+   `download/DownholeStudio-Client-Package.zip`, with its `.sha256`. Copy the training video to
+   `docs/marketing/Downhole-Studio-Training-Video.mp4`. Every file must stay under GitHub's 100 MB file limit. Optionally, also create a versioned
    GitHub release with `scripts/publish-release.sh` (reads `GITHUB_TOKEN` from `.env`).
 5. In the admin portal → Software Releases, create the release (version, channel, notes, installer
    URL, SHA-256, size, major flag) and publish it. The licence server then offers it through the

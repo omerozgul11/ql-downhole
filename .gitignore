@@ -33,3 +33,10 @@ appsettings.*.local.json
 
 # Generated test output
 docs/validation/*.json.tmp
+
+# Local test environment state
+testenv/.files-ready
+
+# Python caches (marketing and packaging scripts)
+__pycache__/
+*.pyc

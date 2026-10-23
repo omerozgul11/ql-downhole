@@ -86,7 +86,6 @@ public sealed record UserSettings
     public string? DefaultReportTemplate { get; init; }
     public Domain.PickAlgorithm DefaultPPicker { get; init; } = Domain.PickAlgorithm.Aic;
     public Domain.PickAlgorithm DefaultSPicker { get; init; } = Domain.PickAlgorithm.Aic;
-    public bool DefaultBandPassForS { get; init; }
     public bool ShowWelcome { get; init; } = true;
     public string? LicenseServerOverride { get; init; }
     public double WindowWidth { get; init; } = 1440;

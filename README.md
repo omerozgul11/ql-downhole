@@ -95,6 +95,28 @@ Fill in the client, site and branding details, choose the sections, preview the 
 
 Updates are offered inside the application (Settings → Updates). They are cryptographically signed and verified before they install. Uninstalling never removes your projects or settings.
 
+## Field guide, training and documents
+
+<p align="center"><a href="https://github.com/omerozgul11/ql-downhole/raw/main/docs/marketing/Downhole-Studio-Training-Video.mp4"><img src="docs/images/training-video-poster.jpg" width="720" alt="Downhole Studio training video (6 minutes) - click to download"></a><br>
+<em>Training video: a 6-minute narrated walkthrough from SEG-2 records to the report. Click to download (MP4, 25 MB; <a href="docs/marketing/Downhole-Studio-Training-Video.srt">captions</a>).</em></p>
+
+**[Client package (ZIP, 92 MB)](https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Client-Package.zip)**: everything in one download, like the MASW Studio package:
+- the installer;
+- the field guide;
+- the training video with captions;
+- the brochure and user guide, and the datasheet;
+- example SEG-2 field records;
+- the licence notices.
+
+Start with `START HERE.txt` inside the zip.
+
+| | |
+|---|---|
+| **[Field guide (PDF)](docs/marketing/QuakeLogic-Downhole-Studio-Field-Guide.pdf)** | Borehole, P and S sources, seismograph settings and recording, step by step, with a field log sheet. Read it before going to the field. |
+| **[Brochure and user guide (PDF)](docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf)** | Product overview and the complete illustrated user guide. |
+| **[Product datasheet (PDF)](docs/marketing/QuakeLogic-Downhole-Studio-Datasheet.pdf)** | Features and technical specifications for engineers and procurement. |
+| **[Training video (MP4)](docs/marketing/Downhole-Studio-Training-Video.mp4)** | A 6-minute narrated walkthrough, with captions, from SEG-2 records to the report. |
+
 ## Licensing
 
 - **Free trial:** every computer can use a 14-day trial. It starts when you click *Start trial* and does not restart after reinstalling.
@@ -144,6 +166,8 @@ source .tools/env.sh
 dotnet test DownholeStudio.sln       # unit, UI and PostgreSQL integration tests (Docker)
 scripts/build.sh                     # tests, validation, publish and the Windows installer (Docker)
 ```
+
+`testenv/start.sh` starts a complete browser-based test environment: the application, licence server, admin portal, mailbox and files. See [testenv/README.md](testenv/README.md).
 
 **Secrets never go in the repository.**
 - Local build, signing and release settings live in `.env`; copy [`.env.example`](.env.example) to start.

@@ -1,0 +1,70 @@
+QUAKELOGIC DOWNHOLE STUDIO {version} - START HERE
+==========
+
+Thank you for choosing QuakeLogic Downhole Studio: Windows software for downhole
+seismic testing. It takes your SEG-2 field records to reviewed P- and S-wave
+picks, a layered velocity model, Vs30, engineering parameters and a technical
+PDF report.
+
+This package contains everything you need. First right-click the zip file and
+choose "Extract All...", then open the extracted folder.
+
+
+WHAT IS IN THIS PACKAGE
+-----------------------
+  1 - Install Downhole Studio               The Windows installer
+  2 - Field Guide (set up your equipment)   Borehole, sources, seismograph
+                                            settings and recording, step by step
+  3 - Training Video                        {minutes}-minute narrated walkthrough
+                                            (captions included)
+  4 - Brochure and User Guide               Product overview and the complete
+                                            illustrated user guide
+  5 - Product Datasheet                     Features and technical specifications
+  6 - Example Field Records                 A complete synthetic SEG-2 survey to
+                                            practise importing (with its true model)
+  Licence and notices                       Licence agreement and open-source notices
+  SHA256SUMS.txt                            Checksums to verify the files
+
+
+INSTALL IN THREE STEPS
+----------------------
+Requirements: Windows 10 (21H2 or later) or Windows 11, 64-bit; 8 GB RAM
+recommended; about 200 MB of disk space. An internet connection is needed to
+start the trial or activate a licence, not for daily work.
+
+1. Open the folder "1 - Install Downhole Studio" and double-click
+   DownholeStudio-Setup-{version}.exe. No administrator rights are needed.
+
+2. Windows may show "Windows protected your PC" or "Unknown publisher"
+   if the installer is not code-signed. Choose "More info", then "Run anyway".
+
+3. Accept the licence agreement, leave "Launch Downhole Studio" selected and
+   click Finish.
+
+When Downhole Studio starts, click "Start 14-Day Free Trial", or "Activate
+License" and enter the e-mail address and licence key you received
+(DHST-XXXX-XXXX-XXXX-XXXX). Paid licences work offline for 30 days at a time.
+Later, start Downhole Studio from Start > Downhole Studio or the desktop icon.
+Installing over an earlier version keeps all your projects and settings.
+
+
+YOUR FIRST SURVEY
+-----------------
+1. Read the Field Guide (folder 2) before going to the field. It covers the
+   borehole, the P and S sources, the seismograph settings and recording.
+2. Watch the Training Video (folder 3) to see the whole analysis once.
+3. In Downhole Studio, click "Explore Sample Project" to open a finished
+   survey, or create a new project and import the example field records
+   (folder 6). The orange button at the top of each page is always the next
+   step, and Help (F1) explains every page.
+
+
+SUPPORT AND SALES
+-----------------
+Support:  support@quakelogic.net  (reply within 3 business days)
+          In Downhole Studio: Settings > Diagnostics > Export diagnostic package
+Sales:    sales@quakelogic.net  |  +1 (916) 899-0391
+Web:      products.quakelogic.net
+Updates:  https://github.com/omerozgul11/ql-downhole
+
+QuakeLogic Inc., 2008 Opportunity Dr., Suite 130, Roseville, CA 95678, USA

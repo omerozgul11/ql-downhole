@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="datasheet.css">
+</head>
+<body>
+
+<!-- ============ PAGE 1 : COVER ============ -->
+<section class="page cover">
+  <div class="greypanel"></div>
+  <div class="cornerlogo"><img src="quakelogic_logo.png" alt="QuakeLogic"></div>
+  <div class="ktitle">
+    <div class="brand">QUAKELOGIC</div>
+    <div class="sub">{{PRODUCT_CATEGORY}}</div><!-- e.g. CNC Vertical<br>Machining<br>Centre -->
+  </div>
+  <div class="vname">{{PRODUCT_NAME}}</div>
+  <div class="machine"><img src="assets/{{HERO_CUTOUT}}"></div>
+</section>
+
+<!-- ============ PAGE 2 : OVERVIEW ============ -->
+<section class="page">
+  <div class="pad">
+    <div class="h1">{{PRODUCT_NAME}}</div>
+    <div class="h1sub">{{PRODUCT_CATEGORY_ONELINE}}</div>
+
+    <div class="ov-media">
+      <div class="ov-hero"><img src="assets/{{HERO_PHOTO}}"></div>
+      <div class="ov-insets">
+        <div class="circle"><img src="assets/{{INSET_A}}"></div>
+        <div class="circle"><img src="assets/{{INSET_B}}"></div>
+      </div>
+    </div>
+
+    <div class="ov-body">
+      <div class="ov-left">
+        <h2>{{OVERVIEW_HEADLINE}}</h2>
+        <p>{{OVERVIEW_PARAGRAPH}}</p>
+        <ul>
+          <li>{{BENEFIT_1}}</li>
+          <li>{{BENEFIT_2}}</li>
+          <li>{{BENEFIT_3}}</li>
+          <li>{{BENEFIT_4}}</li>
+        </ul>
+      </div>
+      <div class="sidebar">
+        <h3>STANDARD FEATURES &raquo;</h3>
+        <ul>
+          <!-- 14–20 short items. More than 20 will overrun the page. -->
+          {{STANDARD_FEATURES_LI}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="pg">2</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 3 : KEY + PRODUCT FEATURES ============ -->
+<section class="page">
+  <div class="pad">
+    <div class="p3">
+      <div class="kf">
+        <div class="lab">KEY FEATURES</div>
+        <ul>
+          <!-- 7–9 narrative bullets, ~20 words each. -->
+          {{KEY_FEATURES_LI}}
+        </ul>
+      </div>
+      <div class="pf">
+        <div class="bar">PRODUCT FEATURES</div>
+        <!-- Repeat .pfgroup per spec category -->
+        {{PRODUCT_FEATURE_GROUPS}}
+        <div class="note">For more information about the features, specifications, and
+          available configurations of the {{PRODUCT_NAME}}, please contact QuakeLogic.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="pg">3</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 4 : CONFIGURATION / CAPACITY / OPTIONS ============ -->
+<!-- Budget: config rows + capacity rows + 4 option cards must end by y=940px.
+     ~12 config rows + ~9 capacity rows + 4 cards fits. Beyond that, move the
+     option cards to their own page rather than shrinking type. -->
+<section class="page">
+  <div class="pad">
+    <div class="seclabel">{{CONFIG_TABLE_TITLE}}</div>
+    <table class="tbl">
+      <thead><tr><th style="width:42%">Component</th><th>Configuration</th></tr></thead>
+      <tbody>
+        {{CONFIG_ROWS}}
+      </tbody>
+    </table>
+
+    <div class="seclabel" style="margin-top:16px;">{{CAPACITY_TABLE_TITLE}}</div>
+    <table class="tbl">
+      <thead><tr><th style="width:42%">Specification</th><th>Value</th></tr></thead>
+      <tbody>
+        {{CAPACITY_ROWS}}
+      </tbody>
+    </table>
+
+    <div class="optwrap">
+      <div class="opth">OPTIONAL FEATURES &amp; ACCESSORIES</div>
+      <div class="optgrid">
+        <!-- Keep each card body ≤ 22 words so it never outgrows the card. -->
+        {{OPTION_CARDS}}
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="pg">4</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 5 : TECHNICAL SPECIFICATIONS ============ -->
+<!-- Always the two-column .spec2 layout. Split rows ~evenly between columns. -->
+<section class="page">
+  <div class="pad">
+    <div class="seclabel">TECHNICAL SPECIFICATIONS</div>
+    <div class="spec2">
+      <div class="col">
+        <table>
+          <thead><tr><th>Specification</th><th>Description</th></tr></thead>
+          <tbody>
+            {{SPEC_ROWS_LEFT}}
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <table>
+          <thead><tr><th>Specification</th><th>Description</th></tr></thead>
+          <tbody>
+            {{SPEC_ROWS_RIGHT}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="pg">5</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 6 : PRODUCT GALLERY ============ -->
+<section class="page">
+  <div class="pad">
+    <div class="seclabel">PRODUCT GALLERY</div>
+    <div class="gal">
+      {{GALLERY_CELLS}}<!-- exactly 6 cells -->
+    </div>
+  </div>
+  <div class="footer"><span class="pg">6</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 7 : PRECISION COMPONENTS ============ -->
+<section class="page">
+  <div class="pad">
+    <div class="seclabel">PRECISION COMPONENTS &amp; CONFIGURATION</div>
+    <div class="comp">
+      {{COMPONENT_CELLS}}<!-- exactly 9 cells: .ph > img, then .cap -->
+    </div>
+  </div>
+  <div class="footer"><span class="pg">7</span>
+    <img class="flogo" src="quakelogic_logo.png" alt="QuakeLogic">
+  </div>
+</section>
+
+<!-- ============ PAGE 8 : BACK COVER (QR LIVES HERE) ============ -->
+<section class="page back">
+  <div class="greypanel"></div>
+  <div class="cornerlogo"><img src="quakelogic_logo.png" alt="QuakeLogic"></div>
+  <div class="vname">{{PRODUCT_NAME}}</div>
+
+  <div class="colA">
+    <div class="lbl">Corporate Headquarters:</div>
+    <div class="blk"><b>QUAKELOGIC INC.</b><br>2008 Opportunity Dr., Suite 130<br>
+      Roseville, CA 95678, USA<br><br>Monday &ndash; Friday<br>9:00 AM &ndash; 5:00 PM (PST/PDT)</div>
+    <div class="lbl">Contact Us:</div>
+    <div class="blk"><b>Phone:</b> +1 (916) 899-0391<br>
+      <b>Email:</b> sales@quakelogic.net<br>
+      <b>Web:</b> products.quakelogic.net</div>
+  </div>
+
+  <div class="colB">
+    <h4>About QuakeLogic:</h4>
+    <p>QuakeLogic Inc. is a California-based engineering and technology company providing
+       innovative, reliable, high-quality solutions to customers worldwide.</p>
+    <h4>Our Commitment</h4>
+    <p>We are committed to quality, innovation, and customer satisfaction &mdash; building
+       lasting partnerships through reliable solutions and dependable support.</p>
+    <div class="qr">
+      <div class="t">Scan to View Product:</div>
+      <img src="assets/product_qr.png">
+    </div>
+  </div>
+
+  <div class="machine"><img src="assets/{{HERO_CUTOUT}}"></div>
+</section>
+
+</body>
+</html>

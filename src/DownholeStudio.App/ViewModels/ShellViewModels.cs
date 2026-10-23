@@ -16,6 +16,7 @@ public static class ClipboardImage
     {
         if (ui.Clipboard is not { } clipboard)
         {
+            ui.Notify("The clipboard is not available on this computer. Use Export figure instead.", "warning");
             return;
         }
 
@@ -45,7 +46,8 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
     public bool NeedsActivation => Status.State is LicenseState.NotActivated or LicenseState.TrialExpired or LicenseState.LicenseExpired or LicenseState.LicenseRevoked or LicenseState.ActivationLimitReached;
     public bool NeedsNetwork => Status.State == LicenseState.NetworkValidationRequired;
     public bool CanStartTrial => Status.State == LicenseState.NotActivated;
-    public bool ShowActivateLink => NeedsActivation && !CanStartTrial && !ShowActivate;
+    // Trial users can enter a key at any time (for example right after buying a licence).
+    public bool ShowActivateLink => (NeedsActivation || IsTrial) && !CanStartTrial && !ShowActivate;
     public bool ShowTrialBanner => Status.State is LicenseState.TrialActive or LicenseState.TrialExpiring;
     public bool TrialUrgent => Status.State == LicenseState.TrialExpiring;
     public bool ShowStateBanner => Status.State is LicenseState.TrialExpired or LicenseState.LicenseExpired or LicenseState.LicenseRevoked or LicenseState.NetworkValidationRequired or LicenseState.LicenseOfflineGrace;
@@ -103,6 +105,14 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
 
     [RelayCommand]
     private void Open() => IsOpen = true;
+
+    /// <summary>Opens the licence window directly at the key entry form (the "Activate" links).</summary>
+    [RelayCommand]
+    private void OpenActivation()
+    {
+        IsOpen = true;
+        ShowActivateForm();
+    }
 
     [RelayCommand]
     private void Close()
@@ -254,7 +264,6 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _shareMachineName;
     [ObservableProperty] private int _pPickerIndex;
     [ObservableProperty] private int _sPickerIndex;
-    [ObservableProperty] private bool _defaultBandPassForS;
     [ObservableProperty] private bool _a4Paper;
     [ObservableProperty] private string? _serverOverride;
 
@@ -307,7 +316,6 @@ public sealed partial class SettingsViewModel : ObservableObject
         ShareMachineName = s.ShareMachineName;
         PPickerIndex = (int)s.DefaultPPicker - 1;
         SPickerIndex = (int)s.DefaultSPicker - 1;
-        DefaultBandPassForS = s.DefaultBandPassForS;
         A4Paper = s.PaperSize == "A4";
         ServerOverride = s.LicenseServerOverride;
         _loading = false;
@@ -336,14 +344,18 @@ public sealed partial class SettingsViewModel : ObservableObject
     }
 
     partial void OnUsUnitsChanged(bool value) => Save(s => s with { Units = value ? UnitSystem.USCustomary : UnitSystem.SI });
-    partial void OnAutoSaveMinutesChanged(int value) => Save(s => s with { AutoSaveMinutes = Math.Clamp(value, 1, 60) });
+    partial void OnAutoSaveMinutesChanged(int value)
+    {
+        Save(s => s with { AutoSaveMinutes = Math.Clamp(value, 1, 60) });
+        _main.UpdateAutoSaveInterval();
+    }
+
     partial void OnEditorNameChanged(string? value) => Save(s => s with { EditorName = string.IsNullOrWhiteSpace(value) ? null : value.Trim() });
     partial void OnUpdateModeIndexChanged(int value) => Save(s => s with { Updates = (UpdateMode)value });
     partial void OnBetaChannelChanged(bool value) => Save(s => s with { Channel = value ? UpdateChannel.Beta : UpdateChannel.Stable });
     partial void OnShareMachineNameChanged(bool value) => Save(s => s with { ShareMachineName = value });
     partial void OnPPickerIndexChanged(int value) => Save(s => s with { DefaultPPicker = (Domain.PickAlgorithm)(value + 1) });
     partial void OnSPickerIndexChanged(int value) => Save(s => s with { DefaultSPicker = (Domain.PickAlgorithm)(value + 1) });
-    partial void OnDefaultBandPassForSChanged(bool value) => Save(s => s with { DefaultBandPassForS = value });
     partial void OnA4PaperChanged(bool value) => Save(s => s with { PaperSize = value ? "A4" : "Letter" });
     partial void OnServerOverrideChanged(string? value) => Save(s => s with { LicenseServerOverride = string.IsNullOrWhiteSpace(value) ? null : value.Trim() });
 

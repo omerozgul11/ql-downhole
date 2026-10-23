@@ -1,9 +1,15 @@
 <Project>
   <PropertyGroup>
     <AvaloniaVersion>12.1.4</AvaloniaVersion>
-    <EfVersion>10.0.12</EfVersion>
-    <MsExtVersion>10.0.12</MsExtVersion>
+    <EfVersion>10.0.13</EfVersion>
+    <MsExtVersion>10.0.13</MsExtVersion>
   </PropertyGroup>
+  <!-- Transitive dependencies pinned to versions with security fixes (CentralPackageTransitivePinningEnabled):
+       CVE-2026-84008, CVE-2026-70162 (Pkcs) and CVE-2026-96958 (Xml) are fixed in 10.0.13. -->
+  <ItemGroup>
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+  </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />

@@ -83,7 +83,8 @@ public static class DiagnosticPackage
 {
     public static void Create(string zipPath, AppPaths paths, string appVersion, string licenseSummary, IEnumerable<string>? projectFiles = null)
     {
-        using var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create);
+        // FileMode.Create: the user may have chosen to replace an earlier package in the save dialog.
+        using var zip = new ZipArchive(new FileStream(zipPath, FileMode.Create, FileAccess.Write), ZipArchiveMode.Create);
         var info = new
         {
             Product = "Downhole Studio", Version = appVersion, CreatedUtc = DateTimeOffset.UtcNow,

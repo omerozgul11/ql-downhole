@@ -111,7 +111,7 @@
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
             <Button Classes="link" Content="Buy a license" Command="{Binding License.BuyCommand}" />
-            <Button Classes="link" Content="Activate" Command="{Binding License.OpenCommand}" />
+            <Button Classes="link" Content="Activate" Command="{Binding License.OpenActivationCommand}" />
           </StackPanel>
         </Grid>
       </Border>
@@ -124,7 +124,7 @@
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
             <Button Content="Verify online" Command="{Binding License.RefreshOnlineCommand}" IsVisible="{Binding !License.NeedsActivation}" />
-            <Button Classes="primary" Content="Activate a license" Command="{Binding License.OpenCommand}" IsVisible="{Binding License.NeedsActivation}" />
+            <Button Classes="primary" Content="Activate a license" Command="{Binding License.OpenActivationCommand}" IsVisible="{Binding License.NeedsActivation}" />
           </StackPanel>
         </Grid>
       </Border>

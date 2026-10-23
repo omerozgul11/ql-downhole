@@ -26,7 +26,7 @@ public sealed class WaveformView : SkiaView
     public static readonly StyledProperty<bool> PickingEnabledProperty = AvaloniaProperty.Register<WaveformView, bool>(nameof(PickingEnabled));
     public static readonly StyledProperty<bool> MagnifierProperty = AvaloniaProperty.Register<WaveformView, bool>(nameof(Magnifier), true);
 
-    private WaveLayout? _layout;
+    private volatile WaveLayout? _layout;
     private (double T0, double T1)? _timeView;
     private double _traceOffset;
     private double? _visibleTraces;
@@ -154,33 +154,39 @@ public sealed class WaveformView : SkiaView
         }
     }
 
-    protected override void Paint(SKCanvas canvas, SKRect bounds, PlotTheme theme)
+    protected override Action<SKCanvas, SKRect, PlotTheme> CreatePainter()
     {
-        var m = Model;
-        if (m is null)
+        // Everything is captured here on the UI thread; the painter below may run on the render thread.
+        var m = Model?.Snapshot();
+        var hover = m is not null && _hover is { } h && h.Trace >= 0 && h.Trace < m.Traces.Count ? h : ((int Trace, double Time, SKPoint Pixel)?)null;
+        var magnifier = PickingEnabled && Magnifier && m is { OverlayMode: false };
+        var lines = hover is { } hv ? HoverInfo?.Invoke(hv.Trace, hv.Time) : null;
+        return (canvas, bounds, theme) =>
         {
-            using var bg = Draw.Fill(theme.Background);
-            canvas.DrawRect(bounds, bg);
-            return;
-        }
+            if (m is null)
+            {
+                using var bg = Draw.Fill(theme.Background);
+                canvas.DrawRect(bounds, bg);
+                return;
+            }
 
-        var layout = WaveformRenderer.Render(canvas, bounds, m, theme);
-        _layout = layout;
-        if (_hover is not { } h || h.Trace < 0 || h.Trace >= m.Traces.Count)
-        {
-            return;
-        }
+            var layout = WaveformRenderer.Render(canvas, bounds, m, theme);
+            _layout = layout;
+            if (hover is not { } h)
+            {
+                return;
+            }
 
-        if (PickingEnabled && Magnifier && !m.OverlayMode)
-        {
-            DrawMagnifier(canvas, m, layout, h.Trace, h.Time, h.Pixel, theme);
-        }
+            if (magnifier)
+            {
+                DrawMagnifier(canvas, m, layout, h.Trace, h.Time, h.Pixel, theme);
+            }
 
-        var lines = HoverInfo?.Invoke(h.Trace, h.Time);
-        if (lines is { Count: > 0 })
-        {
-            DrawInfoCard(canvas, lines, h.Pixel, bounds, theme);
-        }
+            if (lines is { Count: > 0 })
+            {
+                DrawInfoCard(canvas, lines, h.Pixel, bounds, theme);
+            }
+        };
     }
 
     private static void DrawInfoCard(SKCanvas canvas, IReadOnlyList<string> lines, SKPoint at, SKRect bounds, PlotTheme theme)

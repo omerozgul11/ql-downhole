@@ -29,7 +29,7 @@ public sealed class PlotView : SkiaView
 {
     public static readonly StyledProperty<XyPlotModel?> ModelProperty = AvaloniaProperty.Register<PlotView, XyPlotModel?>(nameof(Model));
 
-    private PlotLayout? _layout;
+    private volatile PlotLayout? _layout;
     private (double X0, double X1, double Y0, double Y1)? _zoom;
     private Point? _panStart;
     private (double X0, double X1, double Y0, double Y1)? _panOrigin;
@@ -93,17 +93,21 @@ public sealed class PlotView : SkiaView
         }
     }
 
-    protected override void Paint(SKCanvas canvas, SKRect bounds, PlotTheme theme)
+    protected override Action<SKCanvas, SKRect, PlotTheme> CreatePainter()
     {
-        var model = Model;
-        if (model is null)
+        var model = Model?.Snapshot();
+        return (canvas, bounds, theme) =>
         {
-            using var bg = Draw.Fill(theme.Background);
-            canvas.DrawRect(bounds, bg);
-            return;
-        }
+            if (model is null)
+            {
+                using var bg = Draw.Fill(theme.Background);
+                canvas.DrawRect(bounds, bg);
+                return;
+            }
 
-        _layout = XyPlotRenderer.Render(canvas, bounds, model, theme);
+            // The layout describes exactly what was drawn and is read by pointer handling on the UI thread.
+            _layout = XyPlotRenderer.Render(canvas, bounds, model, theme);
+        };
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -252,11 +256,15 @@ public sealed class BoreholeView : SkiaView
         set => SetValue(ModelProperty, value);
     }
 
-    protected override void Paint(SKCanvas canvas, SKRect bounds, PlotTheme theme)
+    protected override Action<SKCanvas, SKRect, PlotTheme> CreatePainter()
     {
-        if (Model is { } m)
+        var model = Model?.Snapshot();
+        return (canvas, bounds, theme) =>
         {
-            BoreholeDiagramRenderer.Render(canvas, bounds, m, theme);
-        }
+            if (model is not null)
+            {
+                BoreholeDiagramRenderer.Render(canvas, bounds, model, theme);
+            }
+        };
     }
 }

@@ -217,6 +217,8 @@ public sealed partial class ProcessingPageViewModel(WorkspaceViewModel ws) : Pag
         SelectedStep = null;
         LoadSteps();
         BuildPreview();
+        // The suggestion belongs to the chain shown: a vertical (P) suggestion must never be added to the S chain.
+        BuildSuggestion();
     }
 
     partial void OnSelectedStepChanged(StepRow? value)
@@ -316,6 +318,8 @@ public sealed partial class ProcessingPageViewModel(WorkspaceViewModel ws) : Pag
         };
         if (Execute(Edits.AddStep(State, Group.Value, step)))
         {
+            // Page refreshes are deferred; load the chain now so the new step opens in the inspector.
+            LoadSteps();
             SelectedStep = Steps.FirstOrDefault(s => s.Step.Id == step.Id);
         }
     }

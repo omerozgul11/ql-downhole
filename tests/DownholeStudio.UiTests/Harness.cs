@@ -38,6 +38,8 @@ public sealed class FakeLicenseServer : HttpMessageHandler
 
     public ECDsa Key { get; } = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 
+    public int Deactivations { get; private set; }
+
     public PublicKeyRing Ring => new(new Dictionary<string, string> { ["ui-test"] = Key.ExportSubjectPublicKeyInfoPem() });
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
@@ -70,6 +72,19 @@ public sealed class FakeLicenseServer : HttpMessageHandler
                     Email = Email, KeyHint = "PQRS", IssuedAt = now, OfflineValidUntil = now.AddDays(30), MaintenanceUntil = now.AddYears(1), SeatCount = 1,
                 }, "Activated.")
                 : new LicenseResponse { Success = false, ErrorCode = LicenseErrorCodes.InvalidKey, Message = "This license key is not valid.", ServerTime = now };
+        }
+        else if (path.EndsWith("/licenses/validate", StringComparison.Ordinal))
+        {
+            // Re-issues the presented token with a fresh validation time (as the real server does for a valid licence).
+            var claims = LicenseTokenCodec.Verify(body.GetProperty("token").GetString()!, Ring);
+            response = claims is null
+                ? new LicenseResponse { Success = false, ErrorCode = LicenseErrorCodes.InvalidToken, Message = "Unknown token.", ServerTime = now }
+                : Ok(claims with { IssuedAt = now, OfflineValidUntil = now.AddDays(claims.IsTrial ? 3 : 30) }, "License verified.");
+        }
+        else if (path.EndsWith("/licenses/deactivate", StringComparison.Ordinal))
+        {
+            Deactivations++;
+            response = new LicenseResponse { Success = true, Message = "This computer has been deactivated.", ServerTime = now };
         }
         else
         {

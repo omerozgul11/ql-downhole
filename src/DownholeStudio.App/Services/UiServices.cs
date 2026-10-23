@@ -67,6 +67,8 @@ public sealed partial class UiService : ObservableObject
 
     public Func<string, string?>? SaveFileOverride { get; set; }
 
+    public Func<string, string?>? OpenFolderOverride { get; set; }
+
     /// <summary>Automation hook: answers overlay dialogs without user interaction (button text to choose).</summary>
     public Func<DialogViewModel, string?>? DialogOverride { get; set; }
 
@@ -151,6 +153,11 @@ public sealed partial class UiService : ObservableObject
 
     public async Task<string?> OpenFolderAsync(string title)
     {
+        if (OpenFolderOverride is { } open)
+        {
+            return open(title);
+        }
+
         if (_top is null)
         {
             return null;
@@ -193,12 +200,25 @@ public sealed partial class UiService : ObservableObject
             await clipboard.SetTextAsync(text);
             Notify("Copied to the clipboard.");
         }
+        else
+        {
+            Notify("The clipboard is not available on this computer.", "warning");
+        }
     }
 
     public IClipboard? Clipboard => _top?.Clipboard;
 
+    /// <summary>Automation hook: receives URLs and files to open instead of starting the default program.</summary>
+    public Action<string>? OpenUrlOverride { get; set; }
+
     public void OpenUrl(string url)
     {
+        if (OpenUrlOverride is { } open)
+        {
+            open(url);
+            return;
+        }
+
         try
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });

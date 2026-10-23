@@ -21,6 +21,7 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         Services ??= AppHost.Build();
+        Avalonia.Logging.Logger.Sink = new AvaloniaLogForwarder(Services.GetRequiredService<ILoggerFactory>().CreateLogger("Avalonia"));
         var main = Services.GetRequiredService<MainViewModel>();
         var settings = Services.GetRequiredService<SettingsStore>();
         main.ApplyTheme(settings.Current.Theme);

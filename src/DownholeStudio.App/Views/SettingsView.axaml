@@ -47,8 +47,7 @@
               </StackPanel>
               <!-- Processing defaults -->
               <StackPanel Spacing="10" IsVisible="{Binding IsProcessing}">
-                <CheckBox IsChecked="{Binding DefaultBandPassForS}" Content="Suggest a band-pass filter for horizontal (S) data in new projects" />
-                <TextBlock Classes="faint wrap" Text="New projects start with a mean removal only. Filters are never applied automatically; suggestions must be added explicitly." />
+                <TextBlock Classes="faint wrap" Text="New projects start with a mean removal only. Filters are never applied automatically: the Processing page suggests a band-pass from each chain's spectrum, which you add explicitly." />
               </StackPanel>
               <!-- Picking defaults -->
               <StackPanel Spacing="10" IsVisible="{Binding IsPicking}">

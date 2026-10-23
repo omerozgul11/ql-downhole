@@ -65,9 +65,16 @@ public sealed class ProjectSession
         SessionId = Guid.NewGuid();
     }
 
-    public static ProjectSession CreateNew(string name, IClock clock, AppIdentity app, Domain.Units.UnitSystem units = Domain.Units.UnitSystem.SI)
+    /// <param name="scenarioDefaults">User defaults applied to the first scenario (e.g. preferred pickers).</param>
+    public static ProjectSession CreateNew(string name, IClock clock, AppIdentity app, Domain.Units.UnitSystem units = Domain.Units.UnitSystem.SI,
+        Func<AnalysisScenario, AnalysisScenario>? scenarioDefaults = null)
     {
         var state = ProjectState.CreateNew(name, app.Version, clock.Now, units);
+        if (scenarioDefaults is not null)
+        {
+            state = state.WithActiveScenario(scenarioDefaults);
+        }
+
         var doc = new ProjectDocument { State = state };
         var session = new ProjectSession(doc, null, clock, app);
         session.AppendHistory(new ProjectEdit("project.create", $"Created project \"{name}\"", s => s));

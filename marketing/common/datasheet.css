@@ -1,0 +1,200 @@
+/* ============================================================
+   QUAKELOGIC PRODUCT DATASHEET — CANONICAL STYLESHEET
+   US-Letter @96dpi = 816 x 1056 px. Render via Playwright Chromium.
+   Do not change page geometry, brand colors, or the safe-zone rules:
+   they are what keep text off the logos and inside the cards.
+   ============================================================ */
+
+@font-face{font-family:'Oswald';src:url('fonts/Oswald-VF.ttf');font-weight:200 700;font-style:normal;}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow-Light.ttf');font-weight:300;}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow-Regular.ttf');font-weight:400;}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow-Medium.ttf');font-weight:500;}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow-SemiBold.ttf');font-weight:600;}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow-Bold.ttf');font-weight:700;}
+
+:root{
+  --orange:#ED6A23; --orange2:#E1590F; --ink:#231F20;
+  --grey:#58595B;   --panel:#9E9EA0;   --line:#d9d9d9; --soft:#f2f2f2;
+
+  /* SAFE ZONES — the contract that prevents every overlap bug.
+     Content lives between --content-top and --content-bottom. */
+  --page-w:816px;  --page-h:1056px;
+  --margin-x:64px;
+  --content-top:60px;
+  --content-bottom:940px;  /* hard floor: footer owns everything below */
+  --footer-y:28px;
+  --panel-w:300px;         /* grey panel on cover/back = right 300px */
+  --orange-zone:516px;     /* cover/back: text must stay left of this */
+}
+
+*{margin:0;padding:0;box-sizing:border-box;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{font-family:'Barlow',sans-serif;color:var(--ink);}
+
+.page{position:relative;width:var(--page-w);height:var(--page-h);
+  overflow:hidden;background:#fff;page-break-after:always;}
+.page:last-child{page-break-after:auto;}
+
+/* Content well. Bottom padding reserves the footer band so no block
+   can ever slide under the page number or the logo. */
+.pad{padding:var(--content-top) var(--margin-x) 116px var(--margin-x);}
+
+/* ---------------- footer + logos ---------------- */
+/* Real logo PNG — never redraw the mark with CSS dots. */
+.footer{position:absolute;left:var(--margin-x);right:var(--margin-x);
+  bottom:var(--footer-y);display:flex;justify-content:space-between;align-items:center;}
+.footer .pg{font-family:'Oswald';font-weight:700;font-size:22px;color:var(--ink);}
+/* Size .flogo on the class itself, NOT as `.footer .flogo`. If the size rule
+   depends on the parent, dropping the logo into any other wrapper renders it
+   at its native 88px and it shoots off the page edge. Learned the hard way. */
+.flogo{height:22px;width:auto;display:block;}
+
+/* Corner logo for cover/back, where a footer would collide with artwork.
+   White chip keeps the two-tone logo legible on orange. */
+.cornerlogo{position:absolute;top:34px;right:36px;background:#fff;border-radius:6px;
+  padding:7px 13px;box-shadow:0 2px 6px rgba(0,0,0,.16);z-index:5;}
+.cornerlogo img{height:20px;width:auto;display:block;}
+
+/* ---------------- typography ---------------- */
+.h1{font-family:'Oswald';font-weight:700;font-size:44px;color:var(--ink);
+  line-height:1;letter-spacing:.5px;}
+.h1sub{font-family:'Oswald';font-weight:600;font-size:20px;color:var(--orange);
+  letter-spacing:1px;margin-top:6px;}
+.seclabel{font-family:'Oswald';font-weight:700;font-size:15px;color:var(--orange);
+  letter-spacing:1.4px;}
+
+/* ================= PAGE 1 : COVER ================= */
+.cover{background:var(--orange);}
+.cover .greypanel{position:absolute;top:0;right:0;width:var(--panel-w);height:100%;background:var(--panel);}
+.cover .ktitle{position:absolute;top:78px;left:70px;color:#fff;}
+.cover .ktitle .brand{font-family:'Oswald';font-weight:700;font-size:56px;letter-spacing:1px;line-height:1;}
+.cover .ktitle .sub{font-family:'Oswald';font-weight:300;text-transform:uppercase;
+  font-size:38px;line-height:1.12;margin-top:14px;letter-spacing:1px;}
+
+/* Vertical product name.
+   Use writing-mode — NOT rotate(90deg). A rotate transform anchors at a corner
+   and shoves the first characters off the top of the page (the classic
+   "product name is cut off at the top-left" bug). writing-mode flows the text
+   downward inside its own box, so it can never clip. */
+.cover .vname{position:absolute;top:96px;right:112px;
+  writing-mode:vertical-rl;text-orientation:mixed;
+  font-family:'Oswald';font-weight:700;font-size:50px;color:var(--orange);
+  letter-spacing:2px;white-space:nowrap;line-height:1;}
+.cover .machine{position:absolute;bottom:34px;left:135px;width:660px;}
+.cover .machine img{width:100%;display:block;filter:drop-shadow(0 12px 14px rgba(0,0,0,.28));}
+
+/* ================= PAGE 2 : OVERVIEW ================= */
+.ov-media{display:flex;gap:14px;margin-top:22px;}
+.ov-hero{width:456px;height:300px;border:1px solid var(--line);overflow:hidden;}
+.ov-hero img{width:100%;height:100%;object-fit:cover;}
+.ov-insets{display:flex;flex-direction:column;justify-content:space-between;}
+.circle{width:143px;height:143px;border-radius:50%;border:4px solid var(--orange);overflow:hidden;}
+.circle img{width:100%;height:100%;object-fit:cover;}
+.ov-body{display:flex;gap:22px;margin-top:26px;}
+.ov-left{width:452px;}
+.ov-left h2{font-family:'Oswald';font-weight:700;font-size:17px;color:var(--ink);
+  letter-spacing:.6px;margin-bottom:9px;}
+.ov-left p{font-size:12.3px;line-height:1.5;color:#333;text-align:justify;}
+.ov-left ul{margin-top:11px;list-style:none;}
+.ov-left ul li{font-size:12px;line-height:1.42;color:#333;padding-left:15px;
+  position:relative;margin-bottom:9px;}
+.ov-left ul li::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;
+  border-radius:50%;background:var(--orange);}
+.sidebar{width:212px;background:var(--orange);color:#fff;padding:16px 18px 20px;align-self:flex-start;}
+.sidebar h3{font-family:'Oswald';font-weight:700;font-size:16px;letter-spacing:.6px;margin-bottom:12px;}
+.sidebar ul{list-style:none;}
+.sidebar ul li{font-size:11px;line-height:1.3;padding-left:12px;position:relative;
+  margin-bottom:7.5px;font-weight:500;}
+.sidebar ul li::before{content:"\2022";position:absolute;left:0;color:#fff;}
+
+/* ================= PAGE 3 : KEY / PRODUCT FEATURES ================= */
+.p3{display:flex;gap:26px;margin-top:6px;}
+.kf{width:352px;}
+.kf .lab{font-family:'Oswald';font-weight:700;font-size:26px;color:var(--ink);margin-bottom:16px;}
+.kf ul{list-style:none;}
+.kf ul li{font-size:11.6px;line-height:1.4;color:#333;padding-left:16px;
+  position:relative;margin-bottom:15px;}
+.kf ul li::before{content:"";position:absolute;left:0;top:5px;width:7px;height:7px;
+  border-radius:50%;background:var(--orange);}
+.pf{flex:1;}
+.pf .bar{background:var(--orange);color:#fff;font-family:'Oswald';font-weight:700;
+  font-size:15px;letter-spacing:1px;padding:8px 14px;border-radius:16px;}
+.pfgroup{margin-top:15px;}
+.pfgroup .t{font-family:'Barlow';font-weight:700;font-size:12px;color:var(--ink);}
+.pfgroup .v{font-size:11.5px;color:#444;line-height:1.4;}
+.pf .note{font-size:11.5px;color:var(--ink);font-weight:600;line-height:1.45;margin-top:16px;}
+
+/* ================= TABLES ================= */
+.tbl{width:100%;border-collapse:collapse;margin-top:12px;table-layout:fixed;}
+.tbl thead th{background:var(--orange);color:#fff;font-family:'Oswald';font-weight:600;
+  font-size:12.5px;letter-spacing:.6px;text-transform:uppercase;padding:6px 14px;text-align:center;}
+.tbl td{font-size:12px;padding:4.6px 14px;border-bottom:1px solid var(--line);
+  color:#333;text-align:center;word-wrap:break-word;overflow-wrap:anywhere;}
+.tbl td.k{color:var(--grey);font-weight:600;}
+.tbl tbody tr:nth-child(even) td{background:#faf7f5;}
+
+/* Two-column spec table. A single table longer than ~26 rows WILL run into
+   the footer. Split it across these two columns instead of shrinking type. */
+.spec2{display:flex;gap:22px;margin-top:14px;align-items:flex-start;}
+.spec2 .col{flex:1 1 0;min-width:0;}
+.spec2 table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.spec2 thead th{background:var(--orange);color:#fff;font-family:'Oswald';font-weight:600;
+  font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:7px 10px;text-align:left;}
+.spec2 thead th:first-child{width:47%;}
+.spec2 td{font-size:11px;padding:5.5px 10px;border-bottom:1px solid var(--line);color:#333;
+  text-align:left;word-wrap:break-word;overflow-wrap:anywhere;}
+.spec2 td.k{color:var(--grey);font-weight:600;}
+.spec2 tbody tr:nth-child(even) td{background:#faf7f5;}
+
+/* ================= OPTION CARDS ================= */
+/* Real bordered cards. The border is not decoration — it makes any text
+   overflow immediately visible in QA instead of silently bleeding onto
+   the page. Text is padded INSIDE the card, never floated under it. */
+.optwrap{margin-top:12px;}
+.opth{font-family:'Oswald';font-weight:700;font-size:21px;color:var(--orange);
+  letter-spacing:.5px;margin-bottom:12px;}
+.optgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;}
+.optbox{border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  display:flex;flex-direction:column;}
+.optbox .cap{background:var(--orange);color:#fff;font-family:'Oswald';font-weight:700;
+  font-size:11.5px;letter-spacing:.5px;padding:7px 12px;}
+.optbox p{font-size:10.6px;line-height:1.34;color:#333;margin:0;padding:9px 12px 10px;}
+
+/* ================= GALLERIES ================= */
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+.gal .cell{height:284px;border:1px solid var(--line);overflow:hidden;}
+.gal .cell img{width:100%;height:100%;object-fit:cover;}
+
+/* Component grid: caption sits BELOW its framed photo, never on top of it. */
+.comp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px;}
+.comp .ph{height:196px;border:1px solid var(--line);overflow:hidden;background:#fff;
+  display:flex;align-items:center;justify-content:center;}
+.comp .ph img{width:100%;height:100%;object-fit:cover;}
+.comp .cap{font-family:'Oswald';font-weight:600;font-size:11.5px;color:var(--grey);
+  letter-spacing:.5px;text-transform:uppercase;text-align:center;margin-top:7px;line-height:1.2;}
+
+/* ================= LAST PAGE : BACK COVER ================= */
+.back{background:var(--orange);}
+.back .greypanel{position:absolute;top:0;right:0;width:var(--panel-w);height:100%;background:var(--panel);}
+.back .vname{position:absolute;top:104px;right:112px;
+  writing-mode:vertical-rl;text-orientation:mixed;
+  font-family:'Oswald';font-weight:700;font-size:46px;color:var(--orange);
+  letter-spacing:2px;white-space:nowrap;line-height:1;}
+.back .machine{position:absolute;bottom:30px;left:150px;width:600px;}
+.back .machine img{width:100%;display:block;filter:drop-shadow(0 12px 14px rgba(0,0,0,.28));}
+
+/* Two FIXED, non-overlapping columns, both ending before --orange-zone (516px).
+   Do not let a column's left+width cross into the next column's left; that is
+   exactly how the "About" text ends up printed on top of "Contact Us". */
+.back .colA{position:absolute;top:74px;left:64px;width:214px;color:#fff;}   /* 64 → 278  */
+.back .colB{position:absolute;top:74px;left:298px;width:206px;color:#fff;}  /* 298 → 504 */
+.back .lbl{font-family:'Barlow';font-weight:700;font-size:13px;margin-bottom:5px;letter-spacing:.2px;}
+.back .blk{font-size:11.5px;line-height:1.42;margin-bottom:16px;}
+.back .blk b{font-weight:700;}
+.back .colB h4{font-family:'Barlow';font-weight:700;font-size:13px;margin:0 0 5px;}
+.back .colB p{font-size:11px;line-height:1.36;margin:0 0 14px;}
+
+/* Product QR — always on the back cover, above the machine artwork. */
+.back .qr{margin-top:2px;}
+.back .qr .t{font-family:'Barlow';font-weight:700;font-size:12px;margin-bottom:7px;}
+.back .qr img{width:118px;height:118px;background:#fff;padding:5px;display:block;}

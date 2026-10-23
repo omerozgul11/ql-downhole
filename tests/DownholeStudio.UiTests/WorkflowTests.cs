@@ -25,6 +25,14 @@ public sealed class WorkflowTests
         var window = Open(main);
         await UiHarness.SettleAsync(200);
 
+        // UI tests share one application: start from a computer without a licence.
+        if (main.LicenseManager.Status.State != LicenseState.NotActivated)
+        {
+            await main.LicenseManager.DeactivateAsync();
+            await UiHarness.SettleAsync(200);
+            main.License.IsOpen = true;
+        }
+
         // Activate trial.
         Assert.Equal(LicenseState.NotActivated, main.LicenseManager.Status.State);
         Assert.True(main.License.IsOpen);

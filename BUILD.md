@@ -15,7 +15,7 @@ scripts/build.sh --skip-tests    # packaging only
 scripts/build.sh --version 1.0.1 --refresh-sample
 ```
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\build.ps1 -Version 1.0.0 [-Sign -CertificateThumbprint <thumbprint>]
+powershell -ExecutionPolicy Bypass -File scripts\build.ps1 -Version 1.0.0 [-Sign]   # signing settings come from .env
 ```
 Output: `artifacts/installer/DownholeStudio-Setup-<version>.exe` and `.sha256`.
 
@@ -32,6 +32,23 @@ docker run --rm -v "$PWD:/work" -w /work/packaging/windows amake/innosetup:lates
 The application publishes self-contained (no .NET installation needed on the customer's computer)
 with ReadyToRun pre-compilation for fast start-up. Cross-compiling for Windows on Linux is
 supported.
+
+## Customer documents, training video and client package
+The client package is one zip, like MASW Studio's. It contains the installer, field guide, training video, brochure and user guide, datasheet, example SEG-2 records and the licence notices. Build the parts, then the zip:
+
+```bash
+PY=/opt/apps/masw-studio/engine/.venv/bin/python               # Playwright + Chromium (HTML -> PDF)
+VPY=/opt/apps/masw-studio/.tools/marketing-video/.venv/bin/python  # Kokoro voice, imageio-ffmpeg
+$PY marketing/field-guide/build.py        # docs/marketing/QuakeLogic-Downhole-Studio-Field-Guide.pdf (text: docs/FIELD-GUIDE.md)
+$PY marketing/brochure/build.py           # docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf
+$PY marketing/datasheet/build.py          # docs/marketing/QuakeLogic-Downhole-Studio-Datasheet.pdf
+$VPY marketing/training/narrate.py        # narration (only when storyboard.json changes)
+DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only
+$VPY marketing/training/render.py         # artifacts/training-video-<version>/DownholeStudio-Training-<version>.mp4 + .srt
+python3 scripts/package-client.py         # artifacts/client-package/DownholeStudio-<version>-Client-Package.zip
+```
+
+When the interface changes, re-render `docs/images` first (the `ProductScreenshots` test, see [TESTING.md](TESTING.md)), then rebuild the brochure and datasheet.
 
 ## Running from source
 `dotnet run --project src/DownholeStudio.App` (Windows; on Linux it runs with X11 for development).

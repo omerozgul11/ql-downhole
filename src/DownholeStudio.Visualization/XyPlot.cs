@@ -16,6 +16,18 @@ public sealed class Axis
 
     public double Span => Max - Min;
 
+    /// <summary>Copies every setting from another axis.</summary>
+    public void CopyFrom(Axis other)
+    {
+        Title = other.Title;
+        Min = other.Min;
+        Max = other.Max;
+        Inverted = other.Inverted;
+        Logarithmic = other.Logarithmic;
+        Format = other.Format;
+        ShowGrid = other.ShowGrid;
+    }
+
     public void Fit(IEnumerable<double> values, double padFraction = 0.05, bool includeZero = false)
     {
         var finite = values.Where(double.IsFinite).ToList();
@@ -148,6 +160,8 @@ public sealed class PlotSeries
     public bool ShowInLegend { get; set; } = true;
     public bool HitTestable { get; set; } = true;
     public IReadOnlyList<PlotPoint> Points { get; set; } = [];
+
+    public PlotSeries Clone() => (PlotSeries)MemberwiseClone();
 }
 
 public enum LineOrientation
@@ -189,6 +203,22 @@ public sealed class XyPlotModel
     public bool XAxisOnTop { get; set; }
     public (double X, double Y)? Crosshair { get; set; }
     public string? EmptyMessage { get; set; }
+
+    /// <summary>
+    /// An independent copy for rendering on another thread: settings, axes, series and lists are copied;
+    /// point lists are shared because they are never modified after a series is built.
+    /// </summary>
+    public XyPlotModel Snapshot()
+    {
+        var copy = new XyPlotModel { Title = Title, Subtitle = Subtitle, ShowLegend = ShowLegend, XAxisOnTop = XAxisOnTop, Crosshair = Crosshair, EmptyMessage = EmptyMessage };
+        copy.X.CopyFrom(X);
+        copy.Y.CopyFrom(Y);
+        copy.Series.AddRange(Series.Select(s => s.Clone()));
+        copy.Lines.AddRange(Lines);
+        copy.Notes.AddRange(Notes);
+        copy.Bands.AddRange(Bands);
+        return copy;
+    }
 }
 
 /// <summary>Pixel layout of a rendered plot, for hit testing and coordinate conversion.</summary>

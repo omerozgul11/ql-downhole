@@ -193,12 +193,18 @@ public sealed partial class ImportPageViewModel(WorkspaceViewModel ws) : PageVie
         ImportCommand.NotifyCanExecuteChanged();
     }
 
+    /// <summary>Removes a file from the selection and re-inspects the rest, so it is not imported and the checks (duplicates, missing channels) no longer count it.</summary>
     [RelayCommand]
-    private void RemoveFile(ImportFileRow row)
+    private async Task RemoveFile(ImportFileRow row)
     {
         _paths.Remove(row.Candidate.Path);
-        Files.Remove(row);
-        ImportCommand.NotifyCanExecuteChanged();
+        if (_paths.Count == 0)
+        {
+            Clear();
+            return;
+        }
+
+        await PreviewAsync();
     }
 
     private bool CanImport() => _preview is not null && Files.Any(f => f.Include && f.Readable) && !IsBusy;

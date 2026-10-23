@@ -25,13 +25,19 @@ public abstract class SkiaView : Control
 
     protected PlotTheme CurrentPlotTheme => ActualThemeVariant == ThemeVariant.Dark ? PlotTheme.Dark : PlotTheme.Light;
 
-    /// <summary>Draws the content. Called on the render thread: read only immutable or snapshotted state.</summary>
-    protected abstract void Paint(SKCanvas canvas, SKRect bounds, PlotTheme theme);
+    /// <summary>
+    /// Called on the UI thread whenever the control is redrawn. Capture everything the drawing needs
+    /// (model snapshots, flags, hover text) and return a painter that uses only that captured state:
+    /// on desktop platforms the painter runs on the render thread, where control properties and view
+    /// models must not be touched.
+    /// </summary>
+    protected abstract Action<SKCanvas, SKRect, PlotTheme> CreatePainter();
 
     public override void Render(DrawingContext context)
     {
         var theme = CurrentPlotTheme;
-        context.Custom(new DrawOperation(new Rect(Bounds.Size), (c, r) => Paint(c, r, theme)));
+        var paint = CreatePainter();
+        context.Custom(new DrawOperation(new Rect(Bounds.Size), (c, r) => paint(c, r, theme)));
     }
 
     private sealed class DrawOperation(Rect bounds, Action<SKCanvas, SKRect> draw) : ICustomDrawOperation

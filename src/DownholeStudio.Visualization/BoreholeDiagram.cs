@@ -18,6 +18,18 @@ public sealed class BoreholeDiagramModel
     public string LengthUnit { get; set; } = "m";
     public double LengthScale { get; set; } = 1;
     public string? Note { get; set; }
+
+    /// <summary>An independent copy for rendering on another thread.</summary>
+    public BoreholeDiagramModel Snapshot()
+    {
+        var copy = new BoreholeDiagramModel
+        {
+            BoreholeName = BoreholeName, TotalDepth = TotalDepth, CollarHeight = CollarHeight, POffset = POffset, PSourceDepth = PSourceDepth,
+            SOffset = SOffset, SSourceDepth = SSourceDepth, LengthUnit = LengthUnit, LengthScale = LengthScale, Note = Note,
+        };
+        copy.Receivers.AddRange(Receivers);
+        return copy;
+    }
 }
 
 public static class BoreholeDiagramRenderer

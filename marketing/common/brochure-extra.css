@@ -1,0 +1,61 @@
+/* Downhole Studio brochure additions on top of the canonical QuakeLogic datasheet.css.
+   Software adaptation: framed screenshots instead of machine cut-outs, captioned
+   galleries and flowing user-guide pages. Page geometry and colors are unchanged. */
+
+/* Screenshot in a light application frame (cover, back cover, overview hero). */
+.frame{background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 14px 30px rgba(0,0,0,.30);border:1px solid rgba(0,0,0,.12);}
+.frame .bar{height:18px;background:#f1f1f2;border-bottom:1px solid #dcdcdc;display:flex;align-items:center;gap:5px;padding:0 9px;}
+.frame .bar i{width:7px;height:7px;border-radius:50%;background:#c9c9cc;display:block;}
+.frame .bar span{font-family:'Barlow';font-weight:600;font-size:8px;color:#77777a;margin-left:6px;letter-spacing:.3px;}
+.frame img{width:100%;display:block;}
+.cover .machine .frame,.back .machine .frame{filter:none;}
+.cover .machine img,.back .machine img{filter:none;}
+
+.cover .tag{position:absolute;left:70px;top:330px;width:400px;color:#fff;font-family:'Barlow';
+  font-weight:500;font-size:15px;line-height:1.45;}
+.cover .tag b{font-family:'Oswald';font-weight:600;font-size:13px;letter-spacing:1.4px;display:block;margin-bottom:6px;}
+.cover .ver{position:absolute;left:70px;top:440px;background:#fff;color:var(--orange2);font-family:'Oswald';
+  font-weight:600;font-size:12px;letter-spacing:1.2px;padding:5px 11px;border-radius:4px;}
+
+/* Captioned galleries: caption sits BELOW its framed screenshot. */
+.galc{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:14px;}
+.galc .ph{height:228px;border:1px solid var(--line);overflow:hidden;background:#fff;}
+.galc .ph img{width:100%;height:100%;object-fit:cover;object-position:left top;}
+.galc .cap,.tour .cap{font-family:'Oswald';font-weight:600;font-size:11.5px;color:var(--grey);
+  letter-spacing:.5px;text-transform:uppercase;margin-top:6px;line-height:1.2;}
+.galc .d{font-size:10.6px;color:#555;line-height:1.35;margin-top:2px;}
+.tour{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 16px;margin-top:14px;}
+.tour .ph{height:150px;border:1px solid var(--line);overflow:hidden;background:#fff;}
+.tour .ph img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+.tour .d{font-size:10.4px;color:#555;line-height:1.33;margin-top:2px;}
+.intro{font-size:12px;line-height:1.5;color:#333;margin-top:8px;max-width:660px;}
+
+/* Workflow table: left-aligned descriptive cells. */
+.tbl.left td{text-align:left;}
+.tbl.left td.k{white-space:nowrap;}
+
+/* ---------------- user guide pages ---------------- */
+.gtitle{font-family:'Oswald';font-weight:700;font-size:15px;color:var(--orange);letter-spacing:1.4px;}
+.gdoc h1{font-family:'Oswald';font-weight:700;font-size:34px;color:var(--ink);line-height:1.05;margin:6px 0 4px;}
+.gdoc .lead{font-family:'Oswald';font-weight:500;font-size:15px;color:var(--orange);letter-spacing:.8px;margin-bottom:10px;}
+.gdoc h2{font-family:'Oswald';font-weight:700;font-size:19px;color:var(--ink);letter-spacing:.4px;
+  margin:16px 0 7px;padding-bottom:4px;border-bottom:2px solid var(--orange);}
+.gdoc h3{font-family:'Barlow';font-weight:700;font-size:12.6px;color:var(--orange2);margin:11px 0 3px;}
+.gdoc p{font-size:11.4px;line-height:1.5;color:#333;margin:0 0 7px;}
+.gdoc ul,.gdoc ol{margin:0 0 7px 0;padding-left:20px;}
+.gdoc li{font-size:11.4px;line-height:1.45;color:#333;margin-bottom:3px;}
+.gdoc ol li::marker{color:var(--orange2);font-weight:700;}
+.gdoc ul li::marker{color:var(--orange);}
+.gdoc code{font-family:'Barlow';font-weight:600;font-size:10.8px;background:#f4efeb;color:#7a3a12;padding:0 3px;border-radius:3px;}
+.gdoc b,.gdoc strong{font-weight:700;color:var(--ink);}
+.gdoc .tbl{margin:6px 0 10px;}
+.gdoc .tbl td{font-size:11.2px;}
+.gdoc .tbl td:first-child{text-align:left;}
+.gdoc .figure{display:flex;align-items:flex-end;gap:16px;margin:8px 0 12px;}
+.gdoc .figure .ph{flex:none;border:1px solid var(--line);overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+.gdoc .figure img{width:100%;height:auto;display:block;}
+.gdoc .figure .cap{flex:1;font-family:'Oswald';font-weight:600;font-size:11px;color:var(--grey);letter-spacing:.5px;text-transform:uppercase;line-height:1.3;border-left:3px solid var(--orange);padding-left:9px;}
+.footer .run{font-family:'Oswald';font-weight:500;font-size:10.5px;color:var(--grey);letter-spacing:1.2px;}
+.footer .left{display:flex;align-items:center;gap:14px;}
+
+.back .colA .support{margin-top:-6px;}

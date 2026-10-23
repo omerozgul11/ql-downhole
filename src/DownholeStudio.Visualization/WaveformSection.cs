@@ -86,6 +86,19 @@ public sealed class WaveformSectionModel
     public string? EmptyMessage { get; set; }
     /// <summary>Clip deflections to the trace spacing (true for stacked displays).</summary>
     public bool Clip { get; set; } = true;
+
+    /// <summary>An independent copy for rendering on another thread; traces are immutable and shared.</summary>
+    public WaveformSectionModel Snapshot()
+    {
+        var copy = new WaveformSectionModel
+        {
+            TimeMin = TimeMin, TimeMax = TimeMax, Mode = Mode, NormalizeEach = NormalizeEach, GlobalGain = GlobalGain, OverlayMode = OverlayMode,
+            SpaceByPosition = SpaceByPosition, PositionMin = PositionMin, PositionMax = PositionMax, TraceOffset = TraceOffset, VisibleTraceCount = VisibleTraceCount,
+            TimeTitle = TimeTitle, PositionTitle = PositionTitle, TimeLabelScale = TimeLabelScale, CursorTime = CursorTime, EmptyMessage = EmptyMessage, Clip = Clip,
+        };
+        copy.Traces.AddRange(Traces);
+        return copy;
+    }
 }
 
 public sealed class WaveLayout(SKRect area, WaveformSectionModel model, IReadOnlyList<float> baselines, float spacing)

@@ -110,6 +110,12 @@ public sealed partial class ProjectPageViewModel : PageViewModel
     [RelayCommand]
     private async Task Duplicate()
     {
+        // A duplicate is a new project file, like Save As, so it needs an active licence or trial.
+        if (!Workspace.CanModify())
+        {
+            return;
+        }
+
         var path = await Workspace.Ui.SaveFileAsync("Duplicate project", $"{State.Metadata.Name} (copy).dhsx", UiService.ProjectFilter);
         if (path is null)
         {
@@ -141,7 +147,8 @@ public sealed partial class ProjectPageViewModel : PageViewModel
 
         await Task.Run(() =>
         {
-            using var zip = ZipFile.Open(path, ZipArchiveMode.Create);
+            // FileMode.Create: the user may have chosen to replace an earlier archive in the save dialog.
+            using var zip = new ZipArchive(new FileStream(path, FileMode.Create, FileAccess.Write), ZipArchiveMode.Create);
             zip.CreateEntryFromFile(Workspace.Session.FilePath!, Path.GetFileName(Workspace.Session.FilePath!));
             var audit = AuditExporter.Create(State, result, Workspace.Session.History, Workspace.Main.Version, Workspace.Main.Clock.Now);
             using (var w = new StreamWriter(zip.CreateEntry("audit.json").Open()))

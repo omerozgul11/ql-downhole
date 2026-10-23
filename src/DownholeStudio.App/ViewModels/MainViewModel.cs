@@ -253,6 +253,25 @@ public sealed partial class MainViewModel : ObservableObject
         return false;
     }
 
+    /// <summary>A new, unsaved project with the user's default pickers (Settings → Picking defaults).</summary>
+    private ProjectSession NewSession()
+    {
+        var s = Settings.Current;
+        return ProjectSession.CreateNew("Untitled survey", Clock, Identity, s.Units, sc => sc with
+        {
+            PPicker = sc.PPicker with { Algorithm = s.DefaultPPicker }, SPicker = sc.SPicker with { Algorithm = s.DefaultSPicker },
+        });
+    }
+
+    /// <summary>Applies a changed recovery-copy interval to the running timer.</summary>
+    public void UpdateAutoSaveInterval()
+    {
+        if (_autoSave is not null)
+        {
+            _autoSave.Interval = TimeSpan.FromMinutes(Math.Max(1, Settings.Current.AutoSaveMinutes));
+        }
+    }
+
     [RelayCommand]
     public async Task NewProjectAsync()
     {
@@ -261,7 +280,7 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        var session = ProjectSession.CreateNew("Untitled survey", Clock, Identity, Settings.Current.Units);
+        var session = NewSession();
         Workspace = CreateWorkspace(session);
         Workspace.Navigate(WorkflowStep.Project);
     }
@@ -390,7 +409,7 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (Workspace is null)
         {
-            var session = ProjectSession.CreateNew("Untitled survey", Clock, Identity, Settings.Current.Units);
+            var session = NewSession();
             Workspace = CreateWorkspace(session);
         }
 

@@ -48,6 +48,7 @@ public sealed partial class ReportPageViewModel : PageViewModel
             Sections.Add(new SectionToggle(this, s, Label(s), true));
         }
 
+        _paper = ws.Main.Settings.Current.PaperSize == "A4" ? PaperOptions[1] : PaperOptions[0];
         Load();
     }
 
