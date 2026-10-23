@@ -45,6 +45,22 @@ public sealed class EmailTemplates(IOptions<EmailContentOptions> options)
             "Keep this key safe. QuakeLogic stores only a one-way fingerprint of it and cannot resend the same key.",
         ]);
 
+    public EmailContent ActivationKey(string name, string product, string edition, string computerCode, string computerLabel, string activationKey,
+        DateTimeOffset? expires, DateTimeOffset? maintenance) => Build(
+        "activation-key", $"Your {product} activation key for {computerLabel}",
+        $"Hello {name},",
+        [
+            $"Here is the {product} {edition} activation key for the computer {computerLabel} (computer code {computerCode}):",
+            $"KEY::{activationKey}",
+            (expires is { } e ? $"The license is valid until {e:MMMM d, yyyy}." : "The license does not expire.")
+                + (maintenance is { } m ? $" Updates are included until {m:MMMM d, yyyy}." : ""),
+            "To activate:",
+            $"1. If {product} is not installed yet, download it from {O.DownloadUrl} and install it.",
+            "2. Start the application. In the activation window (or Settings → License), paste the whole activation key above and select Activate.",
+            "No internet connection is needed. The key works only on the computer with this computer code.",
+            "To move the license to another computer, remove the activation in Settings → License and send us the new computer's code.",
+        ]);
+
     public EmailContent TrialReminder(string product, DateTimeOffset trialEnd) => Build(
         "trial-reminder", $"Your {product} trial ends {trialEnd:MMMM d}",
         "Hello,",

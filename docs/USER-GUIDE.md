@@ -29,7 +29,7 @@ This guide follows a survey from raw SEG-2 files to a finished report. The same 
 1. Run `DownholeStudio-Setup.exe`. By default the program is installed for the current user only, so no administrator rights are needed. An administrator can choose *Install for all users* instead.
 2. If Windows SmartScreen shows *Windows protected your PC*, click **More info → Run anyway**. This happens with builds that are not Authenticode-signed.
 3. Optional setup tasks are a desktop shortcut and opening `.dhsx` project files with Downhole Studio.
-4. Start **Downhole Studio** from the Start menu. The start screen offers **Start 14-Day Free Trial**, **Activate License**, **Explore Sample Project** and recent projects.
+4. Start **Downhole Studio** from the Start menu. The first time, the activation window opens (see [section 15](#15-licensing-and-privacy)). The start screen offers **New Project**, **Open Project**, **Import Survey**, **Explore Sample Project** and recent projects.
 
 The sample project is a complete worked survey. It contains 32 depths, P and opposite-direction S shots and a reference geophone. All of its data is synthetic and its true answer is known. It is the quickest way to see every page with real content.
 
@@ -292,20 +292,17 @@ Every report records the software version, analysis date, velocity method, proce
 
 ## 15. Licensing and privacy
 
-- **Per computer:** Downhole Studio is licensed per computer.
-- **Trial:** every computer can use a 14-day trial. It starts when you click **Start trial** and does not restart after reinstalling.
-- **Activation:**
-  - activate with the e-mail address and licence key (`DHST-XXXX-XXXX-XXXX-XXXX`) you received;
-  - paid licences work offline for 30 days between online checks;
-  - if the system clock moves back significantly, you are asked to connect once to confirm the licence.
-- **Moving to another computer:** use **Settings → License → Deactivate this computer**, then activate on the new computer.
-- **Without an active licence**, projects can still be opened and viewed read-only. Licence problems never delete or modify project files.
-- **Privacy:** survey data never leaves your computer. Licensing sends only:
-  - a salted hash of hardware identifiers;
-  - the application and Windows versions;
-  - the computer name, if you allow it.
-
-  Downhole Studio does not collect usage telemetry.
+- **Per computer, activated offline.** No internet connection is needed, ever.
+- **To activate:**
+  1. The activation window (also Settings → License) shows this computer's code: five groups of five characters, e.g. `7K3M9-QPZX2-AB4HV-N0R5T-W8YCD`.
+  2. Select **Copy Code**, or **E-mail to QuakeLogic** to open a pre-filled e-mail. Send the code with your company name and order number.
+  3. QuakeLogic replies with an activation key for this computer, and an activation file (`.dhslic`).
+  4. Paste the whole key (it starts with `dhs1.`) and select **Activate**, or select **Open Activation File…**.
+- **The key works only on that computer.** The code stays the same when Downhole Studio is reinstalled or updated. After replacing the computer or reinstalling Windows, request a new key.
+- **Licence end dates:** if your licence has an end date, it is shown in Settings → License. Setting the computer's clock back does not extend it.
+- **Moving to another computer:** use **Settings → License → Remove Activation from This Computer**, then send the new computer's code to QuakeLogic.
+- **Without an activation**, projects can still be opened and viewed read-only. Licence problems never delete or modify project files.
+- **Privacy:** survey data never leaves your computer. The computer code contains no personal or project data, Downhole Studio makes no network connections for licensing, and it does not collect usage telemetry.
 
 ## 16. Keyboard shortcuts
 
@@ -330,8 +327,8 @@ The shortcuts for the waveform and picking pages are in sections 6 and 8.
 | Picks look early after filtering | Zero-phase filters are acausal. Pick on lightly processed data, or use a causal filter and check against the raw trace. |
 | Vs30 shows *Insufficient measured depth* | The S picks do not reach 30 m. Either report Vs to the deepest depth, or allow extrapolation (labelled EXTRAPOLATED). |
 | Moduli are blank | No density has been chosen, or the velocities are physically inconsistent at that layer. See the QC finding. |
-| *Network validation required* | Connect to the internet once so the licence can be confirmed. Projects stay viewable. |
-| *Activation limit reached* | Deactivate the licence on a computer you no longer use, or contact QuakeLogic. |
+| *This activation key was issued for another computer* | The key belongs to a different computer code. Send this computer's code (shown in the same message) to QuakeLogic. |
+| *This activation key is not valid* | Part of the key is missing. Copy the whole key from the e-mail, or open the attached activation file instead. |
 | The program closed unexpectedly | Restart it and accept the recovery offer. Then send the diagnostic package (Settings → Diagnostics) to QuakeLogic support. |
 
 For support, contact [quakelogic.net/contact](https://quakelogic.net/contact).

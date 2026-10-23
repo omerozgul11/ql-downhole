@@ -8,7 +8,7 @@
    application binaries, builds the installer (signed installer and uninstaller) and verifies the
    signature. Without a certificate use `scripts/build.sh` on Linux; the build is then unsigned and
    the release notes must say so.
-3. Test the installer on a clean Windows 10 22H2 and Windows 11 machine: install, start, trial,
+3. Test the installer on a clean Windows 10 22H2 and Windows 11 machine: install, start, offline activation with a key from the admin portal,
    open the sample, generate a report, upgrade from the previous version, uninstall (projects and
    settings must remain).
 4. Publish the installer. The README's single download link points to

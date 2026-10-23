@@ -68,7 +68,7 @@ public sealed class ClientHarness : IDisposable
 {
     public static readonly DateTimeOffset T0 = new(2026, 10, 1, 9, 0, 0, TimeSpan.Zero);
 
-    public ClientHarness(string deviceSeed = "device-A", MemoryLicenseStore? store = null, TestKeys? keys = null, TestClock? clock = null)
+    public ClientHarness(string deviceSeed = "device-A", MemoryLicenseStore? store = null, TestKeys? keys = null, TestClock? clock = null, bool online = true)
     {
         _ownsKeys = keys is null;
         Keys = keys ?? new TestKeys();
@@ -76,7 +76,7 @@ public sealed class ClientHarness : IDisposable
         Store = store ?? new MemoryLicenseStore();
         DeviceHash = FakeFingerprint.HashOf(deviceSeed);
         Server = new FakeServerHandler();
-        var options = new LicensingOptions { ServerUrl = new Uri("https://licensing.test/"), Keys = Keys.Ring };
+        var options = new LicensingOptions { ServerUrl = online ? new Uri("https://licensing.test/") : null, Keys = Keys.Ring };
         Manager = new LicenseManager(options, Store, new FakeFingerprint(DeviceHash, FakeFingerprint.HashOf(deviceSeed + "-hw")),
             new LicenseApiClient(new HttpClient(Server), options.ServerUrl), "1.0.0-test", () => Clock.Now);
     }

@@ -18,7 +18,7 @@ public static class AppHost
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion ?? "1.0.0").Split('+')[0];
 
     public static IServiceProvider Build(AppPaths? paths = null, ILicenseStore? licenseStore = null, HttpMessageHandler? handler = null, PublicKeyRing? licenseKeys = null,
-        IClock? clock = null, Func<DateTimeOffset>? licenseClock = null)
+        IClock? clock = null, Func<DateTimeOffset>? licenseClock = null, string? licenseServerUrl = null)
     {
         var services = new ServiceCollection();
         paths ??= new AppPaths(Environment.GetEnvironmentVariable("DOWNHOLE_STUDIO_DATA"));
@@ -43,23 +43,23 @@ public static class AppHost
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"DownholeStudio/{Version}");
         services.AddSingleton(http);
         services.AddSingleton<IMachineFingerprintProvider>(new MachineFingerprintProvider(EmbeddedKeys.FingerprintSalt));
-        services.AddSingleton(sp =>
+        // An empty server address means offline activation only: no licensing or update requests are made.
+        Uri? ServerUrl(SettingsStore settings)
         {
-            var settings = sp.GetRequiredService<SettingsStore>().Current;
-            var url = settings.LicenseServerOverride ?? config.LicenseServerUrl;
-            return new LicenseApiClient(sp.GetRequiredService<HttpClient>(), new Uri(url.EndsWith('/') ? url : url + "/"));
-        });
+            var url = licenseServerUrl ?? settings.Current.LicenseServerOverride ?? config.LicenseServerUrl;
+            return string.IsNullOrWhiteSpace(url) ? null : new Uri(url.EndsWith('/') ? url : url + "/");
+        }
+
+        services.AddSingleton(sp => new LicenseApiClient(sp.GetRequiredService<HttpClient>(), ServerUrl(sp.GetRequiredService<SettingsStore>())));
         services.AddSingleton(sp =>
         {
             var fp = sp.GetRequiredService<IMachineFingerprintProvider>();
-            var settings = sp.GetRequiredService<SettingsStore>().Current;
-            var url = settings.LicenseServerOverride ?? config.LicenseServerUrl;
-            var options = new LicensingOptions { ServerUrl = new Uri(url), Keys = licenseKeys ?? EmbeddedKeys.LicenseKeys };
+            var options = new LicensingOptions { ServerUrl = ServerUrl(sp.GetRequiredService<SettingsStore>()), Keys = licenseKeys ?? EmbeddedKeys.LicenseKeys };
             var store = licenseStore ?? new FileLicenseStore(paths.LicenseFile, fp.GetFingerprint().DeviceHash);
             return new LicenseManager(options, store, fp, sp.GetRequiredService<LicenseApiClient>(), Version, licenseClock, sp.GetRequiredService<ILogger<LicenseManager>>());
         });
         services.AddSingleton(sp => new UpdateService(sp.GetRequiredService<LicenseApiClient>(), sp.GetRequiredService<HttpClient>(), paths, Version,
-            sp.GetRequiredService<ILogger<UpdateService>>()));
+            sp.GetRequiredService<ILogger<UpdateService>>(), online: ServerUrl(sp.GetRequiredService<SettingsStore>()) is not null));
         services.AddSingleton<MainViewModel>();
         return services.BuildServiceProvider();
     }

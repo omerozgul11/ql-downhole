@@ -189,7 +189,7 @@ SPECS_R = [
     ('Exports', 'XLSX, CSV, PNG, SVG, PDF, JSON audit'),
     ('Editing', 'Undo / redo, snapshots, scenarios'),
     ('Safety', 'Atomic save, backup copy, recovery'),
-    ('Licensing', 'Per computer; 14-day trial; 30 days offline'),
+    ('Licensing', 'Per computer; offline activation key, no internet needed'),
     ('Validation', '87 / 87 checks; Vs30 within 0.2–1.2 %'),
 ]
 GALLERY = [

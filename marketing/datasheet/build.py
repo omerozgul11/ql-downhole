@@ -57,14 +57,14 @@ CONFIG = [
     ('Help', 'Built-in user guide (F1) and command palette'),
     ('Sample project', 'Complete synthetic survey with a known answer'),
     ('Updates', 'Signed, verified in-app updates'),
-    ('Licensing', 'Per computer; 14-day trial; activation key'),
+    ('Licensing', 'Per computer; offline activation key'),
 ]
 CAPACITY = [
     ('Operating system', 'Windows 10 (21H2 or later) or Windows 11, 64-bit'),
     ('Memory', '8 GB RAM recommended'),
     ('Disk space', 'About 200 MB plus projects'),
     ('Administrator rights', 'Not required (per-user installation)'),
-    ('Internet', 'To start the trial or activate; then 30 days offline'),
+    ('Internet', 'Not needed (activation and use are offline)'),
     ('Seismic input', 'SEG-2 rev. 1; 16/32-bit integer, 32/64-bit float'),
     ('Report and tables', 'PDF; Excel (.xlsx) and CSV at full precision'),
     ('Figures', 'PNG (any pixel size), SVG, PDF; clipboard'),

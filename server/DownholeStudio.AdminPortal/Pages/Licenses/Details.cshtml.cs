@@ -17,6 +17,25 @@ public sealed class DetailsModel(LicensingDbContext db, AdminService admin) : Ad
     /// <summary>Set only in the response to "Reissue key".</summary>
     public string? NewKey { get; private set; }
 
+    /// <summary>Set only in the response to "Issue activation key".</summary>
+    public OfflineActivationResult? OfflineActivation { get; private set; }
+
+    public async Task<IActionResult> OnPostOfflineAsync(string? computerCode, string? computerName, bool sendEmail, CancellationToken ct)
+    {
+        try
+        {
+            OfflineActivation = await admin.IssueOfflineActivationAsync(Actor, Id, computerCode ?? "", computerName, sendEmail, ct);
+            StatusMessage = sendEmail ? "Activation key issued and queued for e-mail to the customer." : "Activation key issued.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = ex.Message;
+            return RedirectToPage(new { Id });
+        }
+
+        return await LoadAsync(ct) ? Page() : NotFound();
+    }
+
     public async Task<IActionResult> OnGetAsync(CancellationToken ct) => await LoadAsync(ct) ? Page() : NotFound();
 
     public Task<IActionResult> OnPostRevokeAsync(CancellationToken ct) =>

@@ -1,7 +1,7 @@
 # Building Downhole Studio
 
 ## Requirements
-* .NET SDK 10.0.401 (pinned in `global.json`). `scripts/setup-dev.sh` installs it into `.tools/dotnet`
+* .NET SDK 10.0.402 (pinned in `global.json`). `scripts/setup-dev.sh` installs it into `.tools/dotnet`
   without touching the system; then `source .tools/env.sh`.
 * Docker — for the integration tests (they start a temporary `postgres:17-alpine` container named
   `dhs-pgtest-*` and remove it afterwards) and, on Linux, to compile the installer with Inno Setup
@@ -43,7 +43,7 @@ $PY marketing/field-guide/build.py        # docs/marketing/QuakeLogic-Downhole-S
 $PY marketing/brochure/build.py           # docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf
 $PY marketing/datasheet/build.py          # docs/marketing/QuakeLogic-Downhole-Studio-Datasheet.pdf
 $VPY marketing/training/narrate.py        # narration (only when storyboard.json changes)
-DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only
+DHS_CUSTOMER_UI=1 DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only
 $VPY marketing/training/render.py         # artifacts/training-video-<version>/DownholeStudio-Training-<version>.mp4 + .srt
 python3 scripts/package-client.py         # artifacts/client-package/DownholeStudio-<version>-Client-Package.zip
 ```

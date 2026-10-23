@@ -6,7 +6,7 @@ namespace DownholeStudio.UiTests;
 
 /// <summary>
 /// Renders the product-page screenshots in docs/images from the bundled sample project. Explicit: run with
-/// <c>DHS_SCREENSHOTS=$PWD/docs/images dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~ProductScreenshots -- xUnit.Explicit=only</c>.
+/// <c>DHS_CUSTOMER_UI=1 DHS_SCREENSHOTS=$PWD/docs/images dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~ProductScreenshots -- xUnit.Explicit=only</c>.
 /// </summary>
 public sealed class ProductScreenshots
 {
@@ -20,13 +20,7 @@ public sealed class ProductScreenshots
         await UiHarness.SettleAsync(200);
         if (main.LicenseManager.Status.State != LicenseState.Licensed)
         {
-            main.License.IsOpen = true;
-            main.License.ShowActivateFormCommand.Execute(null);
-            main.License.Email = FakeLicenseServer.Email;
-            main.License.LicenseKey = FakeLicenseServer.ValidKey;
-            await main.License.ActivateCommand.ExecuteAsync(null);
-            await UiHarness.SettleAsync();
-            main.License.IsOpen = false;
+            await UiHarness.ActivateOfflineAsync(main);
         }
 
         var repo = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));

@@ -1,9 +1,12 @@
 # Licensing
 
-Downhole Studio is licensed **per computer**: one seat = one activated computer. Every computer may
-run a **14-day trial** once. The licensing server is authoritative; the desktop application verifies
-signed tokens offline and never depends on permanent connectivity.
+Downhole Studio is licensed **per computer**: one seat is one activated computer.
 
+The shipped application uses **offline activation**: the customer sends the computer code and receives a signed activation key for that computer, and nothing connects to the internet. See [offline-activation.md](offline-activation.md).
+
+The online licensing server documented below remains implemented, for when one is deployed. It adds `DHST-…` keys, self-service transfers and a trial; the shipped application does not offer the trial.
+
+* [Offline activation: computer codes, activation keys, issuing keys](offline-activation.md)
 * [Protocol and token format](protocol.md)
 * [Client states, offline use and clock rules](client-states.md)
 * [Operations: keys, rotation, first admin, Stripe, backup](operations.md)

@@ -221,7 +221,7 @@ The *Downhole Studio Brochure and User Guide* explains every page in detail. The
 
 1. Run `DownholeStudio-Setup.exe` (in folder 1 of the client package). No administrator rights are needed.
 2. If Windows shows *Windows protected your PC*, choose **More info → Run anyway**.
-3. Start Downhole Studio. Click **Start 14-Day Free Trial**, or **Activate License** with the e-mail address and licence key you received.
+3. Start Downhole Studio. Send the computer code shown in the activation window to QuakeLogic (**E-mail to QuakeLogic**), then paste the activation key you receive and select **Activate**. No internet connection is needed.
 4. Click **Explore Sample Project** to see a complete worked survey before you analyse your own.
 
 ## 9. Checklists and field log sheet

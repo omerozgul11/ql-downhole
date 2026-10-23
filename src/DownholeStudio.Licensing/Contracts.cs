@@ -109,9 +109,14 @@ public sealed record LicenseClaims
 
     public const string TrialType = "trial";
     public const string LicenseType = "license";
+    /// <summary>Activated offline for one computer code; never needs an online check.</summary>
+    public const string OfflineLicenseType = "license-offline";
 
     [JsonIgnore]
     public bool IsTrial => Type == TrialType;
+
+    [JsonIgnore]
+    public bool IsOfflineLicense => Type == OfflineLicenseType;
 }
 
 /// <summary>Release information for the updater, signed with the update key.</summary>

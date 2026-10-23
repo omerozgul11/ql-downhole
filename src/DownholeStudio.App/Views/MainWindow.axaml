@@ -103,18 +103,6 @@
       </Border>
 
       <!-- ============================== Licence banners ============================== -->
-      <Border DockPanel.Dock="Top" IsVisible="{Binding License.ShowTrialBanner}" Classes.warnbox="{Binding License.TrialUrgent}" Background="{DynamicResource AccentSoft}" Padding="16,6">
-        <Grid ColumnDefinitions="*,Auto">
-          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <PathIcon Data="{StaticResource Icon.Info}" Classes="sm" Foreground="{DynamicResource AccentText}" />
-            <TextBlock Text="{Binding License.TrialBanner}" FontWeight="Medium" Foreground="{DynamicResource AccentText}" />
-          </StackPanel>
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-            <Button Classes="link" Content="Buy a license" Command="{Binding License.BuyCommand}" />
-            <Button Classes="link" Content="Activate" Command="{Binding License.OpenActivationCommand}" />
-          </StackPanel>
-        </Grid>
-      </Border>
       <Border DockPanel.Dock="Top" IsVisible="{Binding License.ShowStateBanner}" Background="{DynamicResource WarnSoft}" Padding="16,7">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -123,7 +111,7 @@
             <TextBlock Text="{Binding License.Message}" Foreground="{DynamicResource Text}" TextTrimming="CharacterEllipsis" MaxWidth="900" />
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-            <Button Content="Verify online" Command="{Binding License.RefreshOnlineCommand}" IsVisible="{Binding !License.NeedsActivation}" />
+            <Button Content="Verify online" Command="{Binding License.RefreshOnlineCommand}" IsVisible="{Binding License.CanVerifyOnline}" />
             <Button Classes="primary" Content="Activate a license" Command="{Binding License.OpenActivationCommand}" IsVisible="{Binding License.NeedsActivation}" />
           </StackPanel>
         </Grid>

@@ -18,7 +18,7 @@ public sealed class WorkflowTests
     }
 
     [AvaloniaFact]
-    public async Task CompleteSurveyFromTrialToReport()
+    public async Task CompleteSurveyFromActivationToReport()
     {
         var main = UiHarness.Main;
         main.Ui.DialogOverride = d => d.Buttons[0].Text;
@@ -33,13 +33,14 @@ public sealed class WorkflowTests
             main.License.IsOpen = true;
         }
 
-        // Activate trial.
+        // Activate offline with the key QuakeLogic sends for this computer's code.
         Assert.Equal(LicenseState.NotActivated, main.LicenseManager.Status.State);
         Assert.True(main.License.IsOpen);
+        Assert.True(main.License.ShowOfflineActivation);
+        Assert.False(main.CanEdit);
         UiHarness.Capture(window, "00-welcome-license");
-        await main.License.StartTrialCommand.ExecuteAsync(null);
-        await UiHarness.SettleAsync();
-        Assert.Equal(LicenseState.TrialActive, main.LicenseManager.Status.State);
+        await UiHarness.ActivateOfflineAsync(main);
+        Assert.Equal(LicenseState.Licensed, main.LicenseManager.Status.State);
         Assert.False(main.License.IsOpen);
         Assert.True(main.CanEdit);
         UiHarness.Capture(window, "01-start-screen");

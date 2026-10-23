@@ -12,6 +12,8 @@ database:
 The protocol, token format and client behaviour are described in [docs/licensing](docs/licensing/README.md).
 Deployment details: [docs/deployment/license-server.md](docs/deployment/license-server.md).
 
+> **Shipped configuration:** the application activates **offline** with keys issued from the admin portal (licence page → *Offline activation*) or the CLI. See [docs/licensing/offline-activation.md](docs/licensing/offline-activation.md). The admin portal needs the licence signing key for this (`Licensing__SigningKeyPath`). The online API below is used only when a server is deployed and configured in the application.
+
 ## What the server decides
 
 * **Trials** — 14 days per computer, starting at the first successful trial request. A trial is

@@ -112,7 +112,25 @@ public static class UiHarness
 
     private static IServiceProvider? _services;
 
-    public static IServiceProvider Services => _services ??= AppHost.Build(new AppPaths(Path.Combine(Root, "appdata")), LicenseStore, Server, Server.Ring);
+    // A test licensing server is configured so online activation can be tested too; the shipped application has none.
+    // DHS_CUSTOMER_UI=1 (screenshots, training video) shows the application exactly as customers get it: offline activation only.
+    public static IServiceProvider Services => _services ??= AppHost.Build(new AppPaths(Path.Combine(Root, "appdata")), LicenseStore, Server, Server.Ring,
+        licenseServerUrl: Environment.GetEnvironmentVariable("DHS_CUSTOMER_UI") == "1" ? "" : "https://licensing.test/");
+
+    /// <summary>An offline activation key for this computer, signed like QuakeLogic's admin portal does (with the test key).</summary>
+    public static string OfflineKey(string? computerCode = null, DateTimeOffset? expires = null) =>
+        LicenseTokenCodec.Sign(OfflineActivationKey.Claims(computerCode ?? Main.LicenseManager.ComputerCode, "Example Geotechnical", FakeLicenseServer.Email, "LIC-UI-OFFLINE", null,
+            DateTimeOffset.UtcNow, expires, DateTimeOffset.UtcNow.AddYears(1)), Server.Key, "ui-test");
+
+    /// <summary>Activates through the activation window exactly as a customer does: paste the key and select Activate.</summary>
+    public static async Task ActivateOfflineAsync(MainViewModel main)
+    {
+        main.License.IsOpen = true;
+        main.License.ActivationKey = OfflineKey();
+        main.License.ActivateOfflineCommand.Execute(null);
+        await SettleAsync(100);
+        Assert.True(main.LicenseManager.Status.CanEdit, main.License.Error ?? main.LicenseManager.Status.Message);
+    }
 
     public static MainViewModel Main => Services.GetRequiredService<MainViewModel>();
 

@@ -31,9 +31,18 @@ public sealed class PublicKeyRing
             return false;
         }
 
-        using var key = ECDsa.Create();
-        key.ImportFromPem(pem);
-        return key.VerifyData(data, signature, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
+        try
+        {
+            using var key = ECDsa.Create();
+            key.ImportFromPem(pem);
+            return key.VerifyData(data, signature, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
+        }
+        catch (Exception ex) when (ex is CryptographicException or PlatformNotSupportedException)
+        {
+            // The system's cryptography provider cannot do ECDSA P-256 here (restricted or incomplete provider,
+            // compatibility layers): verify the same signature in managed code instead.
+            return ManagedP256.Verify(pem, data, signature);
+        }
     }
 
     public IEnumerable<string> KeyIds => _pems.Keys;

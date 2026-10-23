@@ -26,7 +26,7 @@ public static class ClipboardImage
     }
 }
 
-/// <summary>Licence screens: welcome, trial, activation, status and management.</summary>
+/// <summary>Licence screens: activation (offline, or online when a server is configured), status and management.</summary>
 public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager manager) : ObservableObject
 {
     [ObservableProperty] private bool _isOpen;
@@ -37,6 +37,7 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
     [ObservableProperty] private string? _error;
     [ObservableProperty] private bool _shareMachineName = true;
     [ObservableProperty] private IReadOnlyList<ActivatedDeviceInfo>? _devices;
+    [ObservableProperty] private string _activationKey = "";
 
     public LicenseStatus Status => manager.Status;
     public string Title => Status.Title;
@@ -45,14 +46,17 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
     public bool IsLicensed => Status.State is LicenseState.Licensed or LicenseState.LicenseOfflineGrace;
     public bool NeedsActivation => Status.State is LicenseState.NotActivated or LicenseState.TrialExpired or LicenseState.LicenseExpired or LicenseState.LicenseRevoked or LicenseState.ActivationLimitReached;
     public bool NeedsNetwork => Status.State == LicenseState.NetworkValidationRequired;
-    public bool CanStartTrial => Status.State == LicenseState.NotActivated;
-    // Trial users can enter a key at any time (for example right after buying a licence).
-    public bool ShowActivateLink => (NeedsActivation || IsTrial) && !CanStartTrial && !ShowActivate;
-    public bool ShowTrialBanner => Status.State is LicenseState.TrialActive or LicenseState.TrialExpiring;
-    public bool TrialUrgent => Status.State == LicenseState.TrialExpiring;
+    /// <summary>The offline activation form (computer code and activation key) is shown.</summary>
+    public bool ShowOfflineActivation => !IsLicensed;
+    /// <summary>Online activation with a licence key; only when a licensing server is configured.</summary>
+    public bool OnlineAvailable => manager.OnlineAvailable;
+    public bool ShowActivateLink => OnlineAvailable && !IsLicensed && !ShowActivate;
+    public bool IsOfflineActivation => Status.Claims?.IsOfflineLicense == true;
+    public bool CanVerifyOnline => OnlineAvailable && !IsOfflineActivation && Status.Claims is not null;
+    public string ComputerCode => manager.ComputerCode;
+    public string DeactivateLabel => IsOfflineActivation ? "Remove Activation from This Computer" : "Deactivate This Computer";
     public bool ShowStateBanner => Status.State is LicenseState.TrialExpired or LicenseState.LicenseExpired or LicenseState.LicenseRevoked or LicenseState.NetworkValidationRequired or LicenseState.LicenseOfflineGrace;
     public bool StateBannerIsWarning => Status.State == LicenseState.LicenseOfflineGrace;
-    public string TrialBanner => $"Downhole Studio {Status.Claims?.Edition ?? "Professional"} Trial · {Status.DaysRemaining} day{(Status.DaysRemaining == 1 ? "" : "s")} remaining";
 
     public string Chip => Status.State switch
     {
@@ -89,8 +93,9 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
     {
         foreach (var p in new[]
                  {
-                     nameof(Status), nameof(Title), nameof(Message), nameof(IsTrial), nameof(IsLicensed), nameof(NeedsActivation), nameof(NeedsNetwork), nameof(CanStartTrial), nameof(ShowActivateLink),
-                     nameof(ShowTrialBanner), nameof(TrialUrgent), nameof(ShowStateBanner), nameof(StateBannerIsWarning), nameof(TrialBanner), nameof(Chip), nameof(ChipTone), nameof(Product),
+                     nameof(Status), nameof(Title), nameof(Message), nameof(IsTrial), nameof(IsLicensed), nameof(NeedsActivation), nameof(NeedsNetwork), nameof(ShowOfflineActivation),
+                     nameof(ShowActivateLink), nameof(IsOfflineActivation), nameof(CanVerifyOnline), nameof(DeactivateLabel),
+                     nameof(ShowStateBanner), nameof(StateBannerIsWarning), nameof(Chip), nameof(ChipTone), nameof(Product),
                      nameof(LicensedTo), nameof(KeyMasked), nameof(LastValidation), nameof(Expires), nameof(Maintenance), nameof(OfflineUntil),
                  })
         {
@@ -128,30 +133,60 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
         OnPropertyChanged(nameof(ShowActivateLink));
     }
 
+    /// <summary>Activates this computer with the offline activation key pasted from the QuakeLogic e-mail.</summary>
     [RelayCommand]
-    private async Task StartTrial()
+    private void ActivateOffline()
     {
-        IsBusy = true;
         Error = null;
+        var r = manager.ActivateOffline(ActivationKey);
+        if (r.Success)
+        {
+            IsOpen = false;
+            ActivationKey = "";
+            main.Ui.Notify(r.Message, "success");
+        }
+        else
+        {
+            Error = r.Message;
+        }
+
+        Refresh();
+    }
+
+    /// <summary>Activates from the activation file (.dhslic) attached to the QuakeLogic e-mail.</summary>
+    [RelayCommand]
+    private async Task OpenActivationFile()
+    {
+        var files = await main.Ui.OpenFilesAsync("Open activation file", false, [new FileFilter("Downhole Studio activation", "*.dhslic", "*.txt")]);
+        if (files.Count == 0)
+        {
+            return;
+        }
+
         try
         {
-            var r = await manager.StartTrialAsync(string.IsNullOrWhiteSpace(Email) ? null : Email, ShareMachineName);
-            if (r.Success)
-            {
-                IsOpen = false;
-                main.Ui.Notify("Your 14-day trial has started. Enjoy Downhole Studio.", "success");
-            }
-            else
-            {
-                Error = r.Message;
-            }
+            ActivationKey = (await File.ReadAllTextAsync(files[0])).Trim();
         }
-        finally
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            IsBusy = false;
-            Refresh();
+            Error = $"The activation file could not be read: {ex.Message}";
+            return;
         }
+
+        ActivateOffline();
     }
+
+    [RelayCommand]
+    private async Task CopyComputerCode()
+    {
+        await main.Ui.CopyTextAsync(ComputerCode);
+        main.Ui.Notify("Computer code copied. Send it to QuakeLogic to receive your activation key.", "success");
+    }
+
+    /// <summary>Opens an e-mail to QuakeLogic with the computer code filled in.</summary>
+    [RelayCommand]
+    private void EmailComputerCode() =>
+        main.Ui.OpenUrl($"mailto:{main.Config.ActivationEmail}?subject={Uri.EscapeDataString("Downhole Studio activation request")}&body={Uri.EscapeDataString($"Please send an activation key for this computer.\r\n\r\nComputer code: {ComputerCode}\r\nComputer name: {manager.MachineName}\r\nCompany:\r\nOrder or licence number:\r\n")}");
 
     [RelayCommand]
     private async Task Activate()
@@ -202,9 +237,13 @@ public sealed partial class LicenseViewModel(MainViewModel main, LicenseManager 
     [RelayCommand]
     private async Task Deactivate()
     {
-        var answer = await main.Ui.AskAsync("Deactivate this computer?",
-            "The license seat is released so you can activate Downhole Studio on another computer. Projects on this computer stay intact and can still be opened read-only.",
-            ["Deactivate", "Cancel"], kind: "warning");
+        var answer = IsOfflineActivation
+            ? await main.Ui.AskAsync("Remove the activation from this computer?",
+                "Downhole Studio stops being activated here. To use the license on another computer, send that computer's code to QuakeLogic. Projects on this computer stay intact and can still be opened read-only.",
+                ["Deactivate", "Cancel"], kind: "warning")
+            : await main.Ui.AskAsync("Deactivate this computer?",
+                "The license seat is released so you can activate Downhole Studio on another computer. Projects on this computer stay intact and can still be opened read-only.",
+                ["Deactivate", "Cancel"], kind: "warning");
         if (answer != "Deactivate")
         {
             return;
@@ -238,6 +277,12 @@ public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
     private bool _loading;
+
+    /// <summary>An update server is configured; otherwise new versions come from the download page.</summary>
+    public bool UpdatesOnline => _main.Updates.Online;
+
+    [RelayCommand]
+    private void OpenDownloadPage() => _main.Ui.OpenUrl(UpdateService.DownloadPage);
 
     public SettingsViewModel(MainViewModel main)
     {

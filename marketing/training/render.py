@@ -106,7 +106,7 @@ def card(kind, chapter='', height=UI_H):
     elif kind == 'outro':
         logo(120, 110)
         centre('Downhole Studio', 265, 72, 700)
-        centre('Download · 14-day free trial', 375, 34, 600, ORANGE)
+        centre('Download and documentation', 375, 34, 600, ORANGE)
         centre('github.com/omerozgul11/ql-downhole', 427, 32, 500)
         centre('Sales: sales@quakelogic.net  ·  +1 (916) 899-0391', 515, 30, 500, MUTED)
         centre('Support: support@quakelogic.net  ·  products.quakelogic.net', 563, 30, 500, MUTED)

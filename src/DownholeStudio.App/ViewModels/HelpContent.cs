@@ -147,17 +147,19 @@ public static class HelpContent
             Picking pages: ← → nudge pick (Shift: ×10) · ↑ ↓ previous/next depth · Enter accept suggestion · Delete remove pick · Space include/exclude
             Waveforms: wheel zoom · Ctrl+wheel gain · Shift+wheel scroll · double-click fit
             """),
-        new("licensing", "Licensing, trial and privacy",
+        new("licensing", "Activation, licensing and privacy",
             """
-            Downhole Studio is licensed per computer. Every computer can use a 14-day trial; it starts when you click Start trial and does not restart after reinstalling.
+            Downhole Studio is licensed per computer and is activated offline; no internet connection is needed, ever.
 
-            Activate with the e-mail address and licence key (DHST-XXXX-XXXX-XXXX-XXXX) you received. Paid licences work offline for 30 days between online checks; "Licensed (offline)" shows when the last check was. If the system clock moves back significantly you are asked to connect once to confirm the licence.
+            To activate: the activation window (and Settings → License) shows this computer's code, five groups of five characters. Copy it, or select E-mail to QuakeLogic, and send it with your company name and order number. QuakeLogic replies with an activation key for this computer. Paste the whole key (it starts with dhs1.) and select Activate, or open the activation file attached to the e-mail.
 
-            When a licence is not active, projects can still be opened and viewed (read-only). Licence problems never delete or modify project files.
+            The key works only on the computer whose code it was issued for. The code is derived from the computer's hardware identifiers and stays the same when Downhole Studio is reinstalled or updated; after replacing the computer or reinstalling Windows, request a new key.
 
-            To move to a new computer, use Settings → License → Deactivate this computer, then activate on the new one.
+            When the computer is not activated, projects can still be opened and viewed (read-only). Licence problems never delete or modify project files.
 
-            Privacy: survey data never leaves your computer. Licensing sends only a salted hash of hardware identifiers, the application and OS version and (if you allow it) the computer name. Downhole Studio does not collect usage telemetry.
+            To move the licence to another computer, use Settings → License → Remove Activation from This Computer, then send the new computer's code to QuakeLogic.
+
+            Privacy: survey data never leaves your computer. The computer code contains no personal or project data, and Downhole Studio does not collect usage telemetry.
             """),
         new("standards", "Standards and professional responsibility",
             """

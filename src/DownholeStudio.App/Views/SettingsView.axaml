@@ -63,27 +63,33 @@
               </StackPanel>
               <!-- License -->
               <Panel IsVisible="{Binding IsLicense}"><StackPanel Spacing="10" DataContext="{Binding License}" x:DataType="vm:LicenseViewModel">
-                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                   <TextBlock Grid.Row="0" Classes="muted" Text="Product" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Product}" FontWeight="SemiBold" />
                   <TextBlock Grid.Row="1" Classes="muted" Text="Status" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Title}" />
                   <TextBlock Grid.Row="2" Classes="muted" Text="Licensed to" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LicensedTo}" />
-                  <TextBlock Grid.Row="3" Classes="muted" Text="Device" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Device}" />
-                  <TextBlock Grid.Row="4" Classes="muted" Text="License key" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding KeyMasked}" />
-                  <TextBlock Grid.Row="5" Classes="muted" Text="Last validation" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding LastValidation}" />
-                  <TextBlock Grid.Row="6" Classes="muted" Text="Expires" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Expires}" />
-                  <TextBlock Grid.Row="7" Classes="muted" Text="Maintenance until" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Maintenance}" />
-                  <TextBlock Grid.Row="8" Classes="muted" Text="Works offline until" /><TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding OfflineUntil}" />
+                  <TextBlock Grid.Row="3" Classes="muted" Text="Computer" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Device}" />
+                  <TextBlock Grid.Row="4" Classes="muted" Text="Computer code" /><SelectableTextBlock Grid.Row="4" Grid.Column="1" Text="{Binding ComputerCode}" FontFamily="Cascadia Mono, Consolas, DejaVu Sans Mono, monospace" TextWrapping="Wrap" />
+                  <TextBlock Grid.Row="5" Classes="muted" Text="Expires" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Expires}" />
+                  <TextBlock Grid.Row="6" Classes="muted" Text="Maintenance until" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Maintenance}" />
                 </Grid>
                 <TextBlock Classes="muted wrap" Text="{Binding Message}" />
                 <WrapPanel ItemSpacing="8" LineSpacing="8">
-                  <Button Content="Deactivate Computer" Command="{Binding DeactivateCommand}" Classes="danger" IsVisible="{Binding IsLicensed}" />
-                  <Button Content="Refresh License" Command="{Binding RefreshOnlineCommand}" />
+                  <Button Content="{Binding DeactivateLabel}" Command="{Binding DeactivateCommand}" Classes="danger" IsVisible="{Binding IsLicensed}" />
+                  <Button Content="Verify Online" Command="{Binding RefreshOnlineCommand}" IsVisible="{Binding CanVerifyOnline}" />
+                  <Button Content="Copy Computer Code" Command="{Binding CopyComputerCodeCommand}" />
                   <Button Content="Copy License Information" Command="{Binding CopyInfoCommand}" />
-                  <Button Content="Activate a license" Command="{Binding OpenCommand}" Classes="primary" IsVisible="{Binding !IsLicensed}" />
+                  <Button Content="Activate Downhole Studio" Command="{Binding OpenCommand}" Classes="primary" IsVisible="{Binding !IsLicensed}" />
                 </WrapPanel>
               </StackPanel></Panel>
               <!-- Updates -->
               <StackPanel Spacing="10" IsVisible="{Binding IsUpdates}">
+                <!-- No update server configured (the shipped application): new versions are downloaded from the product page. -->
+                <StackPanel Spacing="10" IsVisible="{Binding !UpdatesOnline}">
+                  <TextBlock Classes="wrap" Text="New versions of Downhole Studio are published on the product page. Download the installer and run it over the installed version: projects, settings and the activation are kept." />
+                  <Button Content="Open the download page" Command="{Binding OpenDownloadPageCommand}" HorizontalAlignment="Left" />
+                  <TextBlock Classes="faint wrap" Text="Downhole Studio does not connect to the internet by itself." />
+                </StackPanel>
+                <StackPanel Spacing="10" IsVisible="{Binding UpdatesOnline}">
                 <TextBlock Classes="label" Text="When updates are available" />
                 <ComboBox SelectedIndex="{Binding UpdateModeIndex}" Width="320">
                   <ComboBoxItem Content="Automatically check and install minor updates" />
@@ -94,6 +100,7 @@
                 <Button Content="Check for updates now" Command="{Binding Main.CheckUpdatesCommand}" CommandParameter="{x:False}" HorizontalAlignment="Left" />
                 <TextBlock Classes="muted" Text="{Binding Main.UpdateMessage}" />
                 <TextBlock Classes="faint wrap" Text="Updates are cryptographically signed by QuakeLogic and verified before installation. Release notes are shown before major upgrades. Updates never change your projects." />
+                </StackPanel>
               </StackPanel>
               <!-- Advanced -->
               <StackPanel Spacing="10" IsVisible="{Binding IsAdvanced}">

@@ -15,7 +15,7 @@ namespace DownholeStudio.UiTests;
 /// <summary>
 /// Captures the frames of the training video (marketing/training) from the real application: one frame per
 /// storyboard shot, the screen point the user clicks to reach it, and optional zoom regions. Explicit:
-/// <c>DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only</c>.
+/// <c>DHS_CUSTOMER_UI=1 DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only</c>.
 /// </summary>
 public sealed class TrainingCapture
 {
@@ -35,12 +35,19 @@ public sealed class TrainingCapture
         _window.Show();
         await UiHarness.SettleAsync(400);
 
-        // 1 · Getting started
+        // 1 · Getting started: offline activation with the key QuakeLogic sends for this computer's code
         Assert.Equal(LicenseState.NotActivated, main.LicenseManager.Status.State);
+        Assert.False(main.License.OnlineAvailable);
         await Shot("welcome");
-        var p = At("Start 14-Day Free Trial");
-        await main.License.StartTrialCommand.ExecuteAsync(null);
-        await Shot("trial-started", p);
+        var p = At("E-mail to QuakeLogic");
+        await Shot("computer-code", p, RegionOf("1. Send this computer's code to QuakeLogic", 0.55));
+        p = CenterOf<TextBox>();
+        main.License.ActivationKey = UiHarness.OfflineKey();
+        await Shot("activation-key", p);
+        p = At("Activate");
+        main.License.ActivateOfflineCommand.Execute(null);
+        Assert.Equal(LicenseState.Licensed, main.LicenseManager.Status.State);
+        await Shot("activated", p);
 
         // 2 · Project and import
         p = At("New Project");

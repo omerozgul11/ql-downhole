@@ -169,7 +169,12 @@ identical in both.
 
 ## 9. Licensing
 
-Per-computer seats. The client computes a device hash locally
+Per-computer seats. The shipped application activates **offline**: it shows a computer code (derived
+from the device hash below) and accepts a signed activation key issued for that code by the admin
+portal or the CLI. It makes no network connections. See `docs/licensing/offline-activation.md`. The
+online path described next is used only when a licensing server is configured.
+
+The client computes a device hash locally
 (SHA-256 of normalised Windows `MachineGuid` + SMBIOS system UUID + application salt) and a
 hardware hash (SMBIOS UUID + baseboard serial + salt) used only to stop trial resets; raw
 identifiers are never transmitted. The server (ASP.NET Core + PostgreSQL) is authoritative and

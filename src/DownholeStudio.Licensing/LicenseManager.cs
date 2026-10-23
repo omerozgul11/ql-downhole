@@ -39,7 +39,8 @@ public sealed record LicenseStatus
 
 public sealed record LicensingOptions
 {
-    public required Uri ServerUrl { get; init; }
+    /// <summary>The licensing server; null when this build activates offline only (no network calls are made).</summary>
+    public Uri? ServerUrl { get; init; }
     public string Product { get; init; } = ProductIds.DownholeStudio;
     public required PublicKeyRing Keys { get; init; }
     /// <summary>After this many days without online validation the status changes to Offline Grace (still fully usable).</summary>
@@ -53,8 +54,10 @@ public sealed record LicensingOptions
 public sealed record LicenseOperationResult(bool Success, string Message, string? ErrorCode = null, IReadOnlyList<ActivatedDeviceInfo>? Devices = null);
 
 /// <summary>HTTP client for the licensing server.</summary>
-public sealed class LicenseApiClient(HttpClient http, Uri baseUrl)
+public sealed class LicenseApiClient(HttpClient http, Uri? serverUrl)
 {
+    private Uri baseUrl => serverUrl ?? throw new InvalidOperationException("No licensing server is configured.");
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public Task<LicenseResponse> StartTrialAsync(TrialStartRequest request, CancellationToken ct) => PostAsync("api/v1/trials/start", request, ct);
@@ -139,6 +142,15 @@ public sealed class LicenseManager
 
     public string MachineName => _fingerprint.MachineName;
 
+    /// <summary>The code the customer sends to QuakeLogic for an offline activation key.</summary>
+    public string ComputerCode => Licensing.ComputerCode.FromDeviceHash(Fingerprint.DeviceHash);
+
+    /// <summary>Online activation and validation are available (a licensing server is configured).</summary>
+    public bool OnlineAvailable => _options.ServerUrl is not null;
+
+    private static readonly LicenseOperationResult NoServer = new(false,
+        "Online activation is not available in this version of Downhole Studio. Use offline activation: send your computer code to QuakeLogic and enter the activation key you receive.", LicenseErrorCodes.ServerError);
+
     /// <summary>Re-evaluates the stored token against the local clock (no network).</summary>
     public LicenseStatus Evaluate()
     {
@@ -166,18 +178,22 @@ public sealed class LicenseManager
         {
             status = stored.ServerStatus == LicenseErrorCodes.TrialExpired
                 ? new LicenseStatus { State = LicenseState.TrialExpired, Title = "Trial ended", Message = "The 14-day trial on this computer has ended. Activate a license to continue editing. Your projects are kept and can still be opened." }
-                : new LicenseStatus { State = LicenseState.NotActivated, Title = "Welcome to Downhole Studio", Message = "Start a 14-day free trial or activate a license." };
+                : new LicenseStatus { State = LicenseState.NotActivated, Title = "Activate Downhole Studio", Message = "Enter the activation key from QuakeLogic to start using Downhole Studio on this computer." };
         }
         else
         {
             var claims = LicenseTokenCodec.Verify(stored.Token, _options.Keys);
-            if (claims is null || claims.Product != _options.Product || !string.Equals(claims.DeviceHash, Fingerprint.DeviceHash, StringComparison.Ordinal))
+            if (claims is null || claims.Product != _options.Product || !BelongsToThisComputer(claims))
             {
                 status = new LicenseStatus
                 {
                     State = LicenseState.NotActivated, Title = "Activation needed",
                     Message = "The saved license information is not valid for this computer. Activate again; if the license is in use elsewhere it can be moved here.",
                 };
+            }
+            else if (claims.IsOfflineLicense)
+            {
+                status = ClassifyOffline(claims, stored, now);
             }
             else
             {
@@ -187,6 +203,78 @@ public sealed class LicenseManager
 
         SetStatus(status);
         return status;
+    }
+
+    private bool BelongsToThisComputer(LicenseClaims claims) => claims.IsOfflineLicense
+        ? string.Equals(claims.DeviceHash, ComputerCode, StringComparison.Ordinal)
+        : string.Equals(claims.DeviceHash, Fingerprint.DeviceHash, StringComparison.Ordinal);
+
+    /// <summary>
+    /// Offline activations never need the internet. An end date is checked against the latest time this computer
+    /// has ever seen, so setting the clock back cannot extend the licence.
+    /// </summary>
+    private static LicenseStatus ClassifyOffline(LicenseClaims c, StoredLicense stored, DateTimeOffset now)
+    {
+        var effectiveNow = stored.LastSeenAt is { } seen && seen > now ? seen : now;
+        if (c.ExpiresAt is { } exp && effectiveNow >= exp)
+        {
+            return new LicenseStatus
+            {
+                State = LicenseState.LicenseExpired, Claims = c, LastVerifiedAt = c.IssuedAt, Title = "License expired",
+                Message = $"The license expired on {exp:MMMM d, yyyy}. Contact QuakeLogic to renew it; your projects can still be opened.",
+            };
+        }
+
+        return new LicenseStatus
+        {
+            State = LicenseState.Licensed, Claims = c, LastVerifiedAt = c.IssuedAt, Title = "Licensed",
+            Message = c.ExpiresAt is { } until ? $"Activated on this computer until {until:MMMM d, yyyy}." : "Activated on this computer (perpetual license).",
+        };
+    }
+
+    /// <summary>
+    /// Activates this computer with an offline activation key from QuakeLogic (no network). The key must be signed by
+    /// QuakeLogic and issued for this computer's code.
+    /// </summary>
+    public LicenseOperationResult ActivateOffline(string activationKey)
+    {
+        var token = OfflineActivationKey.Clean(activationKey ?? "");
+        if (token.Length == 0)
+        {
+            return new LicenseOperationResult(false, "Paste the activation key from your QuakeLogic e-mail, or open the activation file.", LicenseErrorCodes.InvalidToken);
+        }
+
+        var claims = LicenseTokenCodec.Verify(token, _options.Keys);
+        if (claims is null)
+        {
+            return new LicenseOperationResult(false, "This activation key is not valid. Copy the whole key from the e-mail (it starts with dhs1.) or open the activation file instead.", LicenseErrorCodes.InvalidToken);
+        }
+
+        if (claims.Product != _options.Product)
+        {
+            return new LicenseOperationResult(false, "This activation key is for a different product.", LicenseErrorCodes.WrongProduct);
+        }
+
+        if (!claims.IsOfflineLicense)
+        {
+            return new LicenseOperationResult(false, "This is not an offline activation key. Contact QuakeLogic for an activation key for this computer.", LicenseErrorCodes.InvalidToken);
+        }
+
+        if (!BelongsToThisComputer(claims))
+        {
+            return new LicenseOperationResult(false, $"This activation key was issued for another computer ({claims.DeviceHash}). The code of this computer is {ComputerCode}; send it to QuakeLogic to receive a key for this computer.", LicenseErrorCodes.InvalidToken);
+        }
+
+        var stored = _store.Load();
+        var effectiveNow = stored.LastSeenAt is { } seen && seen > _clock() ? seen : _clock();
+        if (claims.ExpiresAt is { } exp && effectiveNow >= exp)
+        {
+            return new LicenseOperationResult(false, $"This activation key expired on {exp:MMMM d, yyyy}. Contact QuakeLogic for a new key.", LicenseErrorCodes.Expired);
+        }
+
+        TrySave(stored with { Token = token, LastVerifiedAt = claims.IssuedAt, ServerStatus = null, ServerMessage = null });
+        Evaluate();
+        return new LicenseOperationResult(true, $"Downhole Studio is activated on this computer for {claims.LicensedTo ?? "your organisation"}.");
     }
 
     private LicenseStatus Classify(LicenseClaims c, StoredLicense stored, DateTimeOffset now, bool rollback)
@@ -274,6 +362,11 @@ public sealed class LicenseManager
 
     public async Task<LicenseOperationResult> StartTrialAsync(string? email, bool shareMachineName, CancellationToken ct = default)
     {
+        if (!OnlineAvailable)
+        {
+            return NoServer;
+        }
+
         var request = new TrialStartRequest
         {
             Product = _options.Product, Fingerprint = Fingerprint, AppVersion = _appVersion, OsVersion = _fingerprint.OsDescription,
@@ -284,6 +377,11 @@ public sealed class LicenseManager
 
     public async Task<LicenseOperationResult> ActivateAsync(string licenseKey, string email, bool shareMachineName, CancellationToken ct = default)
     {
+        if (!OnlineAvailable)
+        {
+            return NoServer;
+        }
+
         var key = LicenseKeyFormat.Normalize(licenseKey);
         if (key is null)
         {
@@ -318,6 +416,17 @@ public sealed class LicenseManager
             return new LicenseOperationResult(false, "There is no license on this computer to verify.");
         }
 
+        if (LicenseTokenCodec.ReadUnverified(stored.Token)?.IsOfflineLicense == true)
+        {
+            Evaluate();
+            return new LicenseOperationResult(true, "This computer is activated offline; no online check is needed.");
+        }
+
+        if (!OnlineAvailable)
+        {
+            return NoServer;
+        }
+
         var request = new ValidationRequest { Token = stored.Token, Fingerprint = Fingerprint, AppVersion = _appVersion };
         return await CallAsync(() => _api.ValidateAsync(request, ct), "validation").ConfigureAwait(false);
     }
@@ -328,6 +437,19 @@ public sealed class LicenseManager
         if (stored.Token is null)
         {
             return new LicenseOperationResult(false, "This computer is not activated.");
+        }
+
+        if (LicenseTokenCodec.ReadUnverified(stored.Token)?.IsOfflineLicense == true)
+        {
+            // Offline activations cannot be released remotely; QuakeLogic frees the seat when the customer reports the move.
+            TrySave(stored with { Token = null, ServerStatus = null, ServerMessage = null, LastVerifiedAt = null });
+            Evaluate();
+            return new LicenseOperationResult(true, $"The activation was removed from this computer. To use the license on another computer, send that computer's code to QuakeLogic and mention that this computer ({ComputerCode}) no longer uses it.");
+        }
+
+        if (!OnlineAvailable)
+        {
+            return NoServer;
         }
 
         try
@@ -447,6 +569,7 @@ public sealed class LicenseManager
             $"License ID: {c?.LicenseId ?? "—"}",
             $"License key: {LicenseKeyFormat.Masked(c?.KeyHint)}",
             $"Device: {_fingerprint.MachineName}",
+            $"Computer code: {ComputerCode}",
             $"Device ID: {Fingerprint.DeviceHash[..16]}…",
             $"Last validation: {(Status.LastVerifiedAt is { } v ? v.ToString("MMMM d, yyyy HH:mm 'UTC'") : "—")}",
             $"Maintenance until: {(c?.MaintenanceUntil is { } m ? m.ToString("MMMM d, yyyy") : "—")}");

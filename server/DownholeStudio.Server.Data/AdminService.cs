@@ -39,7 +39,8 @@ public sealed class AdminService(
     EmailOutbox outbox,
     EmailTemplates templates,
     IOptions<ServerLicensingOptions> options,
-    TimeProvider time)
+    TimeProvider time,
+    TokenIssuer issuer)
 {
     private static object Snapshot(License l) => new
     {
@@ -130,6 +131,82 @@ public sealed class AdminService(
 
         await db.SaveChangesAsync(ct);
         return new IssuedLicense(license, key);
+    }
+
+    /// <summary>
+    /// Issues an offline activation key for one computer (identified by the computer code the customer sends). The
+    /// activation uses a seat like an online one; the key works without any connection to this server.
+    /// </summary>
+    public async Task<OfflineActivationResult> IssueOfflineActivationAsync(AdminActor actor, Guid licenseId, string computerCode, string? computerLabel, bool sendEmail,
+        CancellationToken ct = default)
+    {
+        var code = ComputerCode.Normalize(computerCode)
+            ?? throw new InvalidOperationException("That is not a valid computer code. It has 25 characters in five groups, e.g. 7K3M9-QPZX2-AB4HV-N0R5T-W8YCD; check for typing errors.");
+        var license = await LoadAsync(licenseId, ct);
+        var now = time.GetUtcNow();
+        if (license.Status != LicenseStatusCode.Active)
+        {
+            throw new InvalidOperationException($"The license is {license.Status.ToString().ToLowerInvariant()}; reactivate it before issuing activation keys.");
+        }
+
+        if (license.ExpiresAt is { } exp && exp <= now)
+        {
+            throw new InvalidOperationException($"The license expired on {exp:MMMM d, yyyy}; extend it before issuing activation keys.");
+        }
+
+        var deviceHash = "offline:" + code;
+        var label = string.IsNullOrWhiteSpace(computerLabel) ? null : computerLabel.Trim();
+        var device = await db.Devices.FirstOrDefaultAsync(d => d.DeviceHash == deviceHash, ct);
+        if (device is null)
+        {
+            device = new Device { Id = Guid.NewGuid(), DeviceHash = deviceHash, MachineName = label ?? $"Computer {code[..5]}", FirstSeenAt = now, LastSeenAt = now };
+            db.Devices.Add(device);
+        }
+        else if (label is not null)
+        {
+            device.MachineName = label;
+        }
+
+        if (device.Blocked)
+        {
+            throw new InvalidOperationException("This computer is blocked.");
+        }
+
+        var active = await db.Activations.Where(a => a.LicenseId == license.Id && a.DeactivatedAt == null).ToListAsync(ct);
+        var activation = active.FirstOrDefault(a => a.DeviceId == device.Id);
+        if (activation is null)
+        {
+            if (active.Count >= license.SeatCount)
+            {
+                throw new InvalidOperationException($"All {license.SeatCount} seat{(license.SeatCount == 1 ? " is" : "s are")} in use. Deactivate a computer below or increase the seat count first.");
+            }
+
+            activation = new Activation { Id = Guid.NewGuid(), LicenseId = license.Id, DeviceId = device.Id, ActivatedAt = now, LastValidatedAt = now, AppVersion = "offline" };
+            db.Activations.Add(activation);
+        }
+        else
+        {
+            activation.LastValidatedAt = now;
+        }
+
+        var customer = license.Customer!;
+        var claims = OfflineActivationKey.Claims(code, customer.Company ?? customer.Name ?? customer.Email, customer.Email, license.Id.ToString(), license.KeyHint, now,
+            license.ExpiresAt, license.MaintenanceUntil, license.Edition, license.SeatCount, activation.Id.ToString());
+        var key = issuer.Sign(claims);
+        audit.Record(actor, "license.offline_activation", "license", license.Id, null, new { computerCode = code, computer = device.MachineName });
+        db.LicenseEvents.Add(new LicenseEvent
+        {
+            LicenseId = license.Id, DeviceId = device.Id, EventType = "activation.offline", CreatedAt = now, IpAddress = actor.IpAddress,
+            Details = System.Text.Json.JsonSerializer.Serialize(new { computerCode = code, by = actor.Name }),
+        });
+        if (sendEmail)
+        {
+            outbox.Queue(customer.Email, templates.ActivationKey(customer.Name ?? customer.Email, await ProductNameAsync(license.Product, ct), license.Edition, code,
+                device.MachineName ?? code, key, license.ExpiresAt, license.MaintenanceUntil), license.Id);
+        }
+
+        await db.SaveChangesAsync(ct);
+        return new OfflineActivationResult(code, device.MachineName ?? code, key);
     }
 
     public Task SetStatusAsync(AdminActor actor, Guid licenseId, LicenseStatusCode status, CancellationToken ct = default) =>
@@ -382,3 +459,6 @@ public sealed class AdminAccountService(LicensingDbContext db, TimeProvider time
         return (user, null);
     }
 }
+
+/// <summary>An issued offline activation key (shown once and optionally e-mailed).</summary>
+public sealed record OfflineActivationResult(string ComputerCode, string ComputerLabel, string ActivationKey);

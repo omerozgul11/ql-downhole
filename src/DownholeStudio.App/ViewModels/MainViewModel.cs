@@ -175,7 +175,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         _ = RefreshLicenseQuietlyAsync();
-        if (Settings.Current.Updates != UpdateMode.Manual &&
+        if (Updates.Online && Settings.Current.Updates != UpdateMode.Manual &&
             (Settings.Current.LastUpdateCheck is null || Clock.Now - Settings.Current.LastUpdateCheck > TimeSpan.FromDays(1)))
         {
             _ = CheckUpdatesAsync(quiet: true);
@@ -248,7 +248,7 @@ public sealed partial class MainViewModel : ObservableObject
             return true;
         }
 
-        Ui.Notify($"{action} needs an active license or trial. {LicenseManager.Status.Message}", "warning");
+        Ui.Notify($"{action} needs an activated license. {LicenseManager.Status.Message}", "warning");
         License.IsOpen = true;
         return false;
     }

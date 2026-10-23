@@ -60,11 +60,7 @@ internal static class Fx
             return;
         }
 
-        main.License.Email = FakeLicenseServer.Email;
-        main.License.LicenseKey = FakeLicenseServer.ValidKey;
-        await main.License.ActivateCommand.ExecuteAsync(null);
-        await UiHarness.SettleAsync(100);
-        Assert.True(main.LicenseManager.Status.CanEdit, main.LicenseManager.Status.Message);
+        await UiHarness.ActivateOfflineAsync(main);
     }
 
     public static async Task<WorkspaceViewModel> OpenSampleCopyAsync(MainViewModel main, string name)
@@ -520,27 +516,56 @@ public sealed class LicensingFeatureTests
         await main.CloseProjectCommand.ExecuteAsync(null);
         Assert.Equal(hash, Fx.Hash(path));
 
-        // A trial can be started on a computer without a licence; during the trial the activation link is offered.
-        if (main.License.CanStartTrial)
-        {
-            await main.License.StartTrialCommand.ExecuteAsync(null);
-            await UiHarness.SettleAsync(100);
-            Assert.Equal(LicenseState.TrialActive, main.LicenseManager.Status.State);
-            Assert.True(main.CanEdit);
-            Assert.True(main.License.ShowActivateLink);
-            main.License.IsOpen = false;
-            main.License.OpenActivationCommand.Execute(null);
-            Assert.True(main.License.IsOpen);
-            Assert.True(main.License.ShowActivate);
-            main.ToggleThemeCommand.Execute(null);
-            main.ToggleThemeCommand.Execute(null);
-            main.Ui.DialogOverride = d => d.Buttons.Any(b => b.Text == "Deactivate") ? "Deactivate" : Fx.Answer(d);
-            await main.License.DeactivateCommand.ExecuteAsync(null);
-            await UiHarness.SettleAsync(100);
-            main.Ui.DialogOverride = Fx.Answer;
-        }
+        // Offline activation (how customers activate): the window shows this computer's code; a key for another
+        // computer is refused with an explanation; the right key activates.
+        Assert.True(main.License.ShowOfflineActivation);
+        Assert.Equal(main.LicenseManager.ComputerCode, main.License.ComputerCode);
+        Assert.NotNull(ComputerCode.Normalize(main.License.ComputerCode));
+        main.License.ActivationKey = UiHarness.OfflineKey(ComputerCode.FromDeviceHash(new string('a', 64)));
+        main.License.ActivateOfflineCommand.Execute(null);
+        Assert.Contains("another computer", main.License.Error);
+        Assert.Contains(main.License.ComputerCode, main.License.Error);
+        Assert.False(main.CanEdit);
+        main.License.ActivationKey = "dhs1.garbage";
+        main.License.ActivateOfflineCommand.Execute(null);
+        Assert.Contains("not valid", main.License.Error);
 
-        // A wrong key is rejected with an explanation; the right key activates.
+        // The code can be copied or e-mailed to QuakeLogic.
+        await main.License.CopyComputerCodeCommand.ExecuteAsync(null);
+        string? mail = null;
+        main.Ui.OpenUrlOverride = u => mail = u;
+        main.License.EmailComputerCodeCommand.Execute(null);
+        Assert.StartsWith("mailto:sales@quakelogic.net", mail);
+        Assert.Contains(main.License.ComputerCode, Uri.UnescapeDataString(mail!));
+
+        await UiHarness.ActivateOfflineAsync(main);
+        Assert.Equal(LicenseState.Licensed, main.LicenseManager.Status.State);
+        Assert.True(main.License.IsOfflineActivation);
+        Assert.False(main.License.CanVerifyOnline);
+        Assert.Equal("Remove Activation from This Computer", main.License.DeactivateLabel);
+        Assert.Equal("Example Geotechnical", main.License.LicensedTo);
+
+        // Removing the activation is local; the activation file (.dhslic) from the e-mail activates again.
+        main.Ui.DialogOverride = d => d.Buttons.Any(b => b.Text == "Deactivate") ? "Deactivate" : Fx.Answer(d);
+        await main.License.DeactivateCommand.ExecuteAsync(null);
+        await UiHarness.SettleAsync(100);
+        main.Ui.DialogOverride = Fx.Answer;
+        Assert.Equal(LicenseState.NotActivated, main.LicenseManager.Status.State);
+        var activationFile = Path.Combine(Fx.Dir("activation"), "DownholeStudio-activation.dhslic");
+        File.WriteAllText(activationFile, UiHarness.OfflineKey() + Environment.NewLine);
+        main.Ui.OpenFilesOverride = _ => [activationFile];
+        await main.License.OpenActivationFileCommand.ExecuteAsync(null);
+        main.Ui.OpenFilesOverride = null;
+        Assert.Equal(LicenseState.Licensed, main.LicenseManager.Status.State);
+        main.Ui.DialogOverride = d => d.Buttons.Any(b => b.Text == "Deactivate") ? "Deactivate" : Fx.Answer(d);
+        await main.License.DeactivateCommand.ExecuteAsync(null);
+        await UiHarness.SettleAsync(100);
+        main.Ui.DialogOverride = Fx.Answer;
+
+        // Online activation, available when a licensing server is configured: a wrong key is rejected with an
+        // explanation; the right key activates.
+        Assert.True(main.License.OnlineAvailable);
+        Assert.True(main.License.ShowActivateLink);
         main.License.ShowActivateFormCommand.Execute(null);
         main.License.Email = FakeLicenseServer.Email;
         main.License.LicenseKey = "DHST-0000-0000-0000-0000";
@@ -550,8 +575,11 @@ public sealed class LicensingFeatureTests
         main.License.LicenseKey = "not a key";
         await main.License.ActivateCommand.ExecuteAsync(null);
         Assert.Contains("DHST-", main.License.Error);
-        await Fx.EnsureLicensedAsync(main);
+        main.License.LicenseKey = FakeLicenseServer.ValidKey;
+        await main.License.ActivateCommand.ExecuteAsync(null);
+        await UiHarness.SettleAsync(100);
         Assert.Equal(LicenseState.Licensed, main.LicenseManager.Status.State);
+        Assert.False(main.License.IsOfflineActivation);
         Assert.Equal("Example Geotechnical", main.License.LicensedTo);
 
         // Opened again with a licence the project is editable.

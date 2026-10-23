@@ -345,7 +345,7 @@ public sealed partial class ReportPageViewModel : PageViewModel
     {
         if (!Workspace.Main.CanEdit)
         {
-            Workspace.Ui.Notify("Report generation needs an active license or trial.", "warning");
+            Workspace.Ui.Notify("Report generation needs an activated license.", "warning");
             return;
         }
 

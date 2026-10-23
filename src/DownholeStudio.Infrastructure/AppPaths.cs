@@ -148,10 +148,13 @@ public sealed class SettingsStore(AppPaths paths)
 /// <summary>Deployment configuration (shipped next to the executable as appsettings.json).</summary>
 public sealed record AppConfiguration
 {
-    public string LicenseServerUrl { get; init; } = "https://licensing.quakelogic.net/";
+    /// <summary>Licensing and update server. Empty: offline activation only, and no network requests at all.</summary>
+    public string LicenseServerUrl { get; init; } = "";
     public string PrivacyPolicyUrl { get; init; } = "https://quakelogic.net/privacy";
     public string SupportUrl { get; init; } = "https://quakelogic.net/contact";
     public string PurchaseUrl { get; init; } = "https://quakelogic.net/downhole-studio";
+    /// <summary>Where customers send their computer code to receive an offline activation key.</summary>
+    public string ActivationEmail { get; init; } = "sales@quakelogic.net";
 
     public static AppConfiguration Load(string baseDirectory)
     {

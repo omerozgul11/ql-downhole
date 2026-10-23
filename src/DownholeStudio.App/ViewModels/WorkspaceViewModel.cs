@@ -364,7 +364,7 @@ public sealed partial class WorkspaceViewModel : ObservableObject, IDisposable
     {
         if (Session.ReadOnly)
         {
-            Ui.Notify("Saving needs an active license or trial. The project file has not been changed.", "warning");
+            Ui.Notify("Saving needs an activated license. The project file has not been changed.", "warning");
             return false;
         }
 
@@ -380,7 +380,7 @@ public sealed partial class WorkspaceViewModel : ObservableObject, IDisposable
     {
         if (Session.ReadOnly)
         {
-            Ui.Notify("Saving needs an active license or trial.", "warning");
+            Ui.Notify("Saving needs an activated license.", "warning");
             return false;
         }
 

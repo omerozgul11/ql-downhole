@@ -11,7 +11,7 @@ From raw SEG-2 records to reviewed P and S picks, a validated velocity model, Vs
   <a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Setup.exe"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download%20for%20Windows-Downhole%20Studio%20Setup-F26B21?style=for-the-badge" alt="Download Downhole Studio for Windows"></a>
 </p>
 
-<p align="center">Windows 10 (21H2 or later) or Windows 11, 64-bit · 14-day free trial · no administrator rights needed</p>
+<p align="center">Windows 10 (21H2 or later) or Windows 11, 64-bit · offline activation, no internet needed · no administrator rights needed</p>
 
 <p align="center"><img src="docs/images/velocity-model.png" width="920" alt="Velocity model page: travel-time graph with layer boundaries, residuals and Vp/Vs profile"></p>
 
@@ -89,11 +89,11 @@ Fill in the client, site and branding details, choose the sections, preview the 
 1. Download the installer with the **Download for Windows** button at the top of this page, or open the [`download`](download/) folder and click `DownholeStudio-Setup.exe`. It is always the latest version.
 2. Run `DownholeStudio-Setup.exe`. By default it installs for the current user, so no administrator rights are needed. Its SHA-256 checksum is in [`download/DownholeStudio-Setup.exe.sha256`](download/DownholeStudio-Setup.exe.sha256).
 3. If Windows SmartScreen shows *Windows protected your PC*, choose **More info → Run anyway**. This appears for builds that are not code-signed; see [Code signing](DEPLOYMENT.md#code-signing).
-4. Start **Downhole Studio** from the Start menu. Click **Start 14-Day Free Trial** or **Activate License**, then **Explore Sample Project**.
+4. Start **Downhole Studio** from the Start menu. The activation window shows this computer's code: send it to QuakeLogic (**E-mail to QuakeLogic** does this in one click), paste the activation key you receive and select **Activate**. Then click **Explore Sample Project**.
 
-**System requirements:** 64-bit Windows 10 (21H2 or later; 22H2 recommended) or Windows 11; 8 GB RAM recommended; about 200 MB of disk space plus room for projects; an internet connection to start the trial or activate (not needed for daily work).
+**System requirements:** 64-bit Windows 10 (21H2 or later; 22H2 recommended) or Windows 11; 8 GB RAM recommended; about 200 MB of disk space plus room for projects; no internet connection needed.
 
-Updates are offered inside the application (Settings → Updates). They are cryptographically signed and verified before they install. Uninstalling never removes your projects or settings.
+New versions are published here: download the installer again and run it over the installed version. Projects, settings and the activation are kept. Uninstalling never removes your projects or settings.
 
 ## Field guide, training and documents
 
@@ -119,10 +119,10 @@ Start with `START HERE.txt` inside the zip.
 
 ## Licensing
 
-- **Free trial:** every computer can use a 14-day trial. It starts when you click *Start trial* and does not restart after reinstalling.
-- **Per-computer licences:** activate with the e-mail address and licence key you received. Paid licences work **offline for 30 days** between online checks. To move a licence, deactivate it in Settings → License and activate it on the new computer.
-- **Never locked out of your data:** without an active licence, projects still open read-only. A licence problem never modifies or deletes a project.
-- **Privacy:** licensing sends only a salted hash of hardware identifiers, the application and Windows versions and, if you allow it, the computer name. There is no usage telemetry.
+- **Per computer, activated offline:** Downhole Studio shows a *computer code* for each computer. Send it to QuakeLogic and you receive an activation key for that computer. Paste the key (or open the activation file) and the computer is activated. No internet connection is needed, ever.
+- **Moving a licence:** remove the activation in Settings → License on the old computer and send the new computer's code to QuakeLogic.
+- **Never locked out of your data:** without an activation, projects still open read-only. A licence problem never modifies or deletes a project.
+- **Privacy:** the computer code is derived from hardware identifiers and contains no personal or project data. Downhole Studio makes no network connections for licensing and collects no usage telemetry.
 
 To buy a licence, visit [quakelogic.net/downhole-studio](https://quakelogic.net/downhole-studio) or [contact QuakeLogic](https://quakelogic.net/contact).
 

@@ -15,6 +15,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
     <PackageReference Include="MailKit" />
+    <!-- Direct reference so the patched version replaces the vulnerable one pulled in by MailKit/MimeKit (see Directory.Packages.props). -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\DownholeStudio.Licensing\DownholeStudio.Licensing.csproj" />

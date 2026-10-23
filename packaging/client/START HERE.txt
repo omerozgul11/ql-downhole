@@ -29,8 +29,7 @@ WHAT IS IN THIS PACKAGE
 INSTALL IN THREE STEPS
 ----------------------
 Requirements: Windows 10 (21H2 or later) or Windows 11, 64-bit; 8 GB RAM
-recommended; about 200 MB of disk space. An internet connection is needed to
-start the trial or activate a licence, not for daily work.
+recommended; about 200 MB of disk space. No internet connection is needed.
 
 1. Open the folder "1 - Install Downhole Studio" and double-click
    DownholeStudio-Setup-{version}.exe. No administrator rights are needed.
@@ -41,9 +40,14 @@ start the trial or activate a licence, not for daily work.
 3. Accept the licence agreement, leave "Launch Downhole Studio" selected and
    click Finish.
 
-When Downhole Studio starts, click "Start 14-Day Free Trial", or "Activate
-License" and enter the e-mail address and licence key you received
-(DHST-XXXX-XXXX-XXXX-XXXX). Paid licences work offline for 30 days at a time.
+ACTIVATE (NO INTERNET NEEDED)
+When Downhole Studio starts, the activation window shows this computer's code
+(five groups of five characters). Click "E-mail to QuakeLogic", or copy the
+code and send it to sales@quakelogic.net with your company name and order
+number. You receive an activation key for this computer: paste it into the
+activation window and click Activate (or click "Open Activation File..." and
+choose the .dhslic file from the e-mail). The key works only on that computer.
+
 Later, start Downhole Studio from Start > Downhole Studio or the desktop icon.
 Installing over an earlier version keeps all your projects and settings.
 

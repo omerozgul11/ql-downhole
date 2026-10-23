@@ -110,7 +110,7 @@ public sealed partial class ProjectPageViewModel : PageViewModel
     [RelayCommand]
     private async Task Duplicate()
     {
-        // A duplicate is a new project file, like Save As, so it needs an active licence or trial.
+        // A duplicate is a new project file, like Save As, so it needs an activated licence.
         if (!Workspace.CanModify())
         {
             return;

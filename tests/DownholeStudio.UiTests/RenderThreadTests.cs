@@ -25,9 +25,9 @@ public sealed class RenderThreadTests
         main.Ui.DialogOverride = d => d.Buttons[0].Text;
         var window = new MainWindow { DataContext = main, Width = 1600, Height = 1000 };
         window.Show();
-        if (main.LicenseManager.Status.State == LicenseState.NotActivated)
+        if (!main.LicenseManager.Status.CanEdit)
         {
-            await main.License.StartTrialCommand.ExecuteAsync(null);
+            await UiHarness.ActivateOfflineAsync(main);
         }
 
         var repo = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));

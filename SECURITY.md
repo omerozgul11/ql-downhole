@@ -20,6 +20,8 @@
   diagnostic package contains logs, version and system basics; survey files only if the user adds
   them.
 
+Offline activation keys are ECDSA P-256 signed tokens bound to one computer code. The application verifies them against the embedded public key; if the operating system's crypto provider cannot verify P-256, the identical check runs in managed code (`ManagedP256`). Neither path ever needs a private key, and neither touches the network. Details: [docs/licensing/offline-activation.md](docs/licensing/offline-activation.md).
+
 ## Licence server and admin portal
 TLS behind a reverse proxy (HSTS, HTTPS redirection), per-IP rate limiting (stricter on trial and
 activation), licence keys stored only as HMAC-SHA256 with a server pepper, keys generated from a

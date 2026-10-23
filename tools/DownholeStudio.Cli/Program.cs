@@ -30,6 +30,9 @@ if (args.Length == 0 || args[0] is "-h" or "--help" or "help")
                     [--depths <n>]                           (datasets: Clean, Noisy, MissingTraces, TriggerErrors, ReversedPolarityS)
           dhs validate --out <folder>                        Run the scientific validation and write the report
           dhs keygen --out <folder> [--name <prefix>]        Create an ECDSA P-256 key pair (PEM) for signing
+          dhs license issue --computer <code> --to <name>    Issue an offline activation key for one computer
+                    --key <license-signing-key.pem> [--kid dhs-lic-2026a] [--email <address>]
+                    [--expires yyyy-mm-dd] [--maintenance yyyy-mm-dd] [--edition Professional] [--out <file.dhslic>]
           dhs release-info <installer.exe>                   Print SHA-256 and size for a release record
         """);
     return 0;
@@ -159,6 +162,40 @@ try
             }
 
             Console.WriteLine($"Private key: {priv} (keep secret; never commit)\nPublic key:  {Path.Combine(folder, name + ".pub.pem")}");
+            return 0;
+        }
+
+        case "license":
+        {
+            if (options.Positional(0, "subcommand (issue)") != "issue")
+            {
+                throw new ArgumentException("Unknown license subcommand; use: dhs license issue ...");
+            }
+
+            var code = ComputerCode.Normalize(options.Required("computer")) ?? throw new ArgumentException("--computer is not a valid computer code (five groups of five characters).");
+            DateTimeOffset? Date(string name) => options.Value(name) is { } v
+                ? new DateTimeOffset(DateTime.SpecifyKind(DateTime.ParseExact(v, "yyyy-MM-dd", CultureInfo.InvariantCulture), DateTimeKind.Utc))
+                : null;
+            using var signingKey = ECDsa.Create();
+            signingKey.ImportFromPem(await File.ReadAllTextAsync(options.Required("key")));
+            var claims = OfflineActivationKey.Claims(code, options.Required("to"), options.Value("email"), null, null, DateTimeOffset.UtcNow, Date("expires"), Date("maintenance"),
+                options.Value("edition") ?? "Professional");
+            var key = LicenseTokenCodec.Sign(claims, signingKey, options.Value("kid") ?? "dhs-lic-2026a");
+            if (LicenseTokenCodec.Verify(key, EmbeddedKeys.LicenseKeys) is null)
+            {
+                throw new InvalidOperationException("The key was signed, but the application's embedded public key does not accept it: use the production licence signing key and its key id.");
+            }
+
+            if (options.Value("out") is { } file)
+            {
+                await File.WriteAllTextAsync(file, key + Environment.NewLine);
+                Console.WriteLine($"Activation file for {code} written to {file}.");
+            }
+            else
+            {
+                Console.WriteLine(key);
+            }
+
             return 0;
         }
 

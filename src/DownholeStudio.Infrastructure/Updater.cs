@@ -11,12 +11,24 @@ public sealed record UpdateCheckResult(UpdateManifest? Available, string Message
 /// Checks for and installs updates. Manifests must carry a valid signature from the update key and
 /// the downloaded installer must match the signed SHA-256 and size before it is ever started.
 /// </summary>
-public sealed class UpdateService(LicenseApiClient api, HttpClient http, AppPaths paths, string currentVersion, ILogger<UpdateService> log, PublicKeyRing? updateKeys = null)
+public sealed class UpdateService(LicenseApiClient api, HttpClient http, AppPaths paths, string currentVersion, ILogger<UpdateService> log, PublicKeyRing? updateKeys = null,
+    bool online = true)
 {
     private readonly PublicKeyRing _keys = updateKeys ?? EmbeddedKeys.UpdateKeys;
 
+    /// <summary>Where new versions are published when no update server is configured.</summary>
+    public const string DownloadPage = "https://github.com/omerozgul11/ql-downhole";
+
+    /// <summary>False when no update server is configured; checks then only point to the download page.</summary>
+    public bool Online => online;
+
     public async Task<UpdateCheckResult> CheckAsync(UpdateChannel channel, CancellationToken ct = default)
     {
+        if (!online)
+        {
+            return new UpdateCheckResult(null, $"This is Downhole Studio {currentVersion}. New versions are published at {DownloadPage}; installing a new version keeps your projects and settings.");
+        }
+
         try
         {
             var envelope = await api.LatestReleaseAsync(ProductIds.DownholeStudio, channel == UpdateChannel.Beta ? "beta" : "stable", currentVersion, ct).ConfigureAwait(false);

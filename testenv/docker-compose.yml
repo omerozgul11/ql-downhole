@@ -51,7 +51,10 @@ services:
       ConnectionStrings__Licensing: Host=postgres;Database=dhs_licensing;Username=dhs;Password=${POSTGRES_PASSWORD}
       Database__MigrateOnStartup: "true"
       LICENSING_KEY_PEPPER: ${LICENSING_KEY_PEPPER}
+      Licensing__SigningKeyPath: /keys/license-signing-key.pem   # signs offline activation keys
       AdminPortal__AllowInsecureHttp: "true"   # plain HTTP on the local network for testing only
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes: ["${SIGNING_KEYS_DIR}:/keys:ro"]
     ports: ["0.0.0.0:50012:8080"]
 
   mailpit:
@@ -67,7 +70,8 @@ services:
     depends_on: [license-server]
     environment:
       VNC_PASSWORD: ${VNC_PASSWORD:?run start.sh}
-      LICENSE_SERVER_URL: http://license-server:8080/
+      # Like the shipped application: offline activation only. Set http://license-server:8080/ to test online activation.
+      LICENSE_SERVER_URL: ""
       TZ: ${TZ:-America/Los_Angeles}
     volumes:
       - home:/home/tester

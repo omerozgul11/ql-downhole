@@ -13,6 +13,18 @@
         <p class="key" id="license-key">@Model.NewKey</p>
     </div>
 }
+@if (Model.OfflineActivation is { } issued)
+{
+    <div class="card">
+        <h2>Activation key for @issued.ComputerLabel</h2>
+        <p>Computer code <span class="mono">@issued.ComputerCode</span>. The customer pastes this key into Downhole Studio (or opens the activation file); no internet connection is needed. It works only on that computer.</p>
+        <textarea class="mono" id="activation-key" rows="5" readonly style="width:100%">@issued.ActivationKey</textarea>
+        <p>
+            <button class="btn" type="button" onclick="navigator.clipboard.writeText(document.getElementById('activation-key').value)">Copy key</button>
+            <a class="btn" download="DownholeStudio-@(issued.ComputerCode).dhslic" href="data:text/plain;charset=utf-8,@Uri.EscapeDataString(issued.ActivationKey)">Download activation file</a>
+        </p>
+    </div>
+}
 <div class="card">
     <dl class="props">
         <dt>License ID</dt><dd class="mono">@l.Id</dd>
@@ -39,6 +51,16 @@
     <form method="post" asp-page-handler="Seats" class="inline"><label>Seats</label><input type="number" name="seats" min="1" value="@l.SeatCount" /><button class="btn" type="submit">Set</button></form>
     <form method="post" asp-page-handler="Transfers" class="inline"><label>Transfers / 30 days</label><input type="number" name="transfers" min="0" value="@l.MaxTransfersPer30Days" /><button class="btn" type="submit">Set</button></form>
     <form method="post" asp-page-handler="Notes"><label>Notes</label><textarea name="notes">@l.Notes</textarea><button class="btn" type="submit">Save notes</button></form>
+</div>
+<h2>Offline activation</h2>
+<div class="card">
+    <p>Issue an activation key for a customer's computer. In Downhole Studio the customer sees the computer code in the activation window (or Settings → License) and sends it to you. The activation uses one seat.</p>
+    <form method="post" asp-page-handler="Offline">
+        <label>Computer code</label><input type="text" name="computerCode" required placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" class="mono" style="width:22em" autocomplete="off" />
+        <label>Computer name (optional)</label><input type="text" name="computerName" placeholder="e.g. Field laptop 2" />
+        <label><input type="checkbox" name="sendEmail" value="true" checked /> e-mail the key to @l.Customer!.Email</label>
+        <button class="btn primary" type="submit">Issue activation key</button>
+    </form>
 </div>
 <h2>Activations</h2>
 <table>
