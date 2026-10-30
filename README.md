@@ -9,9 +9,28 @@ From raw SEG-2 records to reviewed P and S picks, a validated velocity model, Vs
 
 <p align="center">
   <a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Setup.exe"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download%20for%20Windows-Downhole%20Studio%20Setup-F26B21?style=for-the-badge" alt="Download Downhole Studio for Windows"></a>
+  <a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Client-Package.zip"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download-Client%20Package%20(ZIP%2C%2095%20MB)-404040?style=for-the-badge" alt="Download the Downhole Studio client package (ZIP, 95 MB)"></a>
 </p>
 
 <p align="center">Windows 10 (21H2 or later) or Windows 11, 64-bit · offline activation, no internet needed · no administrator rights needed</p>
+
+## Client package: everything in one download
+
+Version 1.0.0, package updated October 30, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.
+
+| Folder in the zip | Contents |
+|---|---|
+| 1 - Install Downhole Studio | The Windows installer (the same file as the **Download for Windows** button) |
+| 2 - Quick Start and Activation | Install, activate without an internet connection and run your first survey (PDF, 5 pages) |
+| 3 - Field Guide | Borehole, sources, seismograph settings and recording, with a field log sheet (PDF) |
+| 4 - Training Video | The 6-minute narrated walkthrough (MP4) with captions (SRT) |
+| 5 - User Guide | The complete illustrated user guide (PDF, 15 pages) |
+| 6 - Brochure and Datasheet | Product brochure and technical datasheet (PDF) |
+| 7 - Methods and Validation | Equations, assumptions and the scientific validation report (PDF, 14 pages) |
+| 8 - Example Field Records | A complete synthetic SEG-2 survey with its true model, for practice |
+| Licence and notices | Licence agreement and open-source notices |
+
+Checksums: [client package SHA-256](download/DownholeStudio-Client-Package.zip.sha256), and `SHA256SUMS.txt` inside the zip for every file.
 
 <p align="center"><img src="docs/images/velocity-model.png" width="920" alt="Velocity model page: travel-time graph with layer boundaries, residuals and Vp/Vs profile"></p>
 
@@ -95,30 +114,10 @@ Fill in the client, site and branding details, choose the sections, preview the 
 
 New versions are published here: download the installer again and run it over the installed version. Projects, settings and the activation are kept. Uninstalling never removes your projects or settings.
 
-## Field guide, training and documents
+## Training video and documents
 
 <p align="center"><a href="https://github.com/omerozgul11/ql-downhole/raw/main/docs/marketing/Downhole-Studio-Training-Video.mp4"><img src="docs/images/training-video-poster.jpg" width="720" alt="Downhole Studio training video (6 minutes) - click to download"></a><br>
 <em>Training video: a 6-minute narrated walkthrough from SEG-2 records to the report. Click to download (MP4, 25 MB; <a href="docs/marketing/Downhole-Studio-Training-Video.srt">captions</a>).</em></p>
-
-### Client package: everything in one download
-
-<p align="center"><a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Client-Package.zip"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download-Client%20Package%20(ZIP%2C%2095%20MB)-404040?style=for-the-badge" alt="Download the Downhole Studio client package (ZIP, 95 MB)"></a></p>
-
-Version 1.0.0, package updated October 30, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.
-
-| Folder in the zip | Contents |
-|---|---|
-| 1 - Install Downhole Studio | The Windows installer (the same file as the **Download for Windows** button) |
-| 2 - Quick Start and Activation | Install, activate without an internet connection and run your first survey (PDF, 5 pages) |
-| 3 - Field Guide | Borehole, sources, seismograph settings and recording, with a field log sheet (PDF) |
-| 4 - Training Video | The 6-minute narrated walkthrough (MP4) with captions (SRT) |
-| 5 - User Guide | The complete illustrated user guide (PDF, 15 pages) |
-| 6 - Brochure and Datasheet | Product brochure and technical datasheet (PDF) |
-| 7 - Methods and Validation | Equations, assumptions and the scientific validation report (PDF, 14 pages) |
-| 8 - Example Field Records | A complete synthetic SEG-2 survey with its true model, for practice |
-| Licence and notices | Licence agreement and open-source notices |
-
-Checksums: [client package SHA-256](download/DownholeStudio-Client-Package.zip.sha256), and `SHA256SUMS.txt` inside the zip for every file.
 
 ### Documents and video
 
