@@ -13,14 +13,19 @@ choose "Extract All...", then open the extracted folder.
 WHAT IS IN THIS PACKAGE
 -----------------------
   1 - Install Downhole Studio               The Windows installer
-  2 - Field Guide (set up your equipment)   Borehole, sources, seismograph
+  2 - Quick Start and Activation            Install, activate without internet
+                                            and your first survey (read first)
+  3 - Field Guide (set up your equipment)   Borehole, sources, seismograph
                                             settings and recording, step by step
-  3 - Training Video                        {minutes}-minute narrated walkthrough
+  4 - Training Video                        {minutes}-minute narrated walkthrough
                                             (captions included)
-  4 - Brochure and User Guide               Product overview and the complete
-                                            illustrated user guide
-  5 - Product Datasheet                     Features and technical specifications
-  6 - Example Field Records                 A complete synthetic SEG-2 survey to
+  5 - User Guide                            The complete illustrated user guide
+                                            (also in the program: press F1)
+  6 - Brochure and Datasheet                Product overview, features and
+                                            technical specifications
+  7 - Methods and Validation                Equations, assumptions and the
+                                            scientific validation report
+  8 - Example Field Records                 A complete synthetic SEG-2 survey to
                                             practise importing (with its true model)
   Licence and notices                       Licence agreement and open-source notices
   SHA256SUMS.txt                            Checksums to verify the files
@@ -54,12 +59,12 @@ Installing over an earlier version keeps all your projects and settings.
 
 YOUR FIRST SURVEY
 -----------------
-1. Read the Field Guide (folder 2) before going to the field. It covers the
+1. Read the Field Guide (folder 3) before going to the field. It covers the
    borehole, the P and S sources, the seismograph settings and recording.
-2. Watch the Training Video (folder 3) to see the whole analysis once.
+2. Watch the Training Video (folder 4) to see the whole analysis once.
 3. In Downhole Studio, click "Explore Sample Project" to open a finished
    survey, or create a new project and import the example field records
-   (folder 6). The orange button at the top of each page is always the next
+   (folder 8). The orange button at the top of each page is always the next
    step, and Help (F1) explains every page.
 
 

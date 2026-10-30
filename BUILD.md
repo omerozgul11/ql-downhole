@@ -42,10 +42,11 @@ VPY=/opt/apps/masw-studio/.tools/marketing-video/.venv/bin/python  # Kokoro voic
 $PY marketing/field-guide/build.py        # docs/marketing/QuakeLogic-Downhole-Studio-Field-Guide.pdf (text: docs/FIELD-GUIDE.md)
 $PY marketing/brochure/build.py           # docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf
 $PY marketing/datasheet/build.py          # docs/marketing/QuakeLogic-Downhole-Studio-Datasheet.pdf
+$PY marketing/guides/build.py             # docs/marketing: Quick Start and Activation, User Guide, Methods and Validation PDFs
 $VPY marketing/training/narrate.py        # narration (only when storyboard.json changes)
 DHS_CUSTOMER_UI=1 DHS_TRAINING_OUT=$PWD/artifacts/training-video-1.0.0 dotnet test tests/DownholeStudio.UiTests --filter FullyQualifiedName~TrainingCapture -- xUnit.Explicit=only
 $VPY marketing/training/render.py         # artifacts/training-video-<version>/DownholeStudio-Training-<version>.mp4 + .srt
-python3 scripts/package-client.py         # artifacts/client-package/DownholeStudio-<version>-Client-Package.zip
+$VPY scripts/package-client.py            # artifacts/client-package/DownholeStudio-<version>-Client-Package.zip (every docs/marketing PDF, < 100 MB)
 ```
 
 When the interface changes, re-render `docs/images` first (the `ProductScreenshots` test, see [TESTING.md](TESTING.md)), then rebuild the brochure and datasheet.

@@ -100,22 +100,37 @@ New versions are published here: download the installer again and run it over th
 <p align="center"><a href="https://github.com/omerozgul11/ql-downhole/raw/main/docs/marketing/Downhole-Studio-Training-Video.mp4"><img src="docs/images/training-video-poster.jpg" width="720" alt="Downhole Studio training video (6 minutes) - click to download"></a><br>
 <em>Training video: a 6-minute narrated walkthrough from SEG-2 records to the report. Click to download (MP4, 25 MB; <a href="docs/marketing/Downhole-Studio-Training-Video.srt">captions</a>).</em></p>
 
-**[Client package (ZIP, 92 MB)](https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Client-Package.zip)**: everything in one download, like the MASW Studio package:
-- the installer;
-- the field guide;
-- the training video with captions;
-- the brochure and user guide, and the datasheet;
-- example SEG-2 field records;
-- the licence notices.
+### Client package: everything in one download
 
-Start with `START HERE.txt` inside the zip.
+<p align="center"><a href="https://github.com/omerozgul11/ql-downhole/raw/main/download/DownholeStudio-Client-Package.zip"><img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8E%20Download-Client%20Package%20(ZIP%2C%2095%20MB)-404040?style=for-the-badge" alt="Download the Downhole Studio client package (ZIP, 95 MB)"></a></p>
+
+Version 1.0.0, package updated October 30, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.
+
+| Folder in the zip | Contents |
+|---|---|
+| 1 - Install Downhole Studio | The Windows installer (the same file as the **Download for Windows** button) |
+| 2 - Quick Start and Activation | Install, activate without an internet connection and run your first survey (PDF, 5 pages) |
+| 3 - Field Guide | Borehole, sources, seismograph settings and recording, with a field log sheet (PDF) |
+| 4 - Training Video | The 6-minute narrated walkthrough (MP4) with captions (SRT) |
+| 5 - User Guide | The complete illustrated user guide (PDF, 15 pages) |
+| 6 - Brochure and Datasheet | Product brochure and technical datasheet (PDF) |
+| 7 - Methods and Validation | Equations, assumptions and the scientific validation report (PDF, 14 pages) |
+| 8 - Example Field Records | A complete synthetic SEG-2 survey with its true model, for practice |
+| Licence and notices | Licence agreement and open-source notices |
+
+Checksums: [client package SHA-256](download/DownholeStudio-Client-Package.zip.sha256), and `SHA256SUMS.txt` inside the zip for every file.
+
+### Documents and video
 
 | | |
 |---|---|
+| **[Quick start and activation (PDF)](docs/marketing/Downhole-Studio-Quick-Start-and-Activation.pdf)** | Install, activate without an internet connection, and your first fifteen minutes. Read this first. |
 | **[Field guide (PDF)](docs/marketing/QuakeLogic-Downhole-Studio-Field-Guide.pdf)** | Borehole, P and S sources, seismograph settings and recording, step by step, with a field log sheet. Read it before going to the field. |
-| **[Brochure and user guide (PDF)](docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf)** | Product overview and the complete illustrated user guide. |
+| **[Training video (MP4)](https://github.com/omerozgul11/ql-downhole/raw/main/docs/marketing/Downhole-Studio-Training-Video.mp4)** | A 6-minute narrated walkthrough, from SEG-2 records to the report ([captions](docs/marketing/Downhole-Studio-Training-Video.srt)). |
+| **[User guide (PDF)](docs/marketing/Downhole-Studio-User-Guide.pdf)** | Every page of the application, shortcuts and troubleshooting, illustrated. |
+| **[Brochure (PDF)](docs/marketing/Downhole-Studio-Brochure-and-User-Guide.pdf)** | Product overview, followed by the user guide. |
 | **[Product datasheet (PDF)](docs/marketing/QuakeLogic-Downhole-Studio-Datasheet.pdf)** | Features and technical specifications for engineers and procurement. |
-| **[Training video (MP4)](docs/marketing/Downhole-Studio-Training-Video.mp4)** | A 6-minute narrated walkthrough, with captions, from SEG-2 records to the report. |
+| **[Methods and validation (PDF)](docs/marketing/Downhole-Studio-Methods-and-Validation.pdf)** | Every calculation with its assumptions and limitations, and the full validation report, for reviewing engineers. |
 
 ## Licensing
 
@@ -144,6 +159,7 @@ Travel times are corrected for trigger delay using the reference geophone. They 
 
 | | |
 |---|---|
+| [Quick start](docs/QUICK-START.md) | Install, activate offline and run a first survey. |
 | [User guide](docs/USER-GUIDE.md) | Every page of the application, shortcuts and troubleshooting. Also built into the app: press **F1**. |
 | [Algorithms](docs/algorithms/README.md) | Equations, assumptions and limitations of every method. |
 | [Scientific validation](SCIENTIFIC-VALIDATION.md) | How results are verified, and the latest report. |

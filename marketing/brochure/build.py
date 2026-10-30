@@ -252,7 +252,7 @@ def document() -> str:
   <div class="seclabel">TECHNICAL SPECIFICATIONS</div>
   <div class="spec2"><div class="col"><table><thead><tr><th>Specification</th><th>Description</th></tr></thead><tbody>{rows(SPECS_L)}</tbody></table></div>
   <div class="col"><table><thead><tr><th>Specification</th><th>Description</th></tr></thead><tbody>{rows(SPECS_R)}</tbody></table></div></div>
-  <p class="intro" style="margin-top:18px;">Licensing: per-computer licences with online activation; paid licences work offline for 30 days between checks. Without an active licence, projects still open read-only and are never modified. Downhole Studio supports the established downhole workflow described in ASTM D7400/D7400M but does not certify compliance with any standard; results require professional review.</p>
+  <p class="intro" style="margin-top:18px;">Licensing: per-computer licences, activated offline with a computer code and an activation key from QuakeLogic; no internet connection is ever needed. Without an active licence, projects still open read-only and are never modified. Downhole Studio supports the established downhole workflow described in ASTM D7400/D7400M but does not certify compliance with any standard; results require professional review.</p>
 </div>{house.footer()}</section>
 
 <section class="page"><div class="pad">

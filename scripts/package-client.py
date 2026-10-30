@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Builds the Downhole Studio client package: one zip with the installer, field guide, training video,
-brochure and user guide, datasheet, example field records and licence notices (like the MASW Studio package).
+"""Builds the Downhole Studio client package: one zip with the installer, quick start and activation guide, field guide,
+training video, user guide, brochure, datasheet, methods and validation report, example field records and licence
+notices (like the MASW Studio package). It holds every document published on the product page.
 
     python3 scripts/package-client.py [--version 1.0.0]
 
 Inputs (build them first):
   artifacts/installer/DownholeStudio-Setup-<version>.exe                scripts/build.sh
-  docs/marketing/*.pdf                                                   marketing/*/build.py
+  docs/marketing/*.pdf                                                   marketing/*/build.py (guides: marketing/guides/build.py)
   artifacts/training-video-<version>/DownholeStudio-Training-<version>.mp4/.srt   marketing/training
 Output: artifacts/client-package/DownholeStudio-<version>-Client-Package.zip and SHA256SUMS.txt
 """
@@ -54,22 +55,30 @@ def main() -> None:
 
     files = {
         f'1 - Install Downhole Studio/DownholeStudio-Setup-{version}.exe': installer,
-        '2 - Field Guide (set up your equipment)/QuakeLogic-Downhole-Studio-Field-Guide.pdf': marketing / 'QuakeLogic-Downhole-Studio-Field-Guide.pdf',
-        '3 - Training Video/Downhole-Studio-Training-Video.mp4': video,
-        '3 - Training Video/Downhole-Studio-Training-Video.srt': captions,
-        '4 - Brochure and User Guide/Downhole-Studio-Brochure-and-User-Guide.pdf': marketing / 'Downhole-Studio-Brochure-and-User-Guide.pdf',
-        '5 - Product Datasheet/QuakeLogic-Downhole-Studio-Datasheet.pdf': marketing / 'QuakeLogic-Downhole-Studio-Datasheet.pdf',
+        '2 - Quick Start and Activation/Downhole-Studio-Quick-Start-and-Activation.pdf': marketing / 'Downhole-Studio-Quick-Start-and-Activation.pdf',
+        '3 - Field Guide (set up your equipment)/QuakeLogic-Downhole-Studio-Field-Guide.pdf': marketing / 'QuakeLogic-Downhole-Studio-Field-Guide.pdf',
+        '4 - Training Video/Downhole-Studio-Training-Video.mp4': video,
+        '4 - Training Video/Downhole-Studio-Training-Video.srt': captions,
+        '5 - User Guide/Downhole-Studio-User-Guide.pdf': marketing / 'Downhole-Studio-User-Guide.pdf',
+        '6 - Brochure and Datasheet/Downhole-Studio-Brochure-and-User-Guide.pdf': marketing / 'Downhole-Studio-Brochure-and-User-Guide.pdf',
+        '6 - Brochure and Datasheet/QuakeLogic-Downhole-Studio-Datasheet.pdf': marketing / 'QuakeLogic-Downhole-Studio-Datasheet.pdf',
+        '7 - Methods and Validation/Downhole-Studio-Methods-and-Validation.pdf': marketing / 'Downhole-Studio-Methods-and-Validation.pdf',
         'Licence and notices/Licence agreement (EULA).txt': ROOT / 'packaging/windows/EULA.txt',
         'Licence and notices/Third-party notices.txt': ROOT / 'THIRD_PARTY_NOTICES.txt',
     }
+    # Every document published on the product page (docs/marketing) must be in the package.
+    packaged = {src.resolve() for src in files.values()}
+    for published in sorted(marketing.glob('*.pdf')):
+        if published.resolve() not in packaged:
+            raise SystemExit(f'{published.name} is on the product page but not in the client package; add it to package-client.py.')
     if not examples.is_dir():
         raise SystemExit(f'Missing {examples}: run "dotnet run --project tools/DownholeStudio.Cli -- synth --dataset Clean --out \'{examples}\'".')
     for f in sorted(examples.iterdir()):
-        files[f'6 - Example Field Records/{f.name}'] = f
+        files[f'8 - Example Field Records/{f.name}'] = f
     missing = [str(src) for src in files.values() if not src.is_file()]
     if missing:
         raise SystemExit('Missing inputs:\n  ' + '\n  '.join(missing))
-    newest_source = max(p.stat().st_mtime for p in (ROOT / 'src').rglob('*.cs'))
+    newest_source = max(p.stat().st_mtime for p in (ROOT / 'src').rglob('*.cs') if not {'bin', 'obj'} & set(p.parts))  # not generated files
     if installer.stat().st_mtime < newest_source:
         raise SystemExit(f'{installer.name} is older than the source code; rebuild it with scripts/build.sh.')
 
@@ -90,6 +99,8 @@ def main() -> None:
         z.writestr(f'{name}/SHA256SUMS.txt', sums.replace('\n', '\r\n'))
     with zipfile.ZipFile(target) as z:
         assert z.testzip() is None
+    if target.stat().st_size >= 100_000_000:
+        raise SystemExit(f'{target.name} is {target.stat().st_size / 1e6:.1f} MB; GitHub refuses files of 100 MB or more.')
     (out / 'SHA256SUMS.txt').write_text(f'{sha256(target)}  {target.name}\n')
     print(f'{target} ({target.stat().st_size / 1e6:.1f} MB, {len(files) + 2} files)')
 
