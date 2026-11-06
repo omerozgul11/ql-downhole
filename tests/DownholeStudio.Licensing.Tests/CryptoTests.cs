@@ -211,6 +211,7 @@ public sealed class StoreTests
         }
 
         var path = TempPath();
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new StoredLicense { Token = "from-1.0.0" });
         var entropy = System.Text.Encoding.UTF8.GetBytes("QuakeLogic.DownholeStudio.License.v1");
         File.WriteAllBytes(path, [1, .. System.Security.Cryptography.ProtectedData.Protect(json, entropy, System.Security.Cryptography.DataProtectionScope.CurrentUser)]);

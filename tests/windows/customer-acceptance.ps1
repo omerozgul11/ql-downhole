@@ -264,10 +264,13 @@ try {
   Click 'Report' | Out-Null; Start-Sleep 4
   Click 'Generate PDF*' | Out-Null; Start-Sleep 4
   $pdf = "$Work\output\Windows Acceptance Report.pdf"
-  Keys '^a'; TypeText $pdf; Keys '{ENTER}'; Start-Sleep 20
+  Keys '^a'; TypeText $pdf; Keys '{ENTER}'
+  $started = Get-Date; $until = $started.AddMinutes(5)
+  while ((Get-Date) -lt $until -and -not ((Test-Path -LiteralPath $pdf) -and -not (Has 'Generating report*' 1))) { Start-Sleep 2 }
+  Start-Sleep 2
   Shot 'report'
   $pdfOk = (Test-Path -LiteralPath $pdf) -and ((Get-Item -LiteralPath $pdf).Length -gt 100KB)
-  Check 'PDF report is written' $pdfOk
+  Check 'PDF report is written' $pdfOk "(in $([int]((Get-Date) - $started).TotalSeconds) s)"
   if (Test-Path -LiteralPath $pdf) { Copy-Item -LiteralPath $pdf "$Results\Windows-report.pdf" }
   Keys '{ESC}'; Start-Sleep 1
   Keys '^k'; Start-Sleep 2
