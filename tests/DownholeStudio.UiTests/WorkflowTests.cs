@@ -1,3 +1,4 @@
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using DownholeStudio.App.ViewModels;
 using DownholeStudio.App.Views;
@@ -216,8 +217,10 @@ public sealed class WorkflowTests
         var main = UiHarness.Main;
         var window = Open(main);
         main.OpenPaletteCommand.Execute(null);
-        main.Palette.Query = "report";
         await UiHarness.SettleAsync(100);
+        window.KeyTextInput("report"); // goes to whichever control has the keyboard: it must be the search box
+        await UiHarness.SettleAsync(100);
+        Assert.Equal("report", main.Palette.Query);
         Assert.Contains(main.Palette.Results, r => r.Title == "Generate report");
         UiHarness.Capture(window, "16-command-palette");
         main.Palette.CloseCommand.Execute(null);

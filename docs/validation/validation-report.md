@@ -1,6 +1,6 @@
 # Downhole Studio — scientific validation report
 
-Generated 2026-11-06 18:44 UTC by Downhole Studio 1.0.0 (`dhs validate`). 87 of 87 checks passed.
+Generated 2026-11-06 19:13 UTC by Downhole Studio 1.0.0 (`dhs validate`). 87 of 87 checks passed.
 
 Expected values come from hand calculation, from an independent implementation (Fermat-principle ray timing in the synthetic generator) or from the known synthetic earth model. Tolerances are absolute unless marked %.
 

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using DownholeStudio.App.ViewModels;
 
 namespace DownholeStudio.App.Views;
@@ -10,11 +11,23 @@ public partial class PaletteView : UserControl
     public PaletteView()
     {
         InitializeComponent();
-        PropertyChanged += (_, e) =>
+        // The parent panel shows and hides this view, so follow the palette itself. Posted: a control cannot take
+        // focus until it has been laid out.
+        DataContextChanged += (_, _) =>
         {
-            if (e.Property == IsVisibleProperty && IsVisible)
+            if (DataContext is CommandPaletteViewModel palette)
             {
-                Search.Focus();
+                palette.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(CommandPaletteViewModel.IsOpen) && palette.IsOpen)
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            Search.Focus();
+                            Search.SelectAll();
+                        }, DispatcherPriority.Loaded);
+                    }
+                };
             }
         };
     }

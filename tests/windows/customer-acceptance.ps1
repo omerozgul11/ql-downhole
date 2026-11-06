@@ -250,6 +250,16 @@ try {
   Click 'Apply all' | Out-Null; Start-Sleep 4
   Shot 'velocity-model'
   Check 'Suggested boundaries give 5 layers' (Has '*5 layer(s)*' 10)
+  # A drop-down list: choose another velocity method with the mouse.
+  Click 'Layer regression*' | Out-Null; Start-Sleep 2
+  Shot 'method-list'
+  Click 'Refracted-ray*' | Out-Null; Start-Sleep 4
+  Shot 'method-changed'
+  Check 'Drop-down list changes the velocity method' (Has '*Snell*' 8)
+  Keys '{F1}'; Start-Sleep 2
+  Shot 'help'
+  Check 'F1 opens help' (Alive)
+  Keys '{F1}'; Start-Sleep 1
   Click 'Engineering' | Out-Null; Start-Sleep 4
   Shot 'engineering'
   $vs30 = TextLike '* m/s'
@@ -276,7 +286,28 @@ try {
   Keys '^k'; Start-Sleep 2
   TypeText 'settings'; Start-Sleep 2
   Shot 'command-palette'
-  Check 'Ctrl+K opens the command palette and searches' (Alive)
+  $palette = EditWithValue 'settings'
+  Check 'Ctrl+K: typing goes straight into the command palette' ($null -ne $palette)
+  Keys '{ENTER}'; Start-Sleep 3
+  Shot 'settings-from-palette'
+  Check 'Enter runs the chosen command (Settings opens)' (Has 'Copy Computer Code' 8)
+  Keys '{ESC}'; Start-Sleep 1
+  # Excel export through the Report page.
+  Click 'Report' | Out-Null; Start-Sleep 3
+  $xlsxButton = Find '*Excel*' 5
+  if ($xlsxButton) { ClickEl $xlsxButton; Start-Sleep 4; $xlsx = "$Work\output\Windows Acceptance Tables.xlsx"; Keys '^a'; TypeText $xlsx; Keys '{ENTER}'; Start-Sleep 6 }
+  Check 'Excel tables are exported' ($null -ne $xlsxButton -and (Test-Path -LiteralPath $xlsx) -and (Get-Item -LiteralPath $xlsx).Length -gt 5KB)
+  # Several reports in a row, timed: one earlier run was slow, and a report must never hang.
+  Click 'Report' | Out-Null; Start-Sleep 3
+  foreach ($n in 1..5) {
+    $g = Find 'Generate PDF*' 30
+    if ($g) { ClickEl $g }; Start-Sleep 4
+    $again = "$Work\output\Timed Report $n.pdf"
+    Keys '^a'; TypeText $again; Keys '{ENTER}'
+    $started = Get-Date; $until = $started.AddMinutes(5)
+    while ((Get-Date) -lt $until -and -not ((Test-Path -LiteralPath $again) -and -not (Has 'Generating report*' 1))) { Start-Sleep 1 }
+    Check "Report $n of 5 finishes" (Test-Path -LiteralPath $again) "(in $([int]((Get-Date) - $started).TotalSeconds) s)"
+  }
   Keys '{ESC}'; Start-Sleep 1
   Publish
 
