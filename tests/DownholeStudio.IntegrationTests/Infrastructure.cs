@@ -66,24 +66,30 @@ public sealed class LicensingEnvironment : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        if (!await DockerAvailableAsync())
+        // A PostgreSQL server can be supplied directly (Windows CI machines run only Windows containers).
+        ConnectionString = Environment.GetEnvironmentVariable("DHS_TEST_POSTGRES") ?? "";
+        if (ConnectionString.Length == 0)
         {
-            UnavailableReason = "Docker is not available, so PostgreSQL integration tests cannot run.";
-            return;
+            if (!await DockerAvailableAsync())
+            {
+                UnavailableReason = "Docker is not available, so PostgreSQL integration tests cannot run.";
+                return;
+            }
+
+            var port = FreePort();
+            var password = Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
+            _container = $"dhs-pgtest-{Guid.NewGuid():N}"[..24];
+            var (code, output) = await RunAsync("docker", $"run -d --rm --name {_container} -e POSTGRES_PASSWORD={password} -e POSTGRES_DB=dhs_licensing -p 127.0.0.1:{port}:5432 postgres:17-alpine");
+            if (code != 0)
+            {
+                UnavailableReason = "Could not start PostgreSQL: " + output;
+                _container = null;
+                return;
+            }
+
+            ConnectionString = $"Host=127.0.0.1;Port={port};Database=dhs_licensing;Username=postgres;Password={password};Pooling=true";
         }
 
-        var port = FreePort();
-        var password = Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
-        _container = $"dhs-pgtest-{Guid.NewGuid():N}"[..24];
-        var (code, output) = await RunAsync("docker", $"run -d --rm --name {_container} -e POSTGRES_PASSWORD={password} -e POSTGRES_DB=dhs_licensing -p 127.0.0.1:{port}:5432 postgres:17-alpine");
-        if (code != 0)
-        {
-            UnavailableReason = "Could not start PostgreSQL: " + output;
-            _container = null;
-            return;
-        }
-
-        ConnectionString = $"Host=127.0.0.1;Port={port};Database=dhs_licensing;Username=postgres;Password={password};Pooling=true";
         var deadline = DateTime.UtcNow.AddSeconds(90);
         while (true)
         {

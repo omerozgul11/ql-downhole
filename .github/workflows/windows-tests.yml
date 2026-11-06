@@ -1,0 +1,77 @@
+# Runs on real Windows machines. "suites" runs every test suite natively. "customer" does what a customer does: downloads
+# the published package, installs it and operates the application with real mouse and keyboard input. It needs an
+# activation key for that machine, so it runs only on ci/* branches, where someone is there to issue one.
+name: Windows tests
+on:
+  push:
+    branches: [main, 'ci/**']
+permissions:
+  contents: write
+jobs:
+  suites:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Start PostgreSQL
+        shell: powershell
+        run: |
+          $service = Get-Service postgresql* | Select-Object -First 1
+          Set-Service $service.Name -StartupType Manual
+          Start-Service $service.Name
+          $env:PGPASSWORD = 'root'
+          & "$env:PGBIN\createdb.exe" -h 127.0.0.1 -U postgres dhs_licensing
+          "DHS_TEST_POSTGRES=Host=127.0.0.1;Port=5432;Database=dhs_licensing;Username=postgres;Password=root;Pooling=true" | Out-File -Append -Encoding ascii $env:GITHUB_ENV
+      - name: Build
+        run: dotnet build DownholeStudio.sln -c Release
+      - name: Signal processing tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.SignalProcessing.Tests
+      - name: File format tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.Formats.Tests
+      - name: Analysis tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.Analysis.Tests
+      - name: Core tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.Core.Tests
+      - name: Licensing tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.Licensing.Tests
+      - name: User interface tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.UiTests
+      - name: Server integration tests
+        shell: powershell
+        run: tests/windows/run-suite.ps1 DownholeStudio.IntegrationTests
+      - name: Scientific validation
+        shell: powershell
+        run: |
+          dotnet run --project tools/DownholeStudio.Cli -c Release --no-build -- validate --out artifacts/validation | Tee-Object -FilePath artifacts/validation.txt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: Publish results
+        if: always()
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: tests/windows/publish-results.ps1 artifacts/suite-results "ci-results/${{ github.run_id }}-suites"
+
+  customer:
+    if: startsWith(github.ref, 'refs/heads/ci/')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tests/windows
+      - name: Download, install and operate the application
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+        run: tests/windows/customer-acceptance.ps1
