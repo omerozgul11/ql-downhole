@@ -84,6 +84,8 @@ function StartApp {
 
 try {
   try { Set-DisplayResolution -Width 1920 -Height 1080 -Force } catch { Log "      (display resolution unchanged: $($_.Exception.Message))" }
+  # The machine's console window would otherwise cover the application.
+  (New-Object -ComObject Shell.Application).MinimizeAll(); Start-Sleep 2
   $os = (Get-CimInstance Win32_OperatingSystem)
   Log "Machine: $($os.Caption) build $($os.BuildNumber), screen $([System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Size)"
 
@@ -93,9 +95,7 @@ try {
   $zip = "$Work\DownholeStudio-Client-Package.zip"; $setup = "$Work\DownholeStudio-Setup.exe"
   Invoke-WebRequest "$Base/download/DownholeStudio-Client-Package.zip" -OutFile $zip -UseBasicParsing
   Invoke-WebRequest "$Base/download/DownholeStudio-Setup.exe" -OutFile $setup -UseBasicParsing
-  $zipSum = (Invoke-WebRequest "$Base/download/DownholeStudio-Client-Package.zip.sha256" -UseBasicParsing).Content
-  $zipSum = [Text.Encoding]::ASCII.GetString([byte[]]$zipSum) 2>$null
-  if (-not $zipSum) { $zipSum = (Invoke-RestMethod "$Base/download/DownholeStudio-Client-Package.zip.sha256") }
+  $zipSum = (New-Object Net.WebClient).DownloadString("$Base/download/DownholeStudio-Client-Package.zip.sha256")
   Check 'Zip downloads from the public link' ((Get-Item $zip).Length -gt 50MB) "($([math]::Round((Get-Item $zip).Length/1MB)) MB)"
   Check 'Setup downloads from the public link' ((Get-Item $setup).Length -gt 30MB) "($([math]::Round((Get-Item $setup).Length/1MB)) MB)"
   Check 'Zip matches its published checksum' ("$zipSum" -match (Get-FileHash $zip -Algorithm SHA256).Hash)
@@ -141,7 +141,7 @@ try {
   Shot 'bad-key-refused'
 
   # ---- 4. Real activation with a key issued for this computer's code
-  $code | Set-Content "$Results\computer-code.txt"
+  $code | Set-Content "$Results\computer-code.txt" -Encoding ascii
   Publish
   Log "Waiting for the activation key for $code"
   $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github.raw' }

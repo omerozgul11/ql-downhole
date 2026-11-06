@@ -138,7 +138,7 @@ New versions are published here: download the installer again and run it over th
 - **Never locked out of your data:** without an activation, projects still open read-only. A licence problem never modifies or deletes a project.
 - **Privacy:** the computer code is derived from hardware identifiers and contains no personal or project data. Downhole Studio makes no network connections for licensing and collects no usage telemetry.
 
-To buy a licence, visit [quakelogic.net/downhole-studio](https://quakelogic.net/downhole-studio) or [contact QuakeLogic](https://quakelogic.net/contact).
+To buy a licence, [contact QuakeLogic](https://quakelogic.net/support/contact) or e-mail sales@quakelogic.net.
 
 ## Supported data
 
@@ -167,7 +167,7 @@ Travel times are corrected for trigger delay using the reference geophone. They 
 
 ## Support
 
-Contact QuakeLogic at [quakelogic.net/contact](https://quakelogic.net/contact). Attach the diagnostic package (Settings → Diagnostics → *Export diagnostic package…*). It contains logs with personal details redacted, and includes no project data unless you add it.
+Contact [QuakeLogic support](https://quakelogic.net/support/contact) or e-mail support@quakelogic.net. Attach the diagnostic package (Settings → Diagnostics → *Export diagnostic package…*). It contains logs with personal details redacted, and includes no project data unless you add it.
 
 ---
 

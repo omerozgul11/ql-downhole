@@ -25,9 +25,9 @@ WEB_PID=$!
 cat > /opt/downhole-studio/appsettings.json <<JSON
 {
   "LicenseServerUrl": "${LICENSE_SERVER_URL}",
-  "PrivacyPolicyUrl": "https://quakelogic.net/privacy",
-  "SupportUrl": "https://quakelogic.net/contact",
-  "PurchaseUrl": "https://quakelogic.net/downhole-studio"
+  "PrivacyPolicyUrl": "https://quakelogic.net/privacy-policy",
+  "SupportUrl": "https://quakelogic.net/support/contact",
+  "PurchaseUrl": "https://quakelogic.net/support/contact"
 }
 JSON
 LOG="$HOME/app-console.log"

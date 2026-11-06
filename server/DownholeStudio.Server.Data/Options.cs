@@ -72,8 +72,8 @@ public sealed class EmailContentOptions
 {
     public const string Section = "Email";
     public string SupportEmail { get; set; } = "support@quakelogic.net";
-    public string DownloadUrl { get; set; } = "https://quakelogic.net/downhole-studio";
-    public string PrivacyUrl { get; set; } = "https://quakelogic.net/privacy";
+    public string DownloadUrl { get; set; } = "https://quakelogic.net/support/contact";
+    public string PrivacyUrl { get; set; } = "https://quakelogic.net/privacy-policy";
     public string CompanyName { get; set; } = "QuakeLogic Inc.";
 }
 

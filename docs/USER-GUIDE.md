@@ -331,4 +331,4 @@ The shortcuts for the waveform and picking pages are in sections 6 and 8.
 | *This activation key is not valid* | Part of the key is missing. Copy the whole key from the e-mail, or open the attached activation file instead. |
 | The program closed unexpectedly | Restart it and accept the recovery offer. Then send the diagnostic package (Settings → Diagnostics) to QuakeLogic support. |
 
-For support, contact [quakelogic.net/contact](https://quakelogic.net/contact).
+For support, contact [quakelogic.net/support/contact](https://quakelogic.net/support/contact).
