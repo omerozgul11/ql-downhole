@@ -62,6 +62,33 @@ function Click($pattern, $seconds = 15) {
   if ($null -eq $e) { Log "      (could not find '$pattern')"; return $false }
   ClickEl $e; return $true
 }
+# Goes to a page with the sidebar, the leftmost control of that name: the toolbar's Report button generates a report.
+function Page($name) {
+  $until = (Get-Date).AddSeconds(15)
+  do {
+    $best = $null
+    try { foreach ($e in (Elements)) { if ($e.Current.Name -eq $name -and -not $e.Current.IsOffscreen -and ($null -eq $best -or $e.Current.BoundingRectangle.X -lt $best.Current.BoundingRectangle.X)) { $best = $e } } } catch {}
+    if ($best) { ClickEl $best; return $true }
+    Start-Sleep -Milliseconds 400
+  } while ((Get-Date) -lt $until)
+  Log "      (could not find the page '$name')"; return $false
+}
+function Wheel($x, $y, $notches) {
+  [Native]::SetCursorPos([int]$x, [int]$y) | Out-Null; Start-Sleep -Milliseconds 120
+  [Native]::mouse_event(0x0800, 0, 0, [uint32][BitConverter]::ToUInt32([BitConverter]::GetBytes([int](120 * $notches)), 0), [IntPtr]::Zero); Start-Sleep -Milliseconds 500
+}
+# Waits for a finished PDF: the save dialog may create the empty file first, so its existence alone proves nothing.
+function WaitForPdf($path, $minutes = 3) {
+  $until = (Get-Date).AddMinutes($minutes)
+  while ((Get-Date) -lt $until) {
+    if ((Test-Path -LiteralPath $path) -and (Get-Item -LiteralPath $path).Length -gt 100KB) {
+      $s = [IO.File]::OpenRead($path); $b = New-Object byte[] 4; [void]$s.Read($b, 0, 4); $s.Close()
+      if ([Text.Encoding]::ASCII.GetString($b) -eq '%PDF') { return $true }
+    }
+    Start-Sleep -Milliseconds 250
+  }
+  return $false
+}
 function Keys($k) { [System.Windows.Forms.SendKeys]::SendWait($k); Start-Sleep -Milliseconds 300 }
 # Types literally, escaping the characters SendKeys treats as commands.
 function TypeText($t) { Keys ($t -replace '([+^%~(){}\[\]])', '{$1}') }
@@ -171,7 +198,7 @@ try {
   Click 'New Project' | Out-Null
   Start-Sleep 3
   if (Has 'Save*' 2) { Shot 'new-project' }
-  Click 'Project' | Out-Null; Start-Sleep 2
+  Page 'Project' | Out-Null; Start-Sleep 2
   Shot 'project-page'
   $name = $null; foreach ($e in (Edits)) { if (-not $e.Current.IsOffscreen) { $name = $e; break } }
   ClickEl $name; Keys '^a'; TypeText 'Windows Acceptance Survey (BH-1) +100%'; Keys '{TAB}'; Start-Sleep 1
@@ -183,7 +210,7 @@ try {
   Shot 'project-typed'
 
   # ---- 6. Import through the Windows file dialogs
-  Click 'Import' | Out-Null; Start-Sleep 2
+  Page 'Import' | Out-Null; Start-Sleep 2
   Click 'Add files*' | Out-Null; Start-Sleep 4
   Shot 'file-dialog'
   TypeText "$records\"; Keys '{ENTER}'; Start-Sleep 3
@@ -220,14 +247,14 @@ try {
   Shot 'geometry'
 
   # ---- 8. Waveforms: check box
-  Click 'Waveforms' | Out-Null; Start-Sleep 4
+  Page 'Waveforms' | Out-Null; Start-Sleep 4
   Shot 'waveforms'
   $over = Find 'Overlay' 5
   if ($over) { ClickEl $over; Start-Sleep 1; ClickEl $over; Start-Sleep 1 }
   Check 'Waveform check box responds' ((Alive) -and $null -ne $over)
 
   # ---- 9. Picking: buttons, then a mouse click on the chart
-  Click 'P Picks' | Out-Null; Start-Sleep 4
+  Page 'P Picks' | Out-Null; Start-Sleep 4
   Click 'Run automatic picking' | Out-Null; Start-Sleep 7
   Check 'Automatic P picking picks all 32 depths' (Has '32 of 32 depths picked*' 25)
   Shot 'p-picks'
@@ -239,13 +266,13 @@ try {
   Check 'Mouse click on the chart places a manual pick' ($before -ne $after) "('$before' -> '$after')"
   Keys '^z'; Start-Sleep 2
   Check 'Ctrl+Z removes the manual pick' ((TextLike '*depths picked*') -eq $before)
-  Click 'S Picks' | Out-Null; Start-Sleep 4
+  Page 'S Picks' | Out-Null; Start-Sleep 4
   Click 'Run automatic picking' | Out-Null; Start-Sleep 8
   Check 'Automatic S picking picks all 32 depths' (Has '32 of 32 depths picked*' 25)
   Shot 's-picks'
 
   # ---- 10. Velocity model and Vs30
-  Click 'Velocity Model' | Out-Null; Start-Sleep 4
+  Page 'Velocity Model' | Out-Null; Start-Sleep 4
   Click 'Suggest boundaries' | Out-Null; Start-Sleep 3
   Click 'Apply all' | Out-Null; Start-Sleep 4
   Shot 'velocity-model'
@@ -260,7 +287,7 @@ try {
   Shot 'help'
   Check 'F1 opens help' (Alive)
   Keys '{F1}'; Start-Sleep 1
-  Click 'Engineering' | Out-Null; Start-Sleep 4
+  Page 'Engineering' | Out-Null; Start-Sleep 4
   Shot 'engineering'
   $vs30 = TextLike '* m/s'
   foreach ($e in (Elements)) { if ($e.Current.Name -match '^\d{3} m/s$') { $vs30 = $e.Current.Name; break } }
@@ -271,16 +298,16 @@ try {
   $project = "$Work\output\Windows Acceptance.dhsx"
   Keys '^a'; TypeText $project; Keys '{ENTER}'; Start-Sleep 7
   Check 'Ctrl+S saves the project file' (Test-Path -LiteralPath $project)
-  Click 'Report' | Out-Null; Start-Sleep 4
+  Page 'Report' | Out-Null; Start-Sleep 4
   Click 'Generate PDF*' | Out-Null; Start-Sleep 4
   $pdf = "$Work\output\Windows Acceptance Report.pdf"
   Keys '^a'; TypeText $pdf; Keys '{ENTER}'
-  $started = Get-Date; $until = $started.AddMinutes(5)
-  while ((Get-Date) -lt $until -and -not ((Test-Path -LiteralPath $pdf) -and -not (Has 'Generating report*' 1))) { Start-Sleep 2 }
+  $started = Get-Date
+  $pdfOk = WaitForPdf $pdf
+  $seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
   Start-Sleep 2
   Shot 'report'
-  $pdfOk = (Test-Path -LiteralPath $pdf) -and ((Get-Item -LiteralPath $pdf).Length -gt 100KB)
-  Check 'PDF report is written' $pdfOk "(in $([int]((Get-Date) - $started).TotalSeconds) s)"
+  Check 'PDF report is written' $pdfOk "(in $seconds s)"
   if (Test-Path -LiteralPath $pdf) { Copy-Item -LiteralPath $pdf "$Results\Windows-report.pdf" }
   Keys '{ESC}'; Start-Sleep 1
   Keys '^k'; Start-Sleep 2
@@ -294,13 +321,24 @@ try {
   Keys '{ESC}'; Start-Sleep 2
   Shot 'settings-closed'
   Check 'Esc closes Settings' (-not (Has 'Recovery copy interval*' 2))
-  # Excel export through the Report page.
-  Click 'Report' | Out-Null; Start-Sleep 3
-  $xlsxButton = Find '*Excel*' 5
-  if ($xlsxButton) { ClickEl $xlsxButton; Start-Sleep 4; $xlsx = "$Work\output\Windows Acceptance Tables.xlsx"; Keys '^a'; TypeText $xlsx; Keys '{ENTER}'; Start-Sleep 6 }
-  Check 'Excel tables are exported' ($null -ne $xlsxButton -and (Test-Path -LiteralPath $xlsx) -and (Get-Item -LiteralPath $xlsx).Length -gt 5KB)
+  # Excel export: the button is further down the Report page.
+  Page 'Report' | Out-Null; Start-Sleep 3
+  $w = (AppWindow).Current.BoundingRectangle
+  Wheel ($w.X + 480) ($w.Y + 600) -30; Start-Sleep 1
+  $exports = Find 'Exports' 5
+  if ($exports) { ClickEl $exports; Start-Sleep 2 }
+  Wheel ($w.X + 480) ($w.Y + 600) -30; Start-Sleep 1
+  Shot 'exports'
+  $xlsxButton = Find 'All tables (Excel)' 5
+  $xlsx = "$Work\output\Windows Acceptance Tables.xlsx"
+  if ($xlsxButton) { ClickEl $xlsxButton; Start-Sleep 4; Keys '^a'; TypeText $xlsx; Keys '{ENTER}'; Start-Sleep 8 }
+  Shot 'excel-exported'
+  $zipSig = $false
+  if (Test-Path -LiteralPath $xlsx) { $s = [IO.File]::OpenRead($xlsx); $zipSig = ($s.ReadByte() -eq 0x50); $s.Close() }
+  Check 'Excel tables are exported' ($zipSig -and (Get-Item -LiteralPath $xlsx).Length -gt 5KB)
+  Wheel ($w.X + 480) ($w.Y + 600) 60; Start-Sleep 1
   # Several reports in a row, timed: one earlier run was slow, and a report must never hang.
-  Click 'Report' | Out-Null; Start-Sleep 3
+  Page 'Report' | Out-Null; Start-Sleep 3
   foreach ($n in 1..5) {
     $g = Find 'Generate PDF*' 30
     if ($g) { ClickEl $g }; Start-Sleep 4
@@ -308,12 +346,12 @@ try {
     Keys '^a'; TypeText $again
     $cpuBefore = (Get-Process -Id $script:App.Id).CPU
     Keys '{ENTER}'
-    # Timed by the file alone: looking through the screen while it runs would disturb the measurement.
-    $started = Get-Date; $until = $started.AddMinutes(3)
-    while ((Get-Date) -lt $until -and -not (Test-Path -LiteralPath $again)) { Start-Sleep -Milliseconds 250 }
+    # Timed by the finished file alone: reading the screen while it runs would disturb the measurement.
+    $started = Get-Date
+    $finished = WaitForPdf $again
     $seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
     $cpu = [math]::Round((Get-Process -Id $script:App.Id).CPU - $cpuBefore, 1)
-    Check "Report $n of 5 finishes" (Test-Path -LiteralPath $again) "(in $seconds s, $cpu s of processor time)"
+    Check "Report $n of 5 finishes" $finished "(in $seconds s, $cpu s of processor time)"
     $until = (Get-Date).AddMinutes(1)
     while ((Get-Date) -lt $until -and (Has 'Generating report*' 1)) { Start-Sleep 1 }
     Publish
@@ -337,7 +375,7 @@ try {
   ClickEl $recent; Start-Sleep 8
   Shot 'reopened'
   Check 'Project reopens with its results' (Has '*Windows Acceptance*' 10)
-  Click 'Project' | Out-Null; Start-Sleep 3
+  Page 'Project' | Out-Null; Start-Sleep 3
   $name = EditWithValue 'Windows Acceptance Survey (BH-1) +100%'
   Check 'Saved project name is kept' ($null -ne $name)
   ClickEl $name; Keys '^a'; TypeText 'Saved Twice'; Keys '{TAB}'; Start-Sleep 1
@@ -359,10 +397,10 @@ try {
   Click 'Recover' | Out-Null; Start-Sleep 8
   Shot 'recovered'
   Check 'Recovery works: no error is shown' (-not (Has '*could not be opened*' 2))
-  Click 'Project' | Out-Null; Start-Sleep 3
+  Page 'Project' | Out-Null; Start-Sleep 3
   Check 'Recovered project contains the unsaved work' ($null -ne (EditWithValue 'Unsaved Work'))
   Check 'Original project file was not touched by the crash' ((Get-FileHash -LiteralPath $project).Hash -eq $beforeCrash)
-  Click 'Waveforms' | Out-Null; Start-Sleep 5
+  Page 'Waveforms' | Out-Null; Start-Sleep 5
   Shot 'recovered-waveforms'
   Check 'Recovered project still has its records' (Alive)
   $recoveredCopy = "$Work\output\Recovered.dhsx"
@@ -379,7 +417,7 @@ try {
   Click 'Open' | Out-Null; Start-Sleep 4
   Keys '^a'; TypeText $free; Keys '{ENTER}'; Start-Sleep 8
   Shot 'opened-copy'
-  Click 'Waveforms' | Out-Null; Start-Sleep 5
+  Page 'Waveforms' | Out-Null; Start-Sleep 5
   $deleted = $false; try { Rename-Item -LiteralPath $free "$Work\output\Renamed While Open.dhsx" -ErrorAction Stop; $deleted = $true } catch { Log "      ($($_.Exception.Message))" }
   Check 'An open project file can be moved or renamed in Explorer' $deleted
 
