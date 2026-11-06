@@ -290,8 +290,10 @@ try {
   Check 'Ctrl+K: typing goes straight into the command palette' ($null -ne $palette)
   Keys '{ENTER}'; Start-Sleep 3
   Shot 'settings-from-palette'
-  Check 'Enter runs the chosen command (Settings opens)' (Has 'Copy Computer Code' 8)
-  Keys '{ESC}'; Start-Sleep 1
+  Check 'Enter runs the chosen command (Settings opens)' (Has 'Recovery copy interval*' 8)
+  Keys '{ESC}'; Start-Sleep 2
+  Shot 'settings-closed'
+  Check 'Esc closes Settings' (-not (Has 'Recovery copy interval*' 2))
   # Excel export through the Report page.
   Click 'Report' | Out-Null; Start-Sleep 3
   $xlsxButton = Find '*Excel*' 5
@@ -303,12 +305,19 @@ try {
     $g = Find 'Generate PDF*' 30
     if ($g) { ClickEl $g }; Start-Sleep 4
     $again = "$Work\output\Timed Report $n.pdf"
-    Keys '^a'; TypeText $again; Keys '{ENTER}'
-    $started = Get-Date; $until = $started.AddMinutes(5)
-    while ((Get-Date) -lt $until -and -not ((Test-Path -LiteralPath $again) -and -not (Has 'Generating report*' 1))) { Start-Sleep 1 }
-    Check "Report $n of 5 finishes" (Test-Path -LiteralPath $again) "(in $([int]((Get-Date) - $started).TotalSeconds) s)"
+    Keys '^a'; TypeText $again
+    $cpuBefore = (Get-Process -Id $script:App.Id).CPU
+    Keys '{ENTER}'
+    # Timed by the file alone: looking through the screen while it runs would disturb the measurement.
+    $started = Get-Date; $until = $started.AddMinutes(3)
+    while ((Get-Date) -lt $until -and -not (Test-Path -LiteralPath $again)) { Start-Sleep -Milliseconds 250 }
+    $seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
+    $cpu = [math]::Round((Get-Process -Id $script:App.Id).CPU - $cpuBefore, 1)
+    Check "Report $n of 5 finishes" (Test-Path -LiteralPath $again) "(in $seconds s, $cpu s of processor time)"
+    $until = (Get-Date).AddMinutes(1)
+    while ((Get-Date) -lt $until -and (Has 'Generating report*' 1)) { Start-Sleep 1 }
+    Publish
   }
-  Keys '{ESC}'; Start-Sleep 1
   Publish
 
   # ---- 12. Restart: stays activated, the project reopens, and editing and saving it again works

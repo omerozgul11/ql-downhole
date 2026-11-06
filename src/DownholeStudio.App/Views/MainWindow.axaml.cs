@@ -70,6 +70,27 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Esc closes the topmost panel, as people expect. A question dialog must be answered first.</summary>
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Key != Key.Escape || e.Handled || DataContext is not MainViewModel main || main.Ui.Dialog is not null)
+        {
+            return;
+        }
+
+        if (main.IsSettingsOpen)
+        {
+            main.CloseSettingsCommand.Execute(null);
+            e.Handled = true;
+        }
+        else if (main.License.IsOpen)
+        {
+            main.License.CloseCommand.Execute(null);
+            e.Handled = true;
+        }
+    }
+
     protected override async void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);

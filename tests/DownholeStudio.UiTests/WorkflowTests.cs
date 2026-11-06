@@ -1,5 +1,6 @@
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
+using Avalonia.Input;
 using DownholeStudio.App.ViewModels;
 using DownholeStudio.App.Views;
 using DownholeStudio.Domain;
@@ -208,6 +209,21 @@ public sealed class WorkflowTests
         await UiHarness.SettleAsync();
         UiHarness.Capture(window, "15-settings-license");
         main.CloseSettingsCommand.Execute(null);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task EscapeClosesSettings()
+    {
+        var main = UiHarness.Main;
+        var window = Open(main);
+        main.License.IsOpen = false;
+        main.OpenSettingsCommand.Execute("General");
+        await UiHarness.SettleAsync(100);
+        Assert.True(main.IsSettingsOpen);
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        await UiHarness.SettleAsync(100);
+        Assert.False(main.IsSettingsOpen);
         window.Close();
     }
 
