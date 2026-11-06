@@ -14,6 +14,14 @@ Run suites one at a time (`dotnet test tests/<project>`); `scripts/build.sh` run
 
 Explicit tests (run on request with `-- xUnit.Explicit=only`, and `DHS_CUSTOMER_UI=1` to show the application exactly as shipped, without a licensing server): `ProductScreenshots` renders `docs/images` for the README and brochure; `TrainingCapture` captures the training-video frames (see [marketing/training](marketing/training/README.md)).
 
+## Windows
+`.github/workflows/windows-tests.yml` runs on real Windows machines (GitHub Actions). It catches what Linux cannot, such as Windows refusing to delete an open file.
+
+- **`suites`** runs on every push: every test suite and the scientific validation. It fails on any failed or skipped test.
+- **`customer`** runs on `ci/*` branches. `tests/windows/customer-acceptance.ps1` does what a customer does: it downloads the published package, checks it, installs it and operates the application with real mouse and keyboard input. That covers activation, typing, the Windows file dialogs, import, picking, reports, Excel export, saving, crash recovery, restart and uninstall.
+
+The customer job needs an activation key for its machine, which exists only for that run. It publishes the machine's code to the branch `ci-results/<run id>-customer` as `computer-code.txt`, then waits up to 25 minutes for `key.dhslic` on the branch `ci-key/<run id>`. Issue the key from a short-lived licence in the admin portal. The branch `ci/final` downloads from `main`, which proves the public links; other `ci/*` branches test their own copy of the files. Delete the `ci-*` branches afterwards.
+
 ## Browser test environment
 `testenv/start.sh` runs the real Linux build of the application, the licence server, the admin portal, a mailbox and a file browser in Docker, all usable from a web browser. Unlike the headless tests, it renders on a real render thread. See [testenv/README.md](testenv/README.md).
 

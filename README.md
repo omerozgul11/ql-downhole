@@ -14,6 +14,8 @@ From raw SEG-2 records to reviewed P and S picks, a validated velocity model, Vs
 
 <p align="center">Windows 10 (21H2 or later) or Windows 11, 64-bit · offline activation, no internet needed · no administrator rights needed</p>
 
+<p align="center"><a href="https://github.com/omerozgul11/ql-downhole/actions/workflows/windows-tests.yml"><img src="https://github.com/omerozgul11/ql-downhole/actions/workflows/windows-tests.yml/badge.svg?branch=main" alt="Windows tests"></a></p>
+
 ## Client package: everything in one download
 
 Version 1.0.0, package updated November 6, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.

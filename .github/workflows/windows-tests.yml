@@ -63,8 +63,18 @@ jobs:
           $code = $LASTEXITCODE
           Get-Content artifacts/suite-results/validation.txt
           exit $code
-      - name: Publish results
+      - name: Time a report without the application window
         if: always()
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          New-Item -ItemType Directory -Force artifacts/suite-results | Out-Null
+          foreach ($n in 1..3) {
+            $t = Measure-Command { cmd /c "dotnet run --project tools/DownholeStudio.Cli -c Release --no-build -- report `"packaging/samples/Downhole Studio Sample.dhsx`" --out artifacts\\timed-report.pdf > nul 2>&1" }
+            "Report $n without window: $([math]::Round($t.TotalSeconds, 1)) s" | Tee-Object -Append -FilePath artifacts/suite-results/report-timing.txt
+          }
+      - name: Publish results
+        if: always() && startsWith(github.ref, 'refs/heads/ci/')
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
