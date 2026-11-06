@@ -16,7 +16,7 @@ From raw SEG-2 records to reviewed P and S picks, a validated velocity model, Vs
 
 ## Client package: everything in one download
 
-Version 1.0.0, package updated October 30, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.
+Version 1.0.0, package updated November 6, 2026. The zip holds every download on this page. Extract it and open `START HERE.txt` first.
 
 | Folder in the zip | Contents |
 |---|---|

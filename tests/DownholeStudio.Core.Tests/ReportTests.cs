@@ -3,11 +3,31 @@ using DownholeStudio.Domain;
 using DownholeStudio.Reporting;
 using DownholeStudio.Reporting.Pdf;
 using DownholeStudio.Synthetics;
+using DownholeStudio.Visualization;
 
 namespace DownholeStudio.Core.Tests;
 
 public sealed class ReportTests
 {
+    [Theory]
+    [InlineData("Short footer")]
+    [InlineData("Sample report generated from synthetic data for demonstration purposes.")]
+    [InlineData("A very long company footer that could never fit on one line of the page however small the type is, because it goes on and on and on and on and on and on and on and on and on and on")]
+    public void FooterPartsNeverOverlap(string text)
+    {
+        const float width = 504, gap = 12;
+        const string center = "Rev. 0 · 2026-11-06", page = "Page 12 of 17";
+        using var font = PlotFonts.Font(7.5f);
+        var (left, centerX) = PdfLayout.FitFooter(text, center, page, font, width, gap);
+        Assert.True(font.MeasureText(left) + gap <= centerX + 0.01f, $"left part reaches {font.MeasureText(left)}, middle starts at {centerX}");
+        Assert.True(centerX + font.MeasureText(center) + gap <= width - font.MeasureText(page) + 0.01f);
+        if (font.MeasureText(text) + gap <= (width - font.MeasureText(center)) / 2)
+        {
+            Assert.Equal(text, left);
+            Assert.Equal((width - font.MeasureText(center)) / 2, centerX, 0.01f);
+        }
+    }
+
     [Fact]
     public async Task GeneratesPdfXlsxAndCsv()
     {

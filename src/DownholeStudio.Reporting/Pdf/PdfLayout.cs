@@ -112,10 +112,11 @@ public sealed class PdfLayout
         _y += h;
     }
 
-    public void Heading(string text, int level = 1)
+    /// <param name="keepWith">Height of the content that must stay on the same page as the heading, such as its figure.</param>
+    public void Heading(string text, int level = 1, float keepWith = 0)
     {
         var size = level == 1 ? 17f : level == 2 ? 12.5f : 10.5f;
-        Ensure(size * 3.2f);
+        Ensure(size * 3.2f + keepWith);
         if (level == 1 && _y > _style.Margin + 40)
         {
             _y += 10;
@@ -348,9 +349,35 @@ public sealed class PdfLayout
         var y = _style.Size.Height - _style.Margin + 14;
         using var rule = Draw.Stroke(_style.Rule, 0.6f);
         Canvas.DrawLine(Left, y - 12, Left + ContentWidth, y - 12, rule);
-        Draw.Text(Canvas, _chrome.FooterLeft, Left, y, f, _style.Muted);
-        Draw.Text(Canvas, _chrome.FooterCenter, Left + ContentWidth / 2, y, f, _style.Muted, SKTextAlign.Center);
-        Draw.Text(Canvas, _totalPages > 0 ? $"Page {PageCount} of {_totalPages}" : $"Page {PageCount}", Left + ContentWidth, y, f, _style.Muted, SKTextAlign.Right);
+        var page = _totalPages > 0 ? $"Page {PageCount} of {_totalPages}" : $"Page {PageCount}";
+        var (left, centerX) = FitFooter(_chrome.FooterLeft, _chrome.FooterCenter, page, f, ContentWidth);
+        Draw.Text(Canvas, left, Left, y, f, _style.Muted);
+        Draw.Text(Canvas, _chrome.FooterCenter, Left + centerX, y, f, _style.Muted);
+        Draw.Text(Canvas, page, Left + ContentWidth, y, f, _style.Muted, SKTextAlign.Right);
+    }
+
+    /// <summary>
+    /// Lays out the footer so its three parts never overlap. The middle part is centred when there is room and otherwise
+    /// moves right, next to the page number; a left part that still does not fit is shortened with an ellipsis.
+    /// Returns the left text and the start of the middle text, both relative to the left margin.
+    /// </summary>
+    public static (string Left, float CenterX) FitFooter(string left, string center, string page, SKFont font, float width, float gap = 12f)
+    {
+        var centerWidth = font.MeasureText(center);
+        var rightmost = width - font.MeasureText(page) - gap - centerWidth;
+        var available = rightmost - gap;
+        if (font.MeasureText(left) > available)
+        {
+            while (left.Length > 0 && font.MeasureText(left + "…") > available)
+            {
+                left = left[..^1];
+            }
+
+            left = left.TrimEnd() + "…";
+        }
+
+        var centered = (width - centerWidth) / 2;
+        return (left, Math.Max(centered, Math.Min(font.MeasureText(left) + gap, rightmost)));
     }
 
     public static List<string> Wrap(string text, SKFont font, float width)

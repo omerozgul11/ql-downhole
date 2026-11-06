@@ -433,16 +433,16 @@ public sealed class ReportGenerator
 
     private static void WaveSection(PdfLayout pdf, ReportContext ctx, WaveType wave, PlotTheme theme)
     {
-        pdf.Heading(wave == WaveType.P ? "9  P-wave analysis" : "10  S-wave analysis");
+        var section = ctx.Traces is { } traces && ctx.Project.Survey.Stations.Count > 0 ? SectionFactory.Build(ctx.Project, ctx.Result, traces, wave, theme, ctx.Units) : null;
+        var h = section is null ? 0f : Math.Clamp(section.Traces.Count * 14f, 220f, 560f);
+        pdf.Heading(wave == WaveType.P ? "9  P-wave analysis" : "10  S-wave analysis", keepWith: section is null ? 0 : h + 60);
         var w = ctx.Result.For(wave);
         pdf.Paragraph(wave == WaveType.P
             ? $"{w.Observations.Count(o => o.Included)} of {w.Observations.Count} depths have a usable P arrival. Picks are shown on the processed vertical component; dashed marks are automatic picks not individually reviewed, solid marks are manual or reviewed picks."
             : $"{w.Observations.Count(o => o.Included)} of {w.Observations.Count} depths have a usable S arrival. Traces are the {(ctx.Project.ActiveScenario.SWave.PickTrace == SPickTrace.Difference ? "half-difference of opposite shots" : "selected shot")}.");
-        if (ctx.Traces is { } traces && ctx.Project.Survey.Stations.Count > 0)
+        if (section is not null)
         {
-            var section = SectionFactory.Build(ctx.Project, ctx.Result, traces, wave, theme, ctx.Units);
             section.SpaceByPosition = true;
-            var h = Math.Clamp(section.Traces.Count * 14f, 220f, 560f);
             pdf.Figure((c, r) => WaveformRenderer.Render(c, r, section, theme, 0.75f), h,
                 $"Figure. {(wave == WaveType.P ? "Vertical-component" : "Horizontal S")} traces by depth with {(wave == WaveType.P ? "P" : "S")} picks. Status glyphs: ✓ acceptable, ! review, × likely problem.");
         }
@@ -460,7 +460,7 @@ public sealed class ReportGenerator
 
     private static void TravelTimes(PdfLayout pdf, ReportContext ctx, PlotTheme theme)
     {
-        pdf.Heading("11  Travel-time curves");
+        pdf.Heading("11  Travel-time curves", keepWith: 380 + 26);
         var tt = ChartFactory.TravelTime(ctx.Result, ctx.Units, theme, qc: ctx.Result.Qc);
         var res = ChartFactory.Residuals(ctx.Result, ctx.Units, theme);
         tt.Title = res.Title = null;
@@ -470,7 +470,7 @@ public sealed class ReportGenerator
 
     private static void Profiles(PdfLayout pdf, ReportContext ctx, PlotTheme theme)
     {
-        pdf.Heading("12  Velocity profiles");
+        pdf.Heading("12  Velocity profiles", keepWith: 400 + 26);
         var layer = ChartFactory.VelocityProfile(ctx.Result, ctx.Units, theme, ProfileKind.Layer);
         var interval = ChartFactory.VelocityProfile(ctx.Result, ctx.Units, theme, ProfileKind.Interval, labels: false);
         layer.Title = "Layer velocities";

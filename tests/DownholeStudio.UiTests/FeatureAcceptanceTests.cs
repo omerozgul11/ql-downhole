@@ -471,6 +471,20 @@ public sealed class LicensingFeatureTests
         var main = UiHarness.Main;
         var window = await Fx.StartAsync(main);
 
+        // This test starts with a licence activated online, whatever an earlier test left behind.
+        if (main.License.IsOfflineActivation)
+        {
+            main.Ui.DialogOverride = d => d.Buttons.Any(b => b.Text == "Deactivate") ? "Deactivate" : Fx.Answer(d);
+            await main.License.DeactivateCommand.ExecuteAsync(null);
+            await UiHarness.SettleAsync(100);
+            main.Ui.DialogOverride = Fx.Answer;
+            main.License.Email = FakeLicenseServer.Email;
+            main.License.LicenseKey = FakeLicenseServer.ValidKey;
+            await main.License.ActivateCommand.ExecuteAsync(null);
+            await UiHarness.SettleAsync(100);
+        }
+
+        Assert.False(main.License.IsOfflineActivation);
         await main.License.RefreshOnlineCommand.ExecuteAsync(null);
         Assert.True(main.LicenseManager.Status.CanEdit);
         Assert.NotNull(main.LicenseManager.Status.LastVerifiedAt);

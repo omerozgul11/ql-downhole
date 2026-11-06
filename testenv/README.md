@@ -23,7 +23,9 @@ testenv/stop.sh --reset         # stop and delete all test data: licences, proje
 | 50013 | Files | Download reports and exports (`Downhole Studio`). The five example SEG-2 surveys are in `Test data`, each with `TRUE-MODEL.txt`. Upload your own records to `Uploads`. |
 | 50014 | Test mailbox | Licence and activation-key e-mails are delivered here; nothing leaves the machine. |
 
-Inside the application, the file dialogs show `Test data`, `Uploads` and `Downhole Studio` in the home folder.
+Inside the application, the file dialogs have `Test data`, `Uploads` and `Downhole Studio` shortcuts on the left. Reports and projects saved in `Downhole Studio` can be downloaded from the Files page.
+
+If the virtual display, VNC or the web bridge stops, the application container restarts by itself within seconds. The application log (`app-console.log`) is capped at 10 MB.
 
 ## How it is built
 
