@@ -44,6 +44,29 @@ public sealed class ProjectAssetStore
         }
     }
 
+    /// <summary>Closes the open file so Windows no longer locks it. A later read opens it again.</summary>
+    public void ReleaseFile()
+    {
+        lock (_packageLock)
+        {
+            _zip?.Dispose();
+            _zip = null;
+        }
+    }
+
+    /// <summary>Reads everything into memory and closes the backing package, so that the file can be deleted.</summary>
+    public void LoadIntoMemory()
+    {
+        string[] names;
+        lock (_packageLock)
+        {
+            names = [.. _packageEntries];
+        }
+
+        Materialise(names);
+        DetachPackage();
+    }
+
     public string? PackagePath
     {
         get
@@ -156,7 +179,7 @@ public sealed class ProjectAssetStore
                 return null;
             }
 
-            _zip ??= new ZipArchive(new FileStream(_packagePath, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
+            _zip ??= new ZipArchive(new FileStream(_packagePath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete), ZipArchiveMode.Read);
             var entry = _zip.GetEntry(name);
             if (entry is null)
             {

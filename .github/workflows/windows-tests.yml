@@ -84,4 +84,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
           REPO: ${{ github.repository }}
+          # ci/final proves the public download on main; other branches test their own copy of the files.
+          PACKAGE_REF: ${{ github.ref_name == 'ci/final' && 'main' || github.ref_name }}
         run: tests/windows/customer-acceptance.ps1

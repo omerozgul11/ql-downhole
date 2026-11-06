@@ -442,5 +442,6 @@ public sealed partial class WorkspaceViewModel : ObservableObject, IDisposable
     {
         _refreshTimer.Stop();
         Session.StateChanged -= OnSessionStateChanged;
+        Session.Document.Assets.ReleaseFile();
     }
 }

@@ -156,6 +156,44 @@ public sealed class SessionTests
     }
 
     [Fact]
+    public async Task ARecoveredProjectKeepsItsDataAfterTheRecoveryCopyIsDeleted()
+    {
+        var (session, _, _, _) = await Pipeline.BuildAsync(SyntheticOptions.For(SyntheticDataset.Clean) with { DepthCount = 4 });
+        var dir = Path.Combine(Path.GetTempPath(), "dhs-recover-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "recovery.dhsx");
+        session.Save(path);
+        var recovered = ProjectPackage.Load(path);
+        recovered.Assets.LoadIntoMemory();
+        File.Delete(path);
+        Assert.False(File.Exists(path));
+        var kept = Path.Combine(dir, "kept.dhsx");
+        ProjectPackage.Save(recovered, kept, "1.0.0-test", Pipeline.T0);
+        Assert.Equal(session.State.Metadata.Name, ProjectPackage.Load(kept).State.Metadata.Name);
+    }
+
+    [Fact]
+    public async Task AnOpenProjectFileCanBeDeletedAfterItsFileIsReleased()
+    {
+        var (session, _, _, _) = await Pipeline.BuildAsync(SyntheticOptions.For(SyntheticDataset.Clean) with { DepthCount = 4 });
+        var dir = Path.Combine(Path.GetTempPath(), "dhs-release-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "project.dhsx");
+        session.Save(path);
+        var opened = ProjectPackage.Load(path);
+        string[] traces;
+        using (var zip = System.IO.Compression.ZipFile.OpenRead(path))
+        {
+            traces = [.. zip.Entries.Where(e => e.FullName.StartsWith("traces/", StringComparison.Ordinal)).Take(1).Select(e => e.FullName)];
+        }
+
+        opened.Assets.Materialise(traces); // opens the file for reading
+        opened.Assets.ReleaseFile();
+        File.Delete(path);
+        Assert.False(File.Exists(path));
+    }
+
+    [Fact]
     public void RecoveryCopiesOfDeadSessionsAreOffered()
     {
         var dir = Path.Combine(Path.GetTempPath(), "dhs-recovery", Guid.NewGuid().ToString("N"));

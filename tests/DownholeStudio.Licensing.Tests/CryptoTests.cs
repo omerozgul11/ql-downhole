@@ -203,6 +203,25 @@ public sealed class StoreTests
     }
 
     [Fact]
+    public void WindowsLicenceFileFromAnEarlierVersionStillLoads()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var path = TempPath();
+        var json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new StoredLicense { Token = "from-1.0.0" });
+        var entropy = System.Text.Encoding.UTF8.GetBytes("QuakeLogic.DownholeStudio.License.v1");
+        File.WriteAllBytes(path, [1, .. System.Security.Cryptography.ProtectedData.Protect(json, entropy, System.Security.Cryptography.DataProtectionScope.CurrentUser)]);
+        var store = new FileLicenseStore(path, new string('a', 64));
+        Assert.Equal("from-1.0.0", store.Load().Token);
+        store.Save(store.Load());
+        Assert.Equal(3, File.ReadAllBytes(path)[0]);
+        Assert.Equal("from-1.0.0", store.Load().Token);
+    }
+
+    [Fact]
     public void FileFromAnotherComputerOrDamagedIsIgnored()
     {
         var path = TempPath();

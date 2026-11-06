@@ -88,14 +88,17 @@ public sealed class UpdateService(LicenseApiClient api, HttpClient http, AppPath
             }
         }
 
+        bool genuine;
         await using (var check = File.OpenRead(temp))
         {
             var hash = Convert.ToHexStringLower(await SHA256.HashDataAsync(check, ct).ConfigureAwait(false));
-            if (!string.Equals(hash, manifest.Sha256, StringComparison.OrdinalIgnoreCase) || (manifest.Size > 0 && check.Length != manifest.Size))
-            {
-                File.Delete(temp);
-                throw new InvalidOperationException("The downloaded update does not match its signed checksum and was deleted. Nothing was installed.");
-            }
+            genuine = string.Equals(hash, manifest.Sha256, StringComparison.OrdinalIgnoreCase) && (manifest.Size <= 0 || check.Length == manifest.Size);
+        }
+
+        if (!genuine)
+        {
+            File.Delete(temp); // after the file is closed: Windows cannot delete an open file
+            throw new InvalidOperationException("The downloaded update does not match its signed checksum and was deleted. Nothing was installed.");
         }
 
         File.Move(temp, target, overwrite: true);

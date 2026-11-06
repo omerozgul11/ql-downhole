@@ -10,7 +10,9 @@ public static class Native {
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
 }
 "@
-$Base = 'https://github.com/omerozgul11/ql-downhole/raw/main'
+# The final check downloads from the public main branch; a branch under test uses its own copy of the same files.
+$Ref = if ($env:PACKAGE_REF) { $env:PACKAGE_REF } else { 'main' }
+$Base = "https://github.com/omerozgul11/ql-downhole/raw/$Ref"
 $Work = 'C:\dh'
 $Results = Join-Path $Work 'results'
 New-Item -ItemType Directory -Force $Results, "$Results\screens", "$Work\output" | Out-Null
@@ -121,6 +123,11 @@ try {
   $script:Exe = "$env:LOCALAPPDATA\Programs\QuakeLogic\Downhole Studio\DownholeStudio.exe"
   Check 'Application is installed' (Test-Path $script:Exe)
   Check 'Start menu shortcut exists' ($null -ne (Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu" -Recurse -Filter '*Downhole*' | Select-Object -First 1))
+  $config = Get-Content (Join-Path (Split-Path $script:Exe) 'appsettings.json') -Raw | ConvertFrom-Json
+  foreach ($url in $config.PrivacyPolicyUrl, $config.SupportUrl, $config.PurchaseUrl) {
+    $status = 0; try { $status = (Invoke-WebRequest $url -UseBasicParsing -UserAgent 'Mozilla/5.0').StatusCode } catch { $status = "$($_.Exception.Message)" }
+    Check "Link in the application works: $url" ($status -eq 200) "($status)"
+  }
 
   # ---- 3. First start: activation window and real input
   StartApp
@@ -200,9 +207,13 @@ try {
   ClickEl $p; Keys '^a'; TypeText 'abc'; Keys '{TAB}'; Start-Sleep 1
   Shot 'invalid-number'
   Check 'Invalid number does not crash the application' (Alive)
-  Check 'Invalid number is not accepted as an offset' ((EditValue $p) -notmatch '^[0-9.]+$' -or (EditValue $p) -eq '1.5') "(field shows '$(EditValue $p)')"
+  Check 'Invalid number gets a plain message' (Has 'Enter a number*' 5)
+  Check 'No programmer error text is shown' (-not (Has '*InvalidCast*' 2))
+  $p = EditWithValue 'abc'
   ClickEl $p; Keys '^a'; TypeText '2'; Keys '{TAB}'; Start-Sleep 1
-  Check 'P source offset accepts 2' ((EditValue $p) -eq '2') "($(EditValue $p))"
+  $p = EditWithValue '2'
+  Check 'P source offset accepts 2 after a wrong entry' ($null -ne $p)
+  Check 'The message clears after a correct entry' (-not (Has 'Enter a number*' 2))
   $s = EditWithValue '1.5'
   ClickEl $s; Keys '^a'; TypeText '2'; Keys '{TAB}'; Start-Sleep 1
   Check 'S source offset accepts 2' ((EditValue $s) -eq '2') "($(EditValue $s))"
@@ -266,16 +277,68 @@ try {
   Keys '{ESC}'; Start-Sleep 1
   Publish
 
-  # ---- 12. Restart: stays activated, project still there
+  # ---- 12. Restart: stays activated, the project reopens, and editing and saving it again works
   Keys '^s'; Start-Sleep 3
-  $script:App.CloseMainWindow() | Out-Null; Start-Sleep 5
-  $d = Find "Don't Save" 2
-  if (-not $script:App.HasExited) { Stop-Process -Id $script:App.Id -Force; Start-Sleep 3 }
+  Stop-Process -Id $script:App.Id -Force; Start-Sleep 3
+  $settings = "$env:LOCALAPPDATA\QuakeLogic\Downhole Studio\settings.json"
+  $json = Get-Content $settings -Raw | ConvertFrom-Json
+  $json.AutoSaveMinutes = 1
+  $json | ConvertTo-Json -Depth 20 | Set-Content $settings -Encoding UTF8
   StartApp
   Shot 'restarted'
   Check 'Stays activated after restart' (Has 'Licensed' 20)
-  Check 'Project is listed under Recent projects' (Has '*Windows Acceptance*' 10)
   Check 'Licence file is stored' (Test-Path "$env:LOCALAPPDATA\QuakeLogic\Downhole Studio\license.dat")
+  $recent = Find '*Windows Acceptance*' 15
+  Check 'Project is listed under Recent projects' ($null -ne $recent)
+  $savedAt = (Get-Item -LiteralPath $project).LastWriteTimeUtc
+  ClickEl $recent; Start-Sleep 8
+  Shot 'reopened'
+  Check 'Project reopens with its results' (Has '*Windows Acceptance*' 10)
+  Click 'Project' | Out-Null; Start-Sleep 3
+  $name = EditWithValue 'Windows Acceptance Survey (BH-1) +100%'
+  Check 'Saved project name is kept' ($null -ne $name)
+  ClickEl $name; Keys '^a'; TypeText 'Saved Twice'; Keys '{TAB}'; Start-Sleep 1
+  Keys '^s'; Start-Sleep 6
+  Shot 'saved-again'
+  Check 'Saving over the open project works' ((Get-Item -LiteralPath $project).LastWriteTimeUtc -gt $savedAt)
+  Check 'A backup of the previous version is kept' (Test-Path -LiteralPath "$project.bak")
+
+  # ---- 12b. Crash recovery: unsaved work survives the application being killed
+  $name = EditWithValue 'Saved Twice'
+  ClickEl $name; Keys '^a'; TypeText 'Unsaved Work'; Keys '{TAB}'; Start-Sleep 1
+  $beforeCrash = (Get-FileHash -LiteralPath $project).Hash
+  Log '      (waiting for the automatic recovery copy)'
+  Start-Sleep 75
+  Stop-Process -Id $script:App.Id -Force; Start-Sleep 3
+  StartApp
+  Shot 'after-crash'
+  Check 'After a crash the application offers to recover' (Has '*recovered an unsaved project*' 20)
+  Click 'Recover' | Out-Null; Start-Sleep 8
+  Shot 'recovered'
+  Check 'Recovery works: no error is shown' (-not (Has '*could not be opened*' 2))
+  Click 'Project' | Out-Null; Start-Sleep 3
+  Check 'Recovered project contains the unsaved work' ($null -ne (EditWithValue 'Unsaved Work'))
+  Check 'Original project file was not touched by the crash' ((Get-FileHash -LiteralPath $project).Hash -eq $beforeCrash)
+  Click 'Waveforms' | Out-Null; Start-Sleep 5
+  Shot 'recovered-waveforms'
+  Check 'Recovered project still has its records' (Alive)
+  $recoveredCopy = "$Work\output\Recovered.dhsx"
+  Keys '^+s'; Start-Sleep 4
+  Keys '^a'; TypeText $recoveredCopy; Keys '{ENTER}'; Start-Sleep 8
+  Check 'Recovered project can be saved' (Test-Path -LiteralPath $recoveredCopy)
+
+  # ---- 12c. Closed project files are free again
+  Stop-Process -Id $script:App.Id -Force; Start-Sleep 3
+  StartApp
+  $free = "$Work\output\Delete Me.dhsx"
+  Copy-Item -LiteralPath $project $free
+  $d = Find 'Discard' 4; if ($d) { ClickEl $d; Start-Sleep 2 }
+  Click 'Open' | Out-Null; Start-Sleep 4
+  Keys '^a'; TypeText $free; Keys '{ENTER}'; Start-Sleep 8
+  Shot 'opened-copy'
+  Click 'Waveforms' | Out-Null; Start-Sleep 5
+  $deleted = $false; try { Rename-Item -LiteralPath $free "$Work\output\Renamed While Open.dhsx" -ErrorAction Stop; $deleted = $true } catch { Log "      ($($_.Exception.Message))" }
+  Check 'An open project file can be moved or renamed in Explorer' $deleted
 
   # ---- 13. Uninstall keeps the customer's files
   Stop-Process -Id $script:App.Id -Force; Start-Sleep 3

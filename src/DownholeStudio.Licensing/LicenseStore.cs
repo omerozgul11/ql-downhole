@@ -66,7 +66,7 @@ public sealed class FileLicenseStore(string path, string deviceHash) : ILicenseS
     {
         if (OperatingSystem.IsWindows())
         {
-            return [1, .. ProtectedData.Protect(plain, Entropy, DataProtectionScope.CurrentUser)];
+            return [3, .. ProtectedData.Protect(plain, DeviceEntropy(), DataProtectionScope.CurrentUser)];
         }
 
         var key = DeriveKey();
@@ -85,6 +85,12 @@ public sealed class FileLicenseStore(string path, string deviceHash) : ILicenseS
             throw new CryptographicException("Empty licence store.");
         }
 
+        if (data[0] == 3 && OperatingSystem.IsWindows())
+        {
+            return ProtectedData.Unprotect(data[1..], DeviceEntropy(), DataProtectionScope.CurrentUser);
+        }
+
+        // Written by earlier versions; replaced by format 3 at the next save, so an update keeps the activation.
         if (data[0] == 1 && OperatingSystem.IsWindows())
         {
             return ProtectedData.Unprotect(data[1..], Entropy, DataProtectionScope.CurrentUser);
@@ -103,6 +109,8 @@ public sealed class FileLicenseStore(string path, string deviceHash) : ILicenseS
 
         throw new CryptographicException("Unknown licence store format.");
     }
+
+    private byte[] DeviceEntropy() => [.. Entropy, .. Encoding.UTF8.GetBytes(deviceHash)];
 
     private byte[] DeriveKey() => SHA256.HashData(Encoding.UTF8.GetBytes("dhs-store-key|" + deviceHash));
 }

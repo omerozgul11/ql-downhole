@@ -354,6 +354,7 @@ public sealed partial class MainViewModel : ObservableObject
         try
         {
             var doc = ProjectPackage.Load(info.PackagePath);
+            doc.Assets.LoadIntoMemory(); // the recovery copy is deleted below
             var session = new ProjectSession(doc, null, Clock, Identity);
             session.Record("project.recover", $"Recovered unsaved changes from {info.SavedAt:u}" + (info.OriginalPath is null ? "" : $" (original file {info.OriginalPath})"));
             Workspace = CreateWorkspace(session);

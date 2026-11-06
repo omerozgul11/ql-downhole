@@ -1,6 +1,8 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using DownholeStudio.App.Services;
 using DownholeStudio.App.ViewModels;
@@ -16,7 +18,14 @@ public partial class App : Application
     /// <summary>The service container; tests may replace it before start-up.</summary>
     public static IServiceProvider? Services { get; set; }
 
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+        Styles.Add(new Style(x => x.OfType<TextBox>())
+        {
+            Setters = { new Setter(DataValidationErrors.ErrorConverterProperty, (Func<object?, object?>)InputErrors.Friendly) },
+        });
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {

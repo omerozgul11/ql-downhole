@@ -607,6 +607,15 @@ public sealed class LicensingFeatureTests
 /// <summary>Import, geometry and channel mapping.</summary>
 public sealed class ImportAndGeometryFeatureTests
 {
+    [Fact]
+    public void InputErrorsAreInPlainLanguage()
+    {
+        Assert.Equal(InputErrors.NotANumber, InputErrors.Friendly(new InvalidCastException("Could not convert 'abc' (System.String) to System.Nullable`1[System.Double].")));
+        Assert.Equal(InputErrors.NotANumber, InputErrors.Friendly(new FormatException("bad")));
+        Assert.Equal("Depth must be positive.", InputErrors.Friendly(new ArgumentException("Depth must be positive.")));
+        Assert.Equal("Depth must be positive.", InputErrors.Friendly("Depth must be positive."));
+    }
+
     [AvaloniaFact]
     public async Task ImportChecksFilesAndAppliesOnlyApprovedCorrections()
     {
