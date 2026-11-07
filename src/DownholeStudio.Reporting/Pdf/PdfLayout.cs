@@ -264,9 +264,11 @@ public sealed class PdfLayout
         Ensure(headerH + fontSize * 2.5f);
         Header();
         using var rule = Draw.Stroke(_style.Rule, 0.4f, antialias: false);
+        // A row must fit on a page: anything longer would be drawn off the paper.
+        var maxRowLines = Math.Max(1, (int)((Bottom - (_style.Margin + 26) - headerH - 5) / (fontSize * 1.3f)));
         for (var r = 0; r < table.Rows.Count; r++)
         {
-            var cells = cols.Select((c, i) => Wrap(table.Text(r, c, units), cf, widths[i] - 6)).ToList();
+            var cells = cols.Select((c, i) => LimitLines(Wrap(table.Text(r, c, units), cf, widths[i] - 6), maxRowLines)).ToList();
             var h = cells.Max(l => l.Count) * (fontSize * 1.3f) + 5;
             if (_y + h > Bottom)
             {
@@ -380,6 +382,38 @@ public sealed class PdfLayout
         return (left, Math.Max(centered, Math.Min(font.MeasureText(left) + gap, rightmost)));
     }
 
+    private static List<string> LimitLines(List<string> lines, int max)
+    {
+        if (lines.Count <= max)
+        {
+            return lines;
+        }
+
+        var kept = lines.Take(max).ToList();
+        kept[^1] += " …";
+        return kept;
+    }
+
+    /// <summary>How many leading characters fit the width (at least one). A binary search: very long words must stay fast.</summary>
+    private static int FittingLength(string text, SKFont font, float width)
+    {
+        int fits = 1, tooLong = text.Length;
+        while (tooLong - fits > 1)
+        {
+            var middle = (fits + tooLong) / 2;
+            if (font.MeasureText(text[..middle]) <= width)
+            {
+                fits = middle;
+            }
+            else
+            {
+                tooLong = middle;
+            }
+        }
+
+        return char.IsLowSurrogate(text[fits]) && fits > 1 ? fits - 1 : fits;
+    }
+
     public static List<string> Wrap(string text, SKFont font, float width)
     {
         var lines = new List<string>();
@@ -393,26 +427,24 @@ public sealed class PdfLayout
         foreach (var word in text.Split(' '))
         {
             var candidate = current.Length == 0 ? word : current + " " + word;
-            if (font.MeasureText(candidate) <= width || current.Length == 0)
+            if (font.MeasureText(candidate) <= width)
             {
                 current = candidate;
-                // Hard-break words that are wider than the column.
-                while (font.MeasureText(current) > width && current.Length > 1)
-                {
-                    var cut = current.Length - 1;
-                    while (cut > 1 && font.MeasureText(current[..cut]) > width)
-                    {
-                        cut--;
-                    }
-
-                    lines.Add(current[..cut]);
-                    current = current[cut..];
-                }
+                continue;
             }
-            else
+
+            if (current.Length > 0)
             {
                 lines.Add(current);
-                current = word;
+            }
+
+            // Hard-break words that are wider than the column.
+            current = word;
+            while (current.Length > 1 && font.MeasureText(current) > width)
+            {
+                var cut = FittingLength(current, font, width);
+                lines.Add(current[..cut]);
+                current = current[cut..];
             }
         }
 

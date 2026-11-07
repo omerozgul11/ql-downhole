@@ -351,7 +351,7 @@ try {
     $finished = WaitForPdf $again
     $seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
     $cpu = [math]::Round((Get-Process -Id $script:App.Id).CPU - $cpuBefore, 1)
-    Check "Report $n of 5 finishes" $finished "(in $seconds s, $cpu s of processor time)"
+    Check "Report $n of 5 finishes within 30 s" ($finished -and $seconds -lt 30) "(in $seconds s, $cpu s of processor time)"
     $until = (Get-Date).AddMinutes(1)
     while ((Get-Date) -lt $until -and (Has 'Generating report*' 1)) { Start-Sleep 1 }
     Publish

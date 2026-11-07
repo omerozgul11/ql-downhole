@@ -153,17 +153,22 @@ public static class ReportTables
         return t;
     }
 
-    public static ResultTable History(IEnumerable<HistoryEntry> history)
+    /// <param name="history">The project history.</param>
+    /// <param name="maxValueLength">Shortens longer parameter values for print, such as the checksums of every imported file. Exports keep them whole.</param>
+    public static ResultTable History(IEnumerable<HistoryEntry> history, int? maxValueLength = null)
     {
         var t = new ResultTable("Processing history", [new("Time", Numeric: false), new("User", Numeric: false), new("Version", Numeric: false), new("Scenario", Numeric: false),
             new("Operation", Numeric: false), new("Description", Numeric: false), new("Parameters", Numeric: false)]);
         foreach (var h in history)
         {
-            t.Add(h.Timestamp, h.User, h.AppVersion, h.Scenario, h.Operation, h.Description, string.Join(", ", h.Parameters.Select(kv => $"{kv.Key}={kv.Value}")));
+            t.Add(h.Timestamp, h.User, h.AppVersion, h.Scenario, h.Operation, h.Description, string.Join(", ", h.Parameters.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => $"{kv.Key}={Shorten(kv.Value, maxValueLength)}")));
         }
 
         return t;
     }
+
+    private static string Shorten(string value, int? max) =>
+        max is { } m && value.Length > m ? $"{value[..m]}… ({value.Length} characters; complete in the project history and in Excel)" : value;
 
     public static ResultTable Vs(AnalysisResult r)
     {

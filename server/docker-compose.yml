@@ -80,6 +80,23 @@ services:
     # Internal tool: bind to localhost only; publish through a VPN or an authenticated reverse proxy.
     ports:
       - "127.0.0.1:${ADMIN_PORTAL_PORT:-8081}:8080"
+    # Must be able to read the signing key file (see the top of this file). Set in .env when the keys belong to another user.
+    user: "${DHS_CONTAINER_USER:-1654}"
+
+  # Optional: the admin portal over HTTPS on the office network, with a certificate from Caddy's own authority
+  # (browsers warn once). docker compose --profile lan up -d. Do not forward this port from the internet.
+  admin-proxy:
+    image: caddy:2-alpine
+    profiles: ["lan"]
+    restart: unless-stopped
+    depends_on: [admin-portal]
+    environment:
+      ADMIN_LAN_ADDRESS: ${ADMIN_LAN_ADDRESS:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    ports:
+      - "${ADMIN_LAN_BIND:-127.0.0.1}:${ADMIN_LAN_PORT:-50030}:8443"
 
   mailpit:
     image: axllent/mailpit:latest
@@ -95,3 +112,4 @@ secrets:
 
 volumes:
   pgdata:
+  caddy-data:

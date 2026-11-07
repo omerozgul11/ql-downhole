@@ -1,0 +1,10 @@
+# Admin portal over HTTPS on the office network. Browsers send no server name when connecting to an IP address,
+# so default_sni tells Caddy which certificate to use.
+{
+	default_sni {$ADMIN_LAN_ADDRESS}
+}
+
+https://{$ADMIN_LAN_ADDRESS}:8443 {
+	tls internal
+	reverse_proxy admin-portal:8080
+}

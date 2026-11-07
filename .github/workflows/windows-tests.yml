@@ -63,16 +63,20 @@ jobs:
           $code = $LASTEXITCODE
           Get-Content artifacts/suite-results/validation.txt
           exit $code
-      - name: Time a report without the application window
+      # Dictionary order changes with every process, and a report once became slow only in some orders: use several processes.
+      - name: Reports are quick in every process
         if: always()
         shell: powershell
         run: |
           $ErrorActionPreference = 'Continue'
           New-Item -ItemType Directory -Force artifacts/suite-results | Out-Null
-          foreach ($n in 1..3) {
-            $t = Measure-Command { cmd /c "dotnet run --project tools/DownholeStudio.Cli -c Release --no-build -- report `"packaging/samples/Downhole Studio Sample.dhsx`" --out artifacts\\timed-report.pdf > nul 2>&1" }
-            "Report $n without window: $([math]::Round($t.TotalSeconds, 1)) s" | Tee-Object -Append -FilePath artifacts/suite-results/report-timing.txt
+          $slow = 0
+          foreach ($n in 1..12) {
+            $t = Measure-Command { cmd /c "dotnet tools/DownholeStudio.Cli/bin/Release/net10.0/dhs.dll report `"packaging/samples/Downhole Studio Sample.dhsx`" --out artifacts\\timed-report.pdf > nul 2>&1" }
+            "Report $n`: $([math]::Round($t.TotalSeconds, 1)) s" | Tee-Object -Append -FilePath artifacts/suite-results/report-timing.txt
+            if ($t.TotalSeconds -gt 30) { $slow++ }
           }
+          exit $slow
       - name: Publish results
         if: always() && startsWith(github.ref, 'refs/heads/ci/')
         shell: powershell

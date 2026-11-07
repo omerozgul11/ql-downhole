@@ -570,7 +570,7 @@ public sealed class ReportGenerator
     {
         pdf.NewPage();
         pdf.Heading("Appendix B — Processing history");
-        var table = ReportTables.History(ctx.History);
+        var table = ReportTables.History(ctx.History, maxValueLength: 120);
         pdf.Table(table, ctx.Units, [1.3f, 0.8f, 0.6f, 0.9f, 1.1f, 3f, 3f], fontSize: 6.4f);
     }
 }

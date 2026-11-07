@@ -10,6 +10,45 @@ namespace DownholeStudio.Core.Tests;
 public sealed class ReportTests
 {
     [Theory]
+    [InlineData("")]
+    [InlineData("first")]
+    [InlineData("a few short words first")]
+    public void AVeryLongWordIsBrokenQuicklyWhereverItFalls(string before)
+    {
+        // The checksums of every imported file are one 8000-character word. Wrapping it once took minutes, and only
+        // when it came first in the cell; after other text it was not broken at all and ran out of the column.
+        var word = string.Concat(Enumerable.Range(0, 800).Select(i => $"{i:d4}abcdef"));
+        var text = before.Length == 0 ? word : before + " " + word;
+        using var font = PlotFonts.Font(6.4f);
+        const float width = 150;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var lines = PdfLayout.Wrap(text, font, width);
+        clock.Stop();
+        Assert.True(clock.Elapsed.TotalSeconds < 5, $"took {clock.Elapsed.TotalSeconds:0.0} s");
+        Assert.All(lines, l => Assert.True(font.MeasureText(l) <= width + 0.01f, $"line is {font.MeasureText(l)} wide: {l}"));
+        Assert.Equal(text.Replace(" ", ""), string.Concat(lines).Replace(" ", ""));
+    }
+
+    [Fact]
+    public void PrintedHistoryShortensLongValuesAndExportsKeepThemWhole()
+    {
+        var hashes = new string('a', 7839);
+        var entry = new HistoryEntry
+        {
+            Timestamp = Pipeline.T0, Operation = "import", Description = "Imported 96 files", User = "tester", AppVersion = "1.0.0",
+            Parameters = System.Collections.Immutable.ImmutableDictionary<string, string>.Empty.Add("sha256", hashes).Add("files", "96"),
+        };
+        var units = DownholeStudio.Domain.Units.UnitPreferences.For(DownholeStudio.Domain.Units.UnitSystem.SI);
+        var printed = ReportTables.History([entry], maxValueLength: 120);
+        var cell = printed.Text(0, printed.Columns.Count - 1, units);
+        Assert.StartsWith("files=96, sha256=aaa", cell); // always in the same order
+        Assert.Contains("7839 characters", cell);
+        Assert.True(cell.Length < 250);
+        var full = ReportTables.History([entry]);
+        Assert.Contains(hashes, full.Text(0, full.Columns.Count - 1, units));
+    }
+
+    [Theory]
     [InlineData("Short footer")]
     [InlineData("Sample report generated from synthetic data for demonstration purposes.")]
     [InlineData("A very long company footer that could never fit on one line of the page however small the type is, because it goes on and on and on and on and on and on and on and on and on and on")]
